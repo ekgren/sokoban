@@ -26,7 +26,7 @@ public class Main {
 	public static void main(String[] args) throws IOException {
 
 		 final Client client = new Client();
-		 final Map map = client.getMapFromFile();
+		 final Board board = client.getBoardFromFile();
 		 
 		 Solver solver = new Solver(); //Reaches info incl. initial state from Map staticaly.
 

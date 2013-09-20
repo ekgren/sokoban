@@ -19,8 +19,8 @@ public class Solver {
 		/*
 		 *TODO
 		 *
-		 * in the Map-object is everything needed; constant parameters from the
-		 * Map object it self and the initial state which should be expanded;
+		 * in the Board-object is everything needed; constant parameters from the
+		 * Board object it self and the initial state which should be expanded;
 		 *  
 		 */
 	}
@@ -57,7 +57,7 @@ public class Solver {
 				if(!lSetPrPaths.contains(hashIndex)){
 					lSetPrPaths.add(hashIndex);
 			
-					if(!Map.isWall(lRowChild, lCol)){
+					if(!Board.isWall(lRowChild, lCol)){
 						
 						if(!state.isBox(lRowChild,lCol)){
 							lQueChilds.add(new Cell(lCellChild,lRowChild,lCol));
@@ -76,7 +76,7 @@ public class Solver {
 				if(!lSetPrPaths.contains(hashIndex1)){
 					lSetPrPaths.add(hashIndex1);	
 					
-					if(!Map.isWall(lRow, lColChild)){
+					if(!Board.isWall(lRow, lColChild)){
 						
 						if(!state.isBox(lRow,lColChild)){
 							lQueChilds.add(new Cell(lCellChild,lRow,lColChild));
@@ -114,7 +114,7 @@ public class Solver {
 	public String solutionPath(){
 	
 		Vector<State> successorStates= new Vector<State>();
-		Map.getInitialState().allSuccessors(successorStates); // the vector should now include all successor states...
+		Board.getInitialState().allSuccessors(successorStates); // the vector should now include all successor states...
 		
 		/*
 		 * TODO for sure...	

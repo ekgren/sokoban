@@ -122,9 +122,9 @@ public class State implements Cloneable {
         	if (Main.debugMode) System.out.println("StateError: TryMove: wrong direction input");
     	}
         
-    	return (!Map.isWall(lMoveToRow, lMoveToCol) &&
+    	return (!Board.isWall(lMoveToRow, lMoveToCol) &&
     			!this.isBox(lMoveToRow, lMoveToCol) &&
-    			!Map.isDeadLockT0(lMoveToRow, lMoveToCol) &&
+    			!Board.isDeadLockT0(lMoveToRow, lMoveToCol) &&
     			this.isConnected(playerRow, playerCol, lPlayerRow, lPlayerCol));
     }
     

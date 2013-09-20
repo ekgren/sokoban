@@ -30,9 +30,9 @@ public class Client {
 	 * @return Map
 	 * @throws IOException
 	 */
-	public Map getMapFromFile() throws IOException{
+	public Board getBoardFromFile() throws IOException{
 		
-		Vector<String> map = new Vector<String>();
+		Vector<String> board = new Vector<String>();
 
 		BufferedReader fileBr = new BufferedReader(
 				new FileReader("/Users/andershuss/Documents/JavaWS/BPT/Boards/00_sample.in"));
@@ -41,11 +41,11 @@ public class Client {
 
 		while(fileBr.ready()) {
 			line = fileBr.readLine();
-			map.add(line);
+			board.add(line);
 		} // End while
 		fileBr.close();
 		
-		return new Map(map);
+		return new Board(board);
 	}
 	
 	/**
@@ -55,9 +55,9 @@ public class Client {
 	 * @return Map
 	 * @throws IOException
 	 */
-	public Map getMapFromFile(String pFilePath) throws IOException{
+	public Board getBoardFromFile(String pFilePath) throws IOException{
 		
-		Vector<String> map = new Vector<String>();
+		Vector<String> board = new Vector<String>();
 
 		BufferedReader fileBr = new BufferedReader(
 				new FileReader(pFilePath));
@@ -66,16 +66,16 @@ public class Client {
 		
 		while(fileBr.ready()) {
 			line = fileBr.readLine();
-			map.add(line);
+			board.add(line);
 		} // End while
 		fileBr.close();
 		
-		return new Map(map);
+		return new Board(board);
 	}
 	
-	public Map getMapFromCollection(int pLevel) throws IOException{
+	public Board getBoardFromCollection(int pLevel) throws IOException{
 		
-		Vector<String> map = new Vector<String>();
+		Vector<String> board = new Vector<String>();
 
 		BufferedReader fileBr = new BufferedReader(
 				new FileReader("/pFilePath/")); //ALLA banor...
@@ -84,13 +84,13 @@ public class Client {
 		
 		while(fileBr.ready()) {
 			line = fileBr.readLine();
-			map.add(line);
+			board.add(line);
 		} // End while
 		fileBr.close();
 		
 		//Plocka ut just en level...
 		
 		
-		return new Map(map);
+		return new Board(board);
 	}
 }
