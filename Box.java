@@ -24,11 +24,34 @@ public class Box {
 		col = pCol;
 		isOnGoal = pIsOnGoal;
 	}
-	
-	public void move(){
-		
+
+    /**
+     * Moves the box in a specified direction
+     *
+     * up = row - 1
+     * down = row + 1
+     * right = column + 1
+     * left = column - 1
+     *
+     * @param pDir direction to move
+     */
+	public void move(char pDir){
+		switch (pDir) {
+            case 'U':
+                this.setRow(row - 1);
+                break;
+            case 'D':
+                this.setRow(row + 1);
+                break;
+            case 'R':
+                this.setCol(col + 1);
+                break;
+            case 'L':
+                this.setCol(col - 1);
+                break;
+        }
 	}
-	
+
 	public int getRow(){
 		return row;
 	}

@@ -30,8 +30,8 @@ public class Solver {
 	public String solutionPath(){
 	
 		Vector<State> successorStates= new Vector<State>();
-		map.allSuccessors(successorStates); // the vector should now include all successor states...
-		
+		map.getInitialState().allSuccessors(successorStates); // the vector should now include all successor states...
+
 		/*
 		 * TODO for sure...	
 		 */
