@@ -44,6 +44,8 @@ public class Map {
 	private static boolean[][] walls; //all "fixed" parts of map i.e. walls are true [row][col].
 	private static boolean[][] goals; //all goals are true [row][col].
 	private static Vector<Goal> goalsList = new Vector<Goal>(); //might sometimes or always be more efficient can have both...
+
+	private static boolean [][] deadLocksT0; //marks Type0 deadlocks = corners (independet of goals) [row][col].
 	private static boolean[][][] deadLocksT1; //marks Type1 deadlocks [goal][row][col].
 	private static int[][][] goalGrad; //Gradient to each goal considering only walls [goal][row][col].
 
@@ -138,6 +140,7 @@ public class Map {
 		initialState = new State(lBoxesList, lPlayerStartRow, lPlayerStartCol);
 		
 		//Set dimension
+		deadLocksT0 = new boolean[nbRows][nbCols];
 		deadLocksT1 = new boolean[nbBoxes][nbRows][nbCols];
 		goalGrad = new int[nbBoxes][nbRows][nbCols];
 		
@@ -172,7 +175,7 @@ public class Map {
 		 */
 	}
 	
-	public State getInitialState(){
+	public static State getInitialState(){
 		return initialState;
 	}
 
@@ -183,6 +186,10 @@ public class Map {
 	public static boolean isGoal(int pRow, int pCol){
 
 		return goals[pRow][pCol]; //this must be developed further to check for dead states etc.
+	}
+
+	public static boolean isDeadLockT0(int pRow, int pCol){
+		return deadLocksT0[pRow][pCol];
 	}
 
 	public static boolean isDeadLockT1(int pGoal, int pRow, int pCol){

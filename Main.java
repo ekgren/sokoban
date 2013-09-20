@@ -27,7 +27,8 @@ public class Main {
 
 		 final Client client = new Client();
 		 final Map map = client.getMapFromFile();
-		 Solver solver = new Solver(map);
+		 
+		 Solver solver = new Solver(); //Reaches info incl. initial state from Map staticaly.
 
 		 System.out.println(solver.solutionPath());
 		

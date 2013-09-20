@@ -67,6 +67,67 @@ public class State implements Cloneable {
     } // End constructor State
 
 
+    /**
+     * Does all necessary checks to see if a box is movable to the position.
+     * 
+     * Checks are:
+     * 1) no wall in that position
+     * 2) no box in that position
+     * 3) no dead lock type 0 in that position (i.e. a corner)
+     * 4) can player reach the opposite position.
+     *
+     * @return
+     */
+    public boolean tryMove(Box pBox, char pDir){
+    	
+        int lR = pBox.getRow();
+        int lC = pBox.getCol();
+
+        int lMoveToRow = 0;
+        int lMoveToCol = 0;
+        int lPlayerRow = 0;
+        int lPlayerCol = 0;
+        
+        boolean lCorrectInput=false;
+        
+        switch (pDir) {
+            case 'U':
+            	lMoveToRow = lR - 1;
+            	lMoveToCol = lC;
+            	lPlayerRow = lR + 1;
+            	lPlayerCol = lC;
+            	lCorrectInput = true;
+            case 'D':
+            	lMoveToRow = lR + 1;
+            	lMoveToCol = lC;
+            	lPlayerRow = lR - 1;
+            	lPlayerCol = lC;
+            	lCorrectInput = true;
+            case 'R':
+            	lMoveToRow = lR;
+            	lMoveToCol = lC + 1;
+            	lPlayerRow = lR;
+            	lPlayerCol = lC - 1;
+            	lCorrectInput = true;
+            case 'L':
+            	lMoveToRow = lR;
+            	lMoveToCol = lC - 1;
+            	lPlayerRow = lR;
+            	lPlayerCol = lC + 1;
+            	lCorrectInput = true;
+
+        }
+    	
+        if(!lCorrectInput){
+        	if (Main.debugMode) System.out.println("StateError: TryMove: wrong direction input");
+    	}
+        
+    	return (!Map.isWall(lMoveToRow, lMoveToCol) &&
+    			!this.isBox(lMoveToRow, lMoveToCol) &&
+    			!Map.isDeadLockT0(lMoveToRow, lMoveToCol) &&
+    			this.isConnected(playerRow, playerCol, lPlayerRow, lPlayerCol));
+    }
+    
 	public boolean isBox( int pRow, int pCol){
 		/*
 		 * TODO
@@ -155,22 +216,5 @@ public void allSuccessors(Vector<State> pStates) {
      *
      * @param pDir direction
      */
-    private boolean tryMove(Box pBox, char pDir) {
-        int lR = pBox.getRow();
-        int lC = pBox.getCol();
 
-        switch (pDir) {
-            case 'U':
-                return !Map.isWall(lR - 1, lC);
-            case 'D':
-                return !Map.isWall(lR + 1, lC);
-            case 'R':
-                return !Map.isWall(lR, lC + 1);
-            case 'L':
-                return !Map.isWall(lR, lC - 1);
-        }
-        // if wrong input
-        return false;
-
-    } // End TryMove
 } // End Class State
