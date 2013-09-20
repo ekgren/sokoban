@@ -116,7 +116,10 @@ public class Map {
 					goalsList.add(new Goal(row, col, false));
 				}
 				else{
-					System.out.println("MapError: Unknown character: " + stringRepr.get(row).charAt(col) + " found!" );
+					if(Main.debugMode){
+						System.out.println("MapError: Unknown character: " 
+					+ stringRepr.get(row).charAt(col) + " found!" );
+					}
 				}
 	        }
         }
@@ -127,7 +130,9 @@ public class Map {
 			nbBoxes = lBoxesList.size();
 		}
 		else{
-			System.out.println("MapError: There is not an equal amout of boxes and goals!");
+			if(Main.debugMode){
+				System.out.println("MapError: There is not an equal amout of boxes and goals!");
+			}
 		}
 		
 		initialState = new State(lBoxesList, lPlayerStartRow, lPlayerStartCol);
@@ -171,9 +176,8 @@ public class Map {
 		return initialState;
 	}
 
-	public static boolean isFree(int pRow, int pCol){
-
-		return !walls[pRow][pCol]; //this must be developed further to check for dead states etc.
+	public static boolean isWall(int pRow, int pCol){
+		return walls[pRow][pCol]; //this must be developed further to check for dead states etc.
 	}
 	
 	public static boolean isGoal(int pRow, int pCol){

@@ -12,6 +12,8 @@ public class Box {
 	private int row;
 	private int col;
 	private boolean isOnGoal;
+	private boolean isReachable;
+
 	
 	public Box(int pRow, int pCol){
 		row = pRow;
@@ -43,6 +45,10 @@ public class Box {
 	
 	private void setCol(int pCol){
 		col = pCol;
+	}
+	
+	public boolean isReachable(){
+		return isReachable;
 	}
 	
 }

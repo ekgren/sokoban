@@ -6,7 +6,6 @@
  * 
  * Contains or imports Sokoban maps from file server
  * 
- * 
  */
 
 import java.io.BufferedReader;
@@ -71,6 +70,27 @@ public class Client {
 			map.add(line);
 		} // End while
 		fileBr.close();
+		
+		return new Map(map);
+	}
+	
+	public Map getMapFromCollection(int pLevel) throws IOException{
+		
+		Vector<String> map = new Vector<String>();
+
+		BufferedReader fileBr = new BufferedReader(
+				new FileReader(pFilePath//ALLA banor));
+		
+		String line = null;
+		
+		while(fileBr.ready()) {
+			line = fileBr.readLine();
+			map.add(line);
+		} // End while
+		fileBr.close();
+		
+		//Plocka ut just en level...
+		
 		
 		return new Map(map);
 	}

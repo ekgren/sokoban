@@ -3,7 +3,7 @@
  * 
  * Verison 0.1
  * 
- * Represents a Cell, initially its row, col position.
+ * Represents a Cell, initially just its row, col position.
  * 
  */
 
