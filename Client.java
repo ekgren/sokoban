@@ -9,7 +9,6 @@
  */
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Vector;
@@ -79,7 +78,7 @@ public class Client {
 		Vector<String> map = new Vector<String>();
 
 		BufferedReader fileBr = new BufferedReader(
-				new FileReader(pFilePath//ALLA banor));
+				new FileReader("/pFilePath/")); //ALLA banor...
 		
 		String line = null;
 		
@@ -94,6 +93,4 @@ public class Client {
 		
 		return new Map(map);
 	}
-	
-	
 }

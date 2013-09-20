@@ -30,89 +30,43 @@ public class State implements Cloneable {
 		boxes = pBoxes;
 		playerRow = pPlayerRow;
 		playerCol= pPlayerCol;
-			
+		
+		/*
+		 * TODO move player to one box...
+		 */
+		
 		for(Box box : pBoxes){
 			if(isConnected(playerRow, playerCol, box.getRow(),box.getCol())){
-				if(isConnected(playerRow, playerCol, box.getRow(),box.getCol()))
+				if(isConnected(playerRow, playerCol, box.getRow(),box.getCol()));
 			}
 		}
 		
 	} // End constructor State
 
-	/**
-	 * Constructs a state which is the result of applying one move.
-	 * "final" in arguments to avoid applying changes to parrent state
-	 */
-	public State(final State pParentState, final BoxMove pMove) {
-		/*
-		 * TODO
-		 */
-		this.boxes = (Vector<Box>) pParentState.boxes.clone();
-		
-		
-	} // End constructor State
 
-	
-	/**
-	 * Operates on an (empty) Vector with States
-	 * and "fills" with all successor states
-	 * @param pStates
-	 */
-	void allSuccessors(Vector<State> pStates, int pBox) {
-	    /*
-	     * TODO
-	     * 
-	     * Idea taken from HW1
-	     * I guess that the reason for sending in an empty vector that this function
-	     * "operates" on is to avoid incorrect references...
-	     */
-		
-	    pStates.clear();
+    /**
+     * Constructs a state which is the result of applying one move.
+     * "final" in arguments to avoid applying changes to parent state
+     *
+     * @param pParentState
+     * @param pBoxIndex    index if the boxes vector
+     * @param pMoveDir     the direction to move the box
+     */
+    public State(final State pParentState, int pBoxIndex, char pMoveDir) {
+        // set boxes
+        this.boxes = (Vector<Box>) pParentState.boxes.clone();
+        System.out.println(pMoveDir);
 
-		//FILL IT WITH POSSIBLE MOVES...
-		for( Box box : boxes){
-			
-		}
-		
-	    // Convert moves to GameStates
-	    for (int i = 0; i < lMoves.size(); i++) {
-			try{
-				pStates.add(new State((State) this.clone(), lMoves.elementAt(i))); 
-				//is cloning here really needed?? since I clone the information in the constructor?
-			} catch (CloneNotSupportedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-	    } // End for
-	    
-	} // End allSuccesors
-	
-	/**
-	 * Tries to make a move from a certain position
-	 *
-	 * @param pMoves vector where the valid moves will be inserted
-	 * @param pBox the box that is tried to move
+        // set player position before moving the box
+        playerRow = this.boxes.get(pBoxIndex).getRow();
+        playerCol = this.boxes.get(pBoxIndex).getCol();
 
-	 */
-	void tryMove(Vector<BoxMove> pMoves, Box pBox) {
-		int lR = pBox.getRow();
-		int lC = pBox.getCol();
-		
-		if(Map.isFree(lR-1, lC)){
-			//pMoves.add(new BoxMove(MoveType.MOVE_UPMOVE_UP, 1));
-			
-		}
-		
-	}// End TryMove
-	
-	
-	/**
-	 * Checks if there is a box on this position (in this state)
-	 * 
-	 * @param pRow
-	 * @param pCol
-	 * @return
-	 */
+        // move the box
+        this.boxes.get(pBoxIndex).move(pMoveDir);
+
+    } // End constructor State
+
+
 	public boolean isBox( int pRow, int pCol){
 		/*
 		 * TODO
@@ -150,12 +104,73 @@ public class State implements Cloneable {
 	 * @param pCol2
 	 * @return
 	 */
-	private cell cellNeighbour(int pRow1, int pCol1,  int pRTarget , int pCTarget){
+	private Cell cellNeighbour(int pRow1, int pCol1,  int pRTarget , int pCTarget){
 		
 		//skrivs av Adam...
 		
 		return new Cell(0, 0);
 	}
 	
-	
+
+/**
+ * Operates on an (empty) Vector with States
+ * and "fills" with all successor states
+ *
+ * @param pStates
+ */
+public void allSuccessors(Vector<State> pStates) {
+    /*
+     * TODO
+     * 
+     * Idea taken from HW1
+     * I guess that the reason for sending in an empty vector that this function
+     * "operates" on is to avoid incorrect references...
+     * 
+   */
+
+        pStates.clear();
+
+        int boxIndex = 0;
+        for (Box box : boxes) {
+                /* If a move is possible, then add the new state in the pStates vector */
+            if (tryMove(box, 'U'))
+                pStates.add(new State(this, boxIndex, 'U'));
+            if (tryMove(box, 'D'))
+                pStates.add(new State(this, boxIndex, 'D'));
+            if (tryMove(box, 'R'))
+                pStates.add(new State(this, boxIndex, 'R'));
+            if (tryMove(box, 'L'))
+                pStates.add(new State(this, boxIndex, 'L'));
+            boxIndex++;
+        } // End for boxes
+    } // End allSuccessors
+
+    /**
+     * Tries to make a move from a certain position
+     * <p/>
+     * up = row - 1
+     * down = row + 1
+     * right = column + 1
+     * left = column - 1
+     *
+     * @param pDir direction
+     */
+    private boolean tryMove(Box pBox, char pDir) {
+        int lR = pBox.getRow();
+        int lC = pBox.getCol();
+
+        switch (pDir) {
+            case 'U':
+                return !Map.isWall(lR - 1, lC);
+            case 'D':
+                return !Map.isWall(lR + 1, lC);
+            case 'R':
+                return !Map.isWall(lR, lC + 1);
+            case 'L':
+                return !Map.isWall(lR, lC - 1);
+        }
+        // if wrong input
+        return false;
+
+    } // End TryMove
 } // End Class State

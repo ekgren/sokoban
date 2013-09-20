@@ -31,7 +31,7 @@ public class Solver {
 	
 		Vector<State> successorStates= new Vector<State>();
 		map.getInitialState().allSuccessors(successorStates); // the vector should now include all successor states...
-		
+
 		/*
 		 * TODO for sure...	
 		 */
