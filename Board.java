@@ -1,6 +1,6 @@
 
 /*
- * Map
+ * Board
  * 
  * Version 0.1
  * 
@@ -62,7 +62,6 @@ public class Board {
 
 		//Storing String representation
 		stringRepr = pStringRepr;
-		cleanMapStringRepr = pStringRepr; // could be implemented to print the "empty map"...
 
 		//Counting columns
 		int lMaxNbOfCol = 0;
@@ -146,12 +145,17 @@ public class Board {
 		deadLocksT1 = new boolean[nbBoxes][nbRows][nbCols];
 		goalGrad = new int[nbBoxes][nbRows][nbCols];
 
-		//Fix the cleanMapString:
-		for(String lCleanMapRow : cleanMapStringRepr){
-			lCleanMapRow.replace('$', ' '); //Box to nothing
-			lCleanMapRow.replace('*', '.'); //Box on goal to Goal
-			lCleanMapRow.replace('@', ' '); //Player to nothing
-			lCleanMapRow.replace('+', '.'); //Player on goal to Goal
+		
+		//Fix the cleanMapString:		
+		for(String lRow : stringRepr){
+			String lStringCopy = lRow;
+			
+			lStringCopy = lStringCopy.replace('$', ' '); //Box to nothing
+			lStringCopy = lStringCopy.replace('*', '.'); //Box on goal to Goal
+			lStringCopy = lStringCopy.replace('@', ' '); //Player to nothing
+			lStringCopy = lStringCopy.replace('+', '.'); //Player on goal to Goal
+			
+			cleanMapStringRepr.add(lStringCopy);
 		}
 		
 		//mark DealLocks and Gradient to respective Goal:
@@ -163,27 +167,14 @@ public class Board {
 	
 	private void markDeadlocksAndGrad(){
 
-		/* Gradient to goal is marked according to "BFS" see below
+		/* Gradient to goal and deadLock (-) is marked according to "BFS" see below.
+		 * deadlocks get -1 as value.
 		  	########
-			#765#1.####
-			#654321234#
-			####432####
-			   #54##
+			#---#-.####
+			#-5432123-#
+			####43-####
+			   #--##
 			   ####
-		 */
-
-		/* DeadLocks are marked accordning to each gaol respectively
-	  		########
-			#ddd#d.####
-			#d       d#
-			####  d####
-		   	   #dd##
-		       ####
-		 */
-
-		/*
-		 * Should find and mark all deadlock to each goal respectively and the gradient (distance to goal)
-		 * This can be done at the same time, there fore one function.
 		 */
 
 		int lGoalIndex = -1;
@@ -192,28 +183,27 @@ public class Board {
 			
 			for(int row=0; row<nbRows; row++){
 				for(int col=0; col<nbCols; col++){
-					goalGrad[lGoalIndex][goal.getRow()][goal.getCol()] = -1; //marks Deadlock type 1 for this Goal.
-
+					goalGrad[lGoalIndex][row][col] = -1; //marks Deadlock type 1 for this Goal.
 				}
 			}				
+			
 			goalGrad[lGoalIndex][goal.getRow()][goal.getCol()] = 0; //marks goals position
 			
 			boolean[][] lVisitedCell = new boolean[nbRows][nbCols]; //Keeps track of where we have been.
 
+			lVisitedCell[goal.getRow()][goal.getCol()] = true;
+			
 			//Create queue and add a first node.	
 			Queue<Cell> qe=new LinkedList<Cell>();
-			qe.add(new Cell(goal.getRow(), goal.getCol()));
-
-
-			int lMovesFromGoal = 0;
+			qe.add(new Cell(goal.getRow(), goal.getCol(),0)); //last index means "expansion level=0"
 
 			//Main search
 			while(!qe.isEmpty()){
-
-				lMovesFromGoal++; //update for each "expansion" of new cells 
-
+				
 				int curRow = qe.peek().getRow();
-				int curCol = qe.poll().getCol(); //also removes Cell!
+				int curCol = qe.peek().getCol(); //also removes Cell!
+				int lMovesFromGoal = qe.poll().getExpansionLevel() + 1; //also removes Cell!
+
 				
 				// Next cell to check if the box can come from...
 				int lBoxFromRow;
@@ -237,7 +227,8 @@ public class Board {
 					else if(!walls[lBoxFromRow][lBoxFromCol]){
 						if(!walls[lPlayerPushRow][lPlayerPushCol]){
 							goalGrad[lGoalIndex][lBoxFromRow][lBoxFromCol] = lMovesFromGoal;
-							qe.add(new Cell(lBoxFromRow, lBoxFromCol));
+							qe.add(new Cell(lBoxFromRow, lBoxFromCol, lMovesFromGoal));
+							lVisitedCell[lBoxFromRow][lBoxFromCol] = true; //save to repeated states...
 						}
 					}
 				}//End if, check "Pushed down from above"
@@ -255,7 +246,8 @@ public class Board {
 					else if(!walls[lBoxFromRow][lBoxFromCol]){
 						if(!walls[lPlayerPushRow][lPlayerPushCol]){
 							goalGrad[lGoalIndex][lBoxFromRow][lBoxFromCol] = lMovesFromGoal;
-							qe.add(new Cell(lBoxFromRow, lBoxFromCol));
+							qe.add(new Cell(lBoxFromRow, lBoxFromCol, lMovesFromGoal));
+							lVisitedCell[lBoxFromRow][lBoxFromCol] = true; //save to repeated states...
 						}
 					}
 				}//End if, check "Pushed up from below"
@@ -273,7 +265,8 @@ public class Board {
 					else if(!walls[lBoxFromRow][lBoxFromCol]){
 						if(!walls[lPlayerPushRow][lPlayerPushCol]){
 							goalGrad[lGoalIndex][lBoxFromRow][lBoxFromCol] = lMovesFromGoal;
-							qe.add(new Cell(lBoxFromRow, lBoxFromCol));
+							qe.add(new Cell(lBoxFromRow, lBoxFromCol, lMovesFromGoal));
+							lVisitedCell[lBoxFromRow][lBoxFromCol] = true; //save to repeated states...
 						}
 					}
 				}//End if, check "Pushed right from left"
@@ -291,7 +284,8 @@ public class Board {
 					else if(!walls[lBoxFromRow][lBoxFromCol]){
 						if(!walls[lPlayerPushRow][lPlayerPushCol]){
 							goalGrad[lGoalIndex][lBoxFromRow][lBoxFromCol] = lMovesFromGoal;
-							qe.add(new Cell(lBoxFromRow, lBoxFromCol));
+							qe.add(new Cell(lBoxFromRow, lBoxFromCol, lMovesFromGoal));
+							lVisitedCell[lBoxFromRow][lBoxFromCol] = true; //save to repeated states...
 						}
 					}
 				}//End if, check "Pushed left from right"
@@ -305,13 +299,25 @@ public class Board {
 	 * @param pReferensGoalIndex
 	 */
 	public static void printGoalGrad(int pReferensGoalIndex){
+		System.out.println("Original String representation:");
+		for (String row : stringRepr){
+			System.out.println(row);
+		}
 		
+		System.out.println("");
+		System.out.println("Clean Map String representation:");
+		for (String row : cleanMapStringRepr){
+			System.out.println(row);
+		}
+		
+		System.out.println("");
+		System.out.println("Goal gradient:");
 		for (int row = 0; row<nbRows; row++){
-			for (int col = 0; row<nbCols; col++){				
+			for (int col = 0; col<nbCols; col++){				
 				if (goalGrad[pReferensGoalIndex][row][col] != -1){
 					System.out.print(goalGrad[pReferensGoalIndex][row][col]);
 				}
-				else{
+				else if(col<cleanMapStringRepr.get(row).length()){ //might be shorter than nbCols!
 					System.out.print(cleanMapStringRepr.get(row).charAt(col));
 				}
 			}//End for columns	
@@ -355,4 +361,4 @@ public class Board {
 		return goalsList;
 	}
 
-} // End Class Map
+} // End Class Board
