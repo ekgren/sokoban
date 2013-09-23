@@ -167,6 +167,7 @@ public class State implements Cloneable {
 	 */
 	private Cell cellNeighbour(int pRow1, int pCol1,  int pRTarget , int pCTarget){
 		
+		
 		//skrivs av Adam...
 		
 		return new Cell(0, 0);

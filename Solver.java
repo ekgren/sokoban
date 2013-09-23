@@ -10,6 +10,8 @@
 import java.util.*;
 
 
+
+
 public class Solver {
 
 	HashSet<State> visitedStates = new HashSet<State>();
@@ -29,6 +31,26 @@ public class Solver {
 	public static String getHashString(int row,int col){
 		
 		return  String.valueOf(row) + String.valueOf(col);
+	}
+	
+	public static String strPath(Cell pCell){
+		
+		if(pCell.getRow() == pCell.getParent().getRow()){
+			if(pCell.getCol() < pCell.getParent().getCol()){
+				return "U";
+			}
+			else{
+				return "D";
+			}
+		}
+		else{
+			if(pCell.getRow() < pCell.getParent().getRow()){
+				return "L";
+			}
+			else{
+				return "R";
+			}
+		}
 	}
 	
 	/**
