@@ -15,8 +15,8 @@ import java.util.Vector;
 public class State implements Cloneable {
 	
 	private Vector<Box> boxes;
-	private Vector<Cell> reachableCells;
-	private Vector<Cell> unReachableCells;
+	private Vector<Cell> reachableCells; //should be HashMap?
+	private Vector<Cell> unReachableCells; //should be HashMap?
 
 	private int playerRow; // Player position in this state (after move that led to this state)
 	private int playerCol;
