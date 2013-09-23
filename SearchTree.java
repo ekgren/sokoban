@@ -14,13 +14,13 @@ public class SearchTree extends PriorityQueue<State> {
 
             @Override
             public int compare(State s1, State s2) {
-                if (someName(s1) < someName(s2)) return -1;
-                else if (someName(s1) > someName(s2)) return 1;
+                if (s1.getLastBoxMovedIndex() < s2.getLastBoxMovedIndex()) return -1;
+                else if (s1.getLastBoxMovedIndex() > s2.getLastBoxMovedIndex()) return 1;
                 return 0;
             }
 
             // A method that should return some scalar
-            public double someName(State state) {
+            public double sortValue(State state) {
                 return 0.1;
             }
 

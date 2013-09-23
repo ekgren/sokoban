@@ -8,7 +8,6 @@
  * Should not be confused with the class Map. 
  */
 
-import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Vector;
 
@@ -20,7 +19,8 @@ public class State implements Cloneable {
 
 	private int playerRow; // Player position in this state (after move that led to this state)
 	private int playerCol;
-	private int lastBoxMovedIndex; // Index of the box moved that led to this state
+
+    private int lastBoxMovedIndex; // Index of the box moved that led to this state
 	private char lastMoveDir; // Move direction of box according to above that led to this state
 	
 	private int parentKey; //reference to make it possible to find parent state - for final path building.
@@ -109,6 +109,10 @@ public class State implements Cloneable {
     
     public int getPlayerCol(){
     	return playerCol;
+    }
+
+    public int getLastBoxMovedIndex() {
+        return lastBoxMovedIndex;
     }
 
     /**
@@ -253,16 +257,4 @@ public void allSuccessors(Vector<State> pStates) {
             boxIndex++;
         } // End for boxes
     } // End allSuccessors
-
-    /**
-     * Tries to make a move from a certain position
-     * <p/>
-     * up = row - 1
-     * down = row + 1
-     * right = column + 1
-     * left = column - 1
-     *
-     * @param pDir direction
-     */
-
 } // End Class State
