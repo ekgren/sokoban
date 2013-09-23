@@ -296,6 +296,15 @@ public class Solver {
 		return lCellNeighboor;
 	}
 	
+	/**
+	 * Returns cell next to some position.
+	 * @param pState
+	 * @param pRow
+	 * @param pCol
+	 * @param pRowPath
+	 * @param pColPath
+	 * @return
+	 */
 	public static Cell cellNeighboorToPath(State pState ,
 			int pRow,int pCol,int pRowPath,int pColPath){
 
@@ -401,6 +410,7 @@ public class Solver {
 		 */
 		return "test: UuullL";
 	}
+	
 	
 	private void heuristic(){
 		/*
