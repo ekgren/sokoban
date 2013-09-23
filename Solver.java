@@ -116,7 +116,7 @@ public class Solver {
 		Vector<State> successorStates= new Vector<State>();
 		Board.getInitialState().allSuccessors(successorStates); // the vector should now include all successor states...
 		
-		/*
+ 		/*
 		 * TODO for sure...	
 		 */
 		return "test: UuullL";
