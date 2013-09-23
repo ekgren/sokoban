@@ -103,6 +103,13 @@ public class State implements Cloneable {
     	    	
     }
     
+    public int getPlayerRow(){
+    	return playerRow;
+    }
+    
+    public int getPlayerCol(){
+    	return playerCol;
+    }
 
     /**
      * Does all necessary checks to see if a box is movable to the position.
