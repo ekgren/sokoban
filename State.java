@@ -8,6 +8,8 @@
  * Should not be confused with the class Map. 
  */
 
+import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.Vector;
 
 public class State implements Cloneable {
@@ -16,9 +18,13 @@ public class State implements Cloneable {
 	private Vector<Cell> reachableCells;
 	private Vector<Cell> unReachableCells;
 
-	private int playerRow;
+	private int playerRow; // Player position in this state (after move that led to this state)
 	private int playerCol;
+	private int lastBoxMovedIndex; // Index of the box moved that led to this state
+	private char lastMoveDir; // Move direction of box according to above that led to this state
+	
 	private int parentKey; //reference to make it possible to find parent state - for final path building.
+
 	
 	/**
 	 * Constructs the internal representation of the State
@@ -30,9 +36,14 @@ public class State implements Cloneable {
 		boxes = pBoxes;
 		playerRow = pPlayerRow;
 		playerCol= pPlayerCol;
+		lastBoxMovedIndex = -1; //No box is last moved in initial state.
+								//Should maybe be set to the box the player is moved to?
+		lastMoveDir = 'I'; // Initial state 'I', no last move direction.
 		
 		/*
 		 * TODO move player to one box...
+		 * 
+		 *
 		 */
 		
 		for(Box box : pBoxes){
@@ -60,12 +71,38 @@ public class State implements Cloneable {
         // set player position before moving the box
         playerRow = this.boxes.get(pBoxIndex).getRow();
         playerCol = this.boxes.get(pBoxIndex).getCol();
-
+        lastBoxMovedIndex = pBoxIndex;
+        lastMoveDir = pMoveDir;
+        
         // move the box
         this.boxes.get(pBoxIndex).move(pMoveDir);
 
     } // End constructor State
 
+    
+    /**
+     * Creates a string representation for each state which is
+     * only dependent on which cells are occupied with boxes
+     * (irrespective of which box is where)
+     * @return
+     */
+    public String hashString(){
+    	String[] lStringArray = new String[boxes.size()];
+    	
+    	for (int i = 0; i < boxes.size(); i++){
+    		lStringArray[i] = boxes.get(i).hashString();
+    	}
+    	
+    	Arrays.sort(lStringArray);
+    	
+    	StringBuilder builder = new StringBuilder();
+    	for(String element : lStringArray) {
+    	    builder.append(element);
+    	}
+    	return builder.toString();
+    	    	
+    }
+    
 
     /**
      * Does all necessary checks to see if a box is movable to the position.
@@ -97,25 +134,28 @@ public class State implements Cloneable {
             	lPlayerRow = lR + 1;
             	lPlayerCol = lC;
             	lCorrectInput = true;
+            	break;
             case 'D':
             	lMoveToRow = lR + 1;
             	lMoveToCol = lC;
             	lPlayerRow = lR - 1;
             	lPlayerCol = lC;
             	lCorrectInput = true;
+            	break;
             case 'R':
             	lMoveToRow = lR;
             	lMoveToCol = lC + 1;
             	lPlayerRow = lR;
             	lPlayerCol = lC - 1;
             	lCorrectInput = true;
+            	break;
             case 'L':
             	lMoveToRow = lR;
             	lMoveToCol = lC - 1;
             	lPlayerRow = lR;
             	lPlayerCol = lC + 1;
             	lCorrectInput = true;
-
+            	break;
         }
     	
         if(!lCorrectInput){

@@ -14,7 +14,16 @@ import java.util.*;
 
 public class Solver {
 
-	HashSet<State> visitedStates = new HashSet<State>();
+	
+	/*
+	 * The key-String represents the box configuration only.
+	 * 
+	 * If this configuration has "been visited" before a vector is returned
+	 * containing the DIFFERNT states visited whith this config. (but whith
+	 * player in different subspaces...)
+	 */
+	HashMap<String, Vector<State>> visitedStates = new HashMap<String, Vector<State>>();
+	
 	
 	Solver(){
 		

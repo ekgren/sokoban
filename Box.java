@@ -9,6 +9,35 @@
 
 public class Box {
 
+	
+	public String hashString() {
+		//Not most efficient way and has not been confirmed to work!
+		return String.valueOf(row) + String.valueOf(col);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+	/*
+	 * Auto generated, maybe not necessary.
+	 */
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Box other = (Box) obj;
+		if (col != other.col)
+			return false;
+		if (isOnGoal != other.isOnGoal)
+			return false;
+		if (isReachable != other.isReachable)
+			return false;
+		if (row != other.row)
+			return false;
+		return true;
+	}
+
 	private int row;
 	private int col;
 	private boolean isOnGoal;
