@@ -8,6 +8,8 @@
  * Should not be confused with the class Map. 
  */
 
+import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.Vector;
 
 public class State implements Cloneable {
@@ -20,6 +22,7 @@ public class State implements Cloneable {
 	private int playerCol;
 	private int parentKey; //reference to make it possible to find parent state - for final path building.
 	
+	
 	/**
 	 * Constructs the internal representation of the State
 	 *
@@ -30,6 +33,7 @@ public class State implements Cloneable {
 		boxes = pBoxes;
 		playerRow = pPlayerRow;
 		playerCol= pPlayerCol;
+		
 		
 		/*
 		 * TODO move player to one box...
@@ -66,6 +70,30 @@ public class State implements Cloneable {
 
     } // End constructor State
 
+    
+    /**
+     * Creates a string representation for each state which is
+     * only dependent on which cells are occupied with boxes
+     * (irrespective of which box is where)
+     * @return
+     */
+    public String hashString(){
+    	String[] lStringArray = new String[boxes.size()];
+    	
+    	for (int i = 0; i < boxes.size(); i++){
+    		lStringArray[i] = boxes.get(i).hashString();
+    	}
+    	
+    	Arrays.sort(lStringArray);
+    	
+    	StringBuilder builder = new StringBuilder();
+    	for(String elemnt : lStringArray) {
+    	    builder.append(element);
+    	}
+    	return builder.toString();
+    	    	
+    }
+    
 
     /**
      * Does all necessary checks to see if a box is movable to the position.
