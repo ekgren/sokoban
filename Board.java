@@ -195,6 +195,17 @@ public class Board {
 	public static boolean isDeadLockT1(int pGoal, int pRow, int pCol){
 		return deadLocksT1[pGoal][pRow][pCol];
 	}
+	
+	/**
+	 * Checks if position is not wall and not box.
+	 * @param pState
+	 * @param pRow
+	 * @param pCol
+	 * @return
+	 */
+	public static boolean isFree(State pState,int pRow,int pCol){
+		return (!isWall(pRow,pCol)&&!pState.isBox(pRow,pCol));
+	}
 
 	public static Vector<Goal> getListOFGoals(){
 		return goalsList;
