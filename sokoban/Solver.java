@@ -8,7 +8,6 @@ package sokoban;
  *
  */
 
-import Cell;
 
 import java.util.*;
 
