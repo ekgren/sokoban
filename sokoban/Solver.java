@@ -25,8 +25,8 @@ public class Solver {
 	 * player in different subspaces...)
 	 */
 	HashSet<State> visitedStates = new HashSet<State>();
-	Queue<State> simpleQueue = new LinkedList<State>();
-	
+	Comparator comparator = new StatePriorityComparator();
+	PriorityQueue<State> simpleQueue = new PriorityQueue<State>(10, comparator);
 
 	
 	public Solver(){
@@ -46,8 +46,6 @@ public class Solver {
 	}
 	
 	public State getFinalState(){
-
-		Comparator comparator = new StatePriorityComparator();
 		
 		int lIterations = 0;
 		
@@ -56,7 +54,7 @@ public class Solver {
 		
 		boolean lfoundFinalState = false;
 
-		while(!lfoundFinalState && lIterations<3000 && !simpleQueue.isEmpty() ){
+		while(!lfoundFinalState && lIterations<20000 && !simpleQueue.isEmpty() ){
 			
 			lIterations++;
 			
@@ -84,7 +82,7 @@ public class Solver {
 				}
 			}
 			
-			System.out.println("States in queue: " + simpleQueue.size());
+			//System.out.println("States in queue: " + simpleQueue.size());
 
 
 		}//while (searching for final state in queue)
