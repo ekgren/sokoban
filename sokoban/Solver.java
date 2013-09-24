@@ -8,6 +8,8 @@ package sokoban;
  *
  */
 
+import Cell;
+
 import java.util.*;
 
 
@@ -142,7 +144,12 @@ public class Solver {
 	}
 	
 	
-	public static String strPath(Cell pCell){
+	/**
+	 * Returns move necessary from cell to first parent cell.
+	 * @param aCell
+	 * @return
+	 */
+	public static String strChecker(Cell pCell){
 		
 		if(pCell.getRow() == pCell.getParent().getRow()){
 			if(pCell.getCol() < pCell.getParent().getCol()){
@@ -160,6 +167,22 @@ public class Solver {
 				return "R";
 			}
 		}
+	}
+
+	/**
+	 * Returns moves necessary to this cell from all parent cells.
+	 * @param pCell
+	 * @return
+	 */
+	public static String strPath(Cell pCell){
+		
+		String strMoves = "";
+		while(pCell.getParent() != null){
+			strMoves += strChecker(pCell);
+			pCell = pCell.getParent();
+		}
+		//strMoves += strChecker(pCell);
+		return strMoves;
 	}
 	
 	/**
