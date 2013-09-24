@@ -30,14 +30,15 @@ public class Main {
 		 final Visualizer visual = new Visualizer();
 		 
 		 Solver solver = new Solver(); //Reaches info incl. initial state from Map staticaly.
-
+		 State finalState = solver.getFinalState();
+		 
 		 //System.out.println(solver.solutionPath());
 		 
 		 //Board.printGoalGrad(1);
 
-		 Visualizer.printOriginalMap(0);
-		 Visualizer.printCleanMap(0);
-		 Visualizer.printGoalGrad(1);
+		 //Visualizer.printOriginalMap(0);
+		 //Visualizer.printCleanMap(0);
+		 //Visualizer.printGoalGrad(1);
 		 
 	} // main
 } // End Main

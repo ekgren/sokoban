@@ -109,7 +109,6 @@ public class State implements Cloneable {
 			builder.append(element);
 		}
 		return builder.toString();
-
 	}
 
 	public int getPlayerRow(){

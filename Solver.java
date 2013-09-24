@@ -52,6 +52,9 @@ public class Solver {
 
 		while(!lfoundFinalState && lAvoidEndlessLoop<1000 ){
 			
+			System.out.println("Solver line 55: " + lAvoidEndlessLoop + " " + simpleQueue.size());
+
+			
 			lAvoidEndlessLoop++;
 			
 			State lCurState = simpleQueue.poll();
@@ -70,7 +73,9 @@ public class Solver {
 			else{
 				Vector<State> childsOfCurState = new Vector<State>();
 				lCurState.allSuccessors(childsOfCurState); //fills with all children
-				
+				for (State child : childsOfCurState){
+					simpleQueue.add(child);
+				}
 			}
 		}//while (searching for final state in queue)
 		
@@ -96,6 +101,9 @@ public class Solver {
 	private boolean isVisitedStateAndAdd(State pThisState){
 		
 		String lStateStringKey = pThisState.hashString();
+		System.out.println("Solver line 104: " + lStateStringKey);
+
+		
 		
 		if(visitedStates.containsKey(lStateStringKey)){
 			Vector<State> lSameBoxConfig = visitedStates.get(lStateStringKey);
