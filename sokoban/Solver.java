@@ -538,7 +538,7 @@ public class Solver {
 				if(!lSetPrPaths.contains(hashIndex1)){
 					lSetPrPaths.add(hashIndex1);
 			
-					if(!Board.isFree(pState,lRowChild, lCol)){
+					if(Board.isFree(pState,lRowChild, lCol)){
 						
 						if(lRowChild == pEndCell.getRow() &&
 								lCol == pEndCell.getCol()){
@@ -556,7 +556,7 @@ public class Solver {
 				if(!lSetPrPaths.contains(hashIndex2)){
 					lSetPrPaths.add(hashIndex2);
 			
-					if(!Board.isFree(pState,lRow, lColChild)){
+					if(Board.isFree(pState,lRow, lColChild)){
 						
 						if(lRow == pEndCell.getRow() &&
 								lColChild == pEndCell.getCol()){
