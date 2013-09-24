@@ -14,10 +14,14 @@ package sokoban;
  */
 
 import java.io.*;
+import java.util.Vector;
 
 public class Sokoban {
 
 	/**
+	 * To test with our own maps we use the SolutionEvaluator class 
+	 * to run the program.
+	 * 
 	 * @param args
 	 * 
 	 */
@@ -25,20 +29,40 @@ public class Sokoban {
 	public static boolean debugMode = true;
 	
 	public Sokoban(Reader r) throws IOException{
-		 final Client client = new Client();
-		 final Board board = client.getBoardFromFile();
+		 //final Client client = new Client();
+		 final Board board = getBoardFromFile(r);
 		 final Visualizer visual = new Visualizer();
 		 
 		 Solver solver = new Solver(); //Reaches info incl. initial state from Map staticaly.
 		 State finalState = solver.getFinalState();
 		 
-		 //System.out.println(solver.solutionPath());
-		 
-		 //Board.printGoalGrad(1);
+		 if (debugMode){
+			 //System.out.println(solver.solutionPath());
+			 
+			 //Board.printGoalGrad(1);
+	
+			 Visualizer.printOriginalMap(0);
+			 Visualizer.printCleanMap(0);
+			 Visualizer.printGoalGrad(1);
+			 Visualizer.printState(board.getInitialState());
+		 }
+	}
+	
+	public Board getBoardFromFile(Reader r) throws IOException{
+		
+		Vector<String> board = new Vector<String>();
 
-		 Visualizer.printOriginalMap(0);
-		 Visualizer.printCleanMap(0);
-		 Visualizer.printGoalGrad(1);
+		BufferedReader fileBr = new BufferedReader(r);
+		
+		String line = null;
+		
+		while(fileBr.ready()) {
+			line = fileBr.readLine();
+			board.add(line);
+		} // End while
+		fileBr.close();
+		
+		return new Board(board);
 	}
 	
 	public static void main(String[] args) throws IOException {

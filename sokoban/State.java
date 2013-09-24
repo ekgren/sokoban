@@ -150,6 +150,10 @@ public class State implements Cloneable {
         return lastBoxMovedIndex;
     }
 
+    public Vector<Box> getBoxes() {
+        return boxes;
+    }
+
 	/**
 	 * Does all necessary checks to see if a box is movable to the position.
 	 *

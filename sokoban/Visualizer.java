@@ -9,23 +9,22 @@ import java.util.Vector;
 
 public class Visualizer {
 	
-	private static Vector<String> stringRepr; //string Representation of Map
-	private static Vector<String> cleanMapStringRepr = new Vector<String>(); //string Representation of Map
+	private static Vector<StringBuilder> stringRepr = new Vector<StringBuilder>(); //string Representation of Map
+	private static Vector<StringBuilder> cleanMapStringRepr = new Vector<StringBuilder>(); //string Representation of Map
 
 	public Visualizer(){
 		
-		this.stringRepr = Board.getStringRepr();
-		
 		//Fix the cleanMapString:		
-		for(String lRow : stringRepr){
+		for(String lRow : Board.getStringRepr()){
 			String lStringCopy = lRow;
+			stringRepr.add(new StringBuilder(lStringCopy));
 			
 			lStringCopy = lStringCopy.replace('$', ' '); //Box to nothing
 			lStringCopy = lStringCopy.replace('*', '.'); //Box on goal to Goal
 			lStringCopy = lStringCopy.replace('@', ' '); //Player to nothing
 			lStringCopy = lStringCopy.replace('+', '.'); //Player on goal to Goal
 			
-			cleanMapStringRepr.add(lStringCopy);
+			cleanMapStringRepr.add(new StringBuilder(lStringCopy));
 		}
 	}
 	
@@ -33,7 +32,7 @@ public class Visualizer {
 		
 		System.out.println("");
 		System.out.println("Clean Map String representation:");
-		for (String row : cleanMapStringRepr){
+		for (StringBuilder row : cleanMapStringRepr){
 			System.out.println(row);
 		}
 	}
@@ -42,7 +41,7 @@ public class Visualizer {
 		
 		System.out.println("");
 		System.out.println("Original String representation:");
-		for (String row : stringRepr){
+		for (StringBuilder row : stringRepr){
 			System.out.println(row);
 		}
 	}
@@ -73,9 +72,31 @@ public class Visualizer {
 	}
 	
 	public static void printState(State pState){
-		
-		
-	}
+        Vector<StringBuilder> lBoardPrint = stringRepr;
+		System.out.println("");
+		System.out.println("Print state:");
+
+        // insert player position
+        int lPlayerRow = pState.getPlayerCol();
+        int lPlayerCol = pState.getPlayerCol();
+
+        if (Board.isGoal(lPlayerRow, lPlayerCol))
+        	//board.elementAt(processNode.y).setCharAt(processNode.x, 'O');
+            lBoardPrint.elementAt(lPlayerRow).setCharAt(lPlayerCol, '+');
+        else
+            lBoardPrint.elementAt(lPlayerRow).setCharAt(lPlayerCol, '@');
+
+        // insert boxes
+        for (Box box : pState.getBoxes()) {
+            if (box.isOnGoal())
+                lBoardPrint.elementAt(box.getRow()).setCharAt(box.getCol(), '*');
+            else
+                lBoardPrint.elementAt(box.getRow()).setCharAt(box.getCol(), '$');
+        }
+        for(StringBuilder s : lBoardPrint){
+        	System.out.println(s);
+        }
+    }
 	
 	
 }
