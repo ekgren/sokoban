@@ -75,7 +75,7 @@ public class State implements Cloneable {
 		// set boxes
 		this.boxes = new Vector<Box>();
 		for (Box box : pParentState.getBoxes()){
-			this.boxes.add(new Box(box));
+			this.boxes.add(new Box(box)); //nesecary to aviod having several states sharing same box objects!
 		}
 
 		// set player position before moving the box
@@ -83,6 +83,7 @@ public class State implements Cloneable {
 		playerCol = this.boxes.get(pBoxIndex).getCol();
 		lastBoxMovedIndex = pBoxIndex;
 		lastMoveDir = pMoveDir;
+		this.parentState = pParentState;
 
 		// move the box
 		this.boxes.get(pBoxIndex).move(pMoveDir);
@@ -313,7 +314,10 @@ public class State implements Cloneable {
 
 		int boxIndex = 0;
 		for (Box box : boxes) {
-			/* If a move is possible, then add the new state in the pStates vector */
+			/* If a move is possible, then add the new state in the pStates vector 
+			 * 
+			 * Not sure if cloning is necessary? fields have to be copied any way...
+			 */
 			try {
 				if (tryMove(box, 'U'))
 					pStates.add(new State((State) this.clone(), boxIndex, 'U'));
@@ -354,6 +358,7 @@ public class State implements Cloneable {
 		} // End for boxes
 	} // End allSuccessors
 
+	
 
     public boolean isFinalState() {
     	

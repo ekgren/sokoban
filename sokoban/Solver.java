@@ -47,6 +47,8 @@ public class Solver {
 	
 	public State getFinalState(){
 
+		Comparator comparator = new StatePriorityComparator();
+		
 		int lIterations = 0;
 		
 		simpleQueue.add(Board.getInitialState());

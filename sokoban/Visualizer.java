@@ -55,14 +55,13 @@ public class Visualizer {
 		
 		int lNbRows = Board.getNbRows();
 		int lNbCols = Board.getNbCols();
-		int[][][] lGoalGrad = Board.getGoalGrad();
 		
 		System.out.println("");
 		System.out.println("Goal gradient:");
 		for (int row = 0; row<lNbRows; row++){
 			for (int col = 0; col<lNbCols; col++){				
-				if (lGoalGrad[pReferensGoalIndex][row][col] != -1){
-					System.out.print(lGoalGrad[pReferensGoalIndex][row][col]);
+				if (Board.getGoalGrad(pReferensGoalIndex, row, col) != -1){
+					System.out.print(Board.getGoalGrad(pReferensGoalIndex, row, col));
 				}
 				else if(col<cleanMapStringRepr.get(row).length()){ //might be shorter than nbCols!
 					System.out.print(cleanMapStringRepr.get(row).charAt(col));

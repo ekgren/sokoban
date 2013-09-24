@@ -374,8 +374,14 @@ public class Board {
 		return nbCols;
 	}
 	
-	public static int[][][] getGoalGrad(){
-		return goalGrad;
+	public static int getGoalGrad(int pGoalIndex, int pRow, int pCol){
+		return goalGrad[pGoalIndex][pRow][pCol];
 	}
 
+	public static int getNbOfBoxes(){
+		return nbBoxes;
+	}
+	public static int getNbOfGoals(){
+		return nbBoxes; //should be boxes it is the same!
+	}
 } // End Class Board
