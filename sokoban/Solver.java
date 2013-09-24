@@ -8,6 +8,7 @@ package sokoban;
  *
  */
 
+
 import java.util.*;
 
 
@@ -142,7 +143,12 @@ public class Solver {
 	}
 	
 	
-	public static String strPath(Cell pCell){
+	/**
+	 * Returns move necessary from cell to first parent cell.
+	 * @param aCell
+	 * @return
+	 */
+	public static String strChecker(Cell pCell){
 		
 		if(pCell.getRow() == pCell.getParent().getRow()){
 			if(pCell.getCol() < pCell.getParent().getCol()){
@@ -160,6 +166,22 @@ public class Solver {
 				return "R";
 			}
 		}
+	}
+
+	/**
+	 * Returns moves necessary to this cell from all parent cells.
+	 * @param pCell
+	 * @return
+	 */
+	public static String strPath(Cell pCell){
+		
+		String strMoves = "";
+		while(pCell.getParent() != null){
+			strMoves += strChecker(pCell);
+			pCell = pCell.getParent();
+		}
+		//strMoves += strChecker(pCell);
+		return strMoves;
 	}
 	
 	/**
@@ -196,25 +218,31 @@ public class Solver {
 			int incInt = -1;
 
 			while(incInt <= 1){
+				//Make row child (path).
 				int lRowChild = lRow + incInt;
 				String hashIndex1 = getHashString(lRowChild,lCol);
 				
 				if(!lSetPrPaths.contains(hashIndex1)){
+					//Add child to previous paths.
 					lSetPrPaths.add(hashIndex1);
 			
 					if(!Board.isWall(lRowChild, lCol)){
 						
 						if(!state.isBox(lRowChild,lCol)){
+							//If we are not finished add child to queue.
 							lQueChilds.add(new Cell(lRowChild,lCol));
 						}
 						else if(lRowChild == pEndCell.getRow() &&
 								lCol == pEndCell.getCol()){
+							//If we have found path return cell which is next to searched position.
 							lCellNeighboor = lCellChild;
 							bolFinished = true;
 							break;
 						}
 					}
 				}
+				
+				//Repeat for column child (paths).
 				int lColChild = lCol + incInt;
 				String hashIndex2 = getHashString(lRow,lColChild);
 				
@@ -322,7 +350,7 @@ public class Solver {
 		}
 	}
 	/**
-	 * Returns cell with position next to some position.
+	 * Returns linked cell with position next to some position.
 	 * @param state
 	 * @param pRow
 	 * @param pCol
@@ -396,6 +424,90 @@ public class Solver {
 		return lCellNeighboor;
 	}
 	
+	/**
+	 * Returns linked cell from some position to another position.
+	 * @param pState
+	 * @param pRow
+	 * @param pCol
+	 * @param pRowPath
+	 * @param pColPath
+	 * @return
+	 */
+	public static Cell cellLinkedToPath(State pState ,
+			int pRow,int pCol,int pRowPath,int pColPath){
+
+		Cell pStartCell = new Cell(pRow,pCol);
+		Cell pEndCell = new Cell(pRowPath,pColPath);
+		boolean bolFinished = false;
+		Cell lCellNeighboor = null;
+		
+        Comparator<Cell> comparator = new Cell.NormComparator(
+        		pEndCell.getRow(),
+        		pEndCell.getCol());
+		HashSet<String> lSetPrPaths = new HashSet<String>();
+        PriorityQueue<Cell> lQueChilds = new PriorityQueue<Cell>(10,comparator);
+        
+        lQueChilds.add(pStartCell);
+		lSetPrPaths.add(getHashString(pStartCell.getRow(),pStartCell.getCol()));
+		
+		while(!lQueChilds.isEmpty() &! bolFinished){
+			Cell lCellChild = lQueChilds.remove();
+			int lRow = lCellChild.getRow();
+			int lCol = lCellChild.getCol();
+			int incInt = -1;
+
+			while(incInt <= 1){
+				int lRowChild = lRow + incInt;
+				String hashIndex1 = getHashString(lRowChild,lCol);
+				
+				if(!lSetPrPaths.contains(hashIndex1)){
+					lSetPrPaths.add(hashIndex1);
+			
+					if(!Board.isFree(pState,lRowChild, lCol)){
+						
+						if(lRowChild == pEndCell.getRow() &&
+								lCol == pEndCell.getCol()){
+							lCellNeighboor = new Cell(lCellChild,lRowChild,lCol);
+							bolFinished = true;
+						}
+						else{
+							lQueChilds.add(new Cell(lCellChild,lRowChild,lCol));
+						}	
+					}
+				}
+				int lColChild = lCol + incInt;
+				String hashIndex2 = getHashString(lRow,lColChild);
+				
+				if(!lSetPrPaths.contains(hashIndex2)){
+					lSetPrPaths.add(hashIndex2);
+			
+					if(!Board.isFree(pState,lRow, lColChild)){
+						
+						if(lRow == pEndCell.getRow() &&
+								lColChild == pEndCell.getCol()){
+							lCellNeighboor = new Cell(lCellChild,lRow,lColChild);
+							bolFinished = true;
+						}
+						else{
+							lQueChilds.add(new Cell(lCellChild,lRow,lColChild));
+						}	
+					}
+				}
+			incInt = incInt + 2;	
+			}
+		}
+		return lCellNeighboor;
+	}
+	
+	/**
+	 * Returns cell next to some position.
+	 * @param pState
+	 * @param pRow
+	 * @param pCol
+	 * @param pRowPath
+	 * @param pColPath
+	 * @return
+	 */
 	public static Cell cellNeighboorToPath(State pState ,
 			int pRow,int pCol,int pRowPath,int pColPath){
 
@@ -464,7 +576,7 @@ public class Solver {
 
 	
 	/**
-	 * Returns true if there is path to box
+	 * Returns true if there it is possible to move next to box.
 	 * @param state
 	 * @param pStartCell
 	 * @param pEndCell
@@ -500,6 +612,74 @@ public class Solver {
 		 * TODO for sure...	
 		 */
 		return "test: UuullL";
+	}
+	
+	/**
+	 * Returns cell with needed player position to perform this state.
+	 * @param pState
+	 * @return
+	 */
+	public static Cell cellLinkedToState(State pState){
+		char lMove = pState.getCharLastMove();
+		
+		Cell lCellNeededPlayerPos = null;
+		
+		if(lMove == 'U'){
+			lCellNeededPlayerPos = new Cell(pState.getPlayerRow()-1,pState.getPlayerCol());
+		}
+		else if(lMove == 'D'){
+			lCellNeededPlayerPos = new Cell(pState.getPlayerRow()+1,pState.getPlayerCol());
+		}
+		else if(lMove == 'L'){
+			lCellNeededPlayerPos = new Cell(pState.getPlayerRow(),pState.getPlayerCol()+1);
+		}
+		else if(lMove == 'R'){
+			lCellNeededPlayerPos = new Cell(pState.getPlayerRow(),pState.getPlayerCol()-1);
+		}
+		return lCellNeededPlayerPos;
+	}
+	
+	/**
+	 * Returns solution string from goal state endState.
+	 * @param pEndState
+	 * @return
+	 */
+	public static String getStrToGoal(State pEndState){
+		
+		String goalString = "";
+
+		while(pEndState.getParent().getParent()!=null){
+			goalString += pEndState.getCharLastMove();
+			
+			int playerRow = pEndState.getPlayerRow();
+			int playerCol = pEndState.getPlayerCol();
+			int lastMovedBoxRow = pEndState.getParent().getLastMovedBox().getRow();
+			int lastMovedBoxCol = pEndState.getParent().getLastMovedBox().getCol();
+			
+			//If same box is moving we can continue adding chars to the solution string.
+			if(lastMovedBoxRow == playerRow && lastMovedBoxCol == playerCol){
+				pEndState = pEndState.getParent();
+			}
+			//If not same box is moving we have to player path between the successive states.
+			else{
+				Cell currentPos = cellLinkedToState(pEndState);
+				Cell nextPos = cellLinkedToPath(pEndState,currentPos.getRow(),currentPos.getCol(),
+						pEndState.getParent().getPlayerRow(),
+						pEndState.getParent().getPlayerCol());
+				goalString += strPath(nextPos);
+				pEndState = pEndState.getParent();
+			}
+		}
+		//If we are two steps from parent == null, we have that state.parent is 
+		//initial state where player pos is start pos.
+		goalString += pEndState.getCharLastMove();
+		Cell currentPos = cellLinkedToState(pEndState);
+		Cell nextPos = cellLinkedToPath(pEndState,currentPos.getRow(),currentPos.getCol(),
+				pEndState.getParent().getPlayerRow(),
+				pEndState.getParent().getPlayerCol());
+		goalString += strPath(nextPos);
+		
+		return goalString;
 	}
 	
 	private void heuristic(){
