@@ -34,8 +34,10 @@ public class Main {
 		 //System.out.println(solver.solutionPath());
 		 
 		 //Board.printGoalGrad(1);
-		
-		 Visualizer.printGoalGrad(0);
+
+		 Visualizer.printOriginalMap(0);
+		 Visualizer.printCleanMap(0);
+		 Visualizer.printGoalGrad(1);
 		 
 	} // main
 } // End Main
