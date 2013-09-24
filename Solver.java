@@ -23,9 +23,11 @@ public class Solver {
 	 * player in different subspaces...)
 	 */
 	HashMap<String, Vector<State>> visitedStates = new HashMap<String, Vector<State>>();
+	Queue<State> simpleQueue = new LinkedList<State>();
 	
+
 	
-	Solver(){
+	public Solver(){
 		
 		/*
 		 *TODO
@@ -38,9 +40,33 @@ public class Solver {
 	
 	/* Must check if this hash function is a good one!*/ 
 	public static String getHashString(int row,int col){
-		
 		return  String.valueOf(row) + String.valueOf(col);
 	}
+	
+	public State getFinalState(){
+
+
+		simpleQueue.add(Board.getInitialState());
+		boolean lfoundFinalState = false;
+
+		while(!lfoundFinalState){
+			
+			
+			State lCurState = simpleQueue.poll();
+			if(isVisitedStateAndAdd(lCurState)){
+				//If it is visited then do nothing!
+			}
+			else if (lCurState.isFinalState()){
+				lfoundFinalState = true;
+				return lCurState;
+			}
+			else{
+				Vector<State> childsOfCurState = new Vector<State>();
+				lCurState.allSuccessors(childsOfCurState); //fills with all childs
+			}
+		}
+	}
+	
 	
 	/**
 	 * Checks if the state is already visited.
