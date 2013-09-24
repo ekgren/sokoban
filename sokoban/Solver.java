@@ -49,25 +49,19 @@ public class Solver {
 		int lAvoidEndlessLoop = 0;
 		
 		simpleQueue.add(Board.getInitialState());
+		isVisitedStateAndAdd(Board.getInitialState());
 		boolean lfoundFinalState = false;
 
-		while(!lfoundFinalState && lAvoidEndlessLoop<1000 ){
+		while(!lfoundFinalState && lAvoidEndlessLoop<10 ){
+			
+			lAvoidEndlessLoop++;
 			
 			System.out.println("Solver line 55: " + lAvoidEndlessLoop + " " + simpleQueue.size());
 
 			
-			lAvoidEndlessLoop++;
-			
 			State lCurState = simpleQueue.poll();
-			if(isVisitedStateAndAdd(lCurState)){
-				/* 
-				 * If it is visited then do nothing!
-				 * If not visited than continue with els-checks below
-				 * THIS STATE IS AUTOMATICAL ADDED TO VISTED STATES
-				 * BY THE USE OF THE isVistedStateAndAdd method.
-				 */
-			}
-			else if (lCurState.isFinalState()){
+
+			if (lCurState.isFinalState()){
 				lfoundFinalState = true;
 				return lCurState;
 			}
@@ -75,7 +69,15 @@ public class Solver {
 				Vector<State> childsOfCurState = new Vector<State>();
 				lCurState.allSuccessors(childsOfCurState); //fills with all children
 				for (State child : childsOfCurState){
-					simpleQueue.add(child);
+					if(!isVisitedStateAndAdd(lCurState)){
+						/* 
+						 * If it is not previously visited then add it!
+						 * THIS STATE IS AUTOMATICAL ADDED TO VISTED STATES
+						 * BY THE USE OF THE isVistedStateAndAdd method IF
+						 * IT IS NOT ALREADY VISITED
+						 */
+						simpleQueue.add(child);
+					}
 				}
 			}
 		}//while (searching for final state in queue)

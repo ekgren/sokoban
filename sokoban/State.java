@@ -111,6 +111,33 @@ public class State implements Cloneable {
 		}
 		return builder.toString();
 	}
+	
+
+	@Override
+	public int hashCode() {
+		//Should be improved!?
+		return hashString().hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		
+		//first part can be removed for better performance?
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		
+		State other = (State) obj;
+		if (this.hashCode() != other.hashCode())
+			return false;
+	
+		if(!Solver.isPathToPath(this, this.playerRow, this.playerCol, other.playerRow, other.playerCol))
+			return false;
+		return true;
+	}
 
 	public int getPlayerRow(){
 		return playerRow;
