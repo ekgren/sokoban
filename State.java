@@ -24,7 +24,6 @@ public class State implements Cloneable {
 	private char lastMoveDir; // Move direction of box according to above that led to this state
 
 	private int parentKey; //reference to make it possible to find parent state - for final path building.
-    private Vector<Box> boxesOnGoal = new Vector<Box>();
 
 
     /**
@@ -49,12 +48,11 @@ public class State implements Cloneable {
 
 		for(Box box : pBoxes){
 			if(isConnected(playerRow, playerCol, box.getRow(),box.getCol())){
-				if(isConnected(playerRow, playerCol, box.getRow(),box.getCol()));
+				/*
+				 * Move player there
+				 * break
+				 */
 			}
-
-            // if the box position is on goal - add to the field boxesOnGoal
-            if (Board.isGoal(box.getRow(), box.getCol()))
-                boxesOnGoal.add(box);
 		}
 
 	} // End constructor State
@@ -70,7 +68,6 @@ public class State implements Cloneable {
 	public State(final State pParentState, int pBoxIndex, char pMoveDir) {
 		// set boxes
 		this.boxes = (Vector<Box>) pParentState.boxes.clone();
-		System.out.println(pMoveDir);
 
 		// set player position before moving the box
 		playerRow = this.boxes.get(pBoxIndex).getRow();
@@ -82,8 +79,12 @@ public class State implements Cloneable {
 		this.boxes.get(pBoxIndex).move(pMoveDir);
 
         // if the box position is on goal - add to the field boxesOnGoal
-        if (Board.isGoal(boxes.get(pBoxIndex).getRow(), boxes.get(pBoxIndex).getCol()))
-            boxesOnGoal.add(boxes.get(pBoxIndex));
+        if (Board.isGoal(boxes.get(pBoxIndex).getRow(), boxes.get(pBoxIndex).getCol())){
+        	boxes.get(pBoxIndex).setIsOnGoal(true);
+        }
+        else{
+        	boxes.get(pBoxIndex).setIsOnGoal(false);
+        }
 
 	} // End constructor State
 
@@ -290,7 +291,15 @@ public class State implements Cloneable {
 
 
     public boolean isFinalState() {
-        return boxesOnGoal.size() == boxes.size();
+    	
+    	boolean allOnGoal = true;
+    	
+    	for (Box box : boxes){
+    		if(!box.isOnGoal()){
+    			return false;
+    		}
+    	}
+    	return allOnGoal;
     }
 
 } // End Class State

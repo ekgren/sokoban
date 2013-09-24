@@ -45,16 +45,23 @@ public class Solver {
 	
 	public State getFinalState(){
 
-
+		int lAvoidEndlessLoop = 0;
+		
 		simpleQueue.add(Board.getInitialState());
 		boolean lfoundFinalState = false;
 
-		while(!lfoundFinalState){
+		while(!lfoundFinalState && lAvoidEndlessLoop<1000 ){
 			
+			lAvoidEndlessLoop++;
 			
 			State lCurState = simpleQueue.poll();
 			if(isVisitedStateAndAdd(lCurState)){
-				//If it is visited then do nothing!
+				/* 
+				 * If it is visited then do nothing!
+				 * If not visited than continue with els-checks below
+				 * THIS STATE IS AUTOMATICAL ADDED TO VISTED STATES
+				 * BY THE USE OF THE isVistedStateAndAdd method.
+				 */
 			}
 			else if (lCurState.isFinalState()){
 				lfoundFinalState = true;
@@ -62,10 +69,15 @@ public class Solver {
 			}
 			else{
 				Vector<State> childsOfCurState = new Vector<State>();
-				lCurState.allSuccessors(childsOfCurState); //fills with all childs
+				lCurState.allSuccessors(childsOfCurState); //fills with all children
+				
 			}
-		}
+		}//while (searching for final state in queue)
+		
+		System.out.println("Solver line 77: No final sate was found, returned initial state.");
+		return Board.getInitialState();
 	}
+
 	
 	
 	/**
