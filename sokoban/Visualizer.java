@@ -73,9 +73,25 @@ public class Visualizer {
 	}
 	
 	public static void printState(State pState){
-		
-		
-	}
+        Vector<String> lBoardPrint = stringRepr;
+
+        // insert player position
+        int lPlayerRow = pState.getPlayerCol();
+        int lPlayerCol = pState.getPlayerCol();
+
+        if (Board.isGoal(lPlayerRow, lPlayerCol))
+            lBoardPrint.get(lPlayerRow).charAt(lPlayerCol) = '+';
+        else
+            lBoardPrint.get(lPlayerRow).charAt(lPlayerCol) = '@';
+
+        // insert boxes
+        for (Box box : pState.getBoxes()) {
+            if (box.isOnGoal())
+                lBoardPrint.get(box.getRow()).charAt(box.getCol()) = '*';
+            else
+                lBoardPrint.get(box.getRow()).charAt(box.getCol()) = '$';
+        }
+    }
 	
 	
 }
