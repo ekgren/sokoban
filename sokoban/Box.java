@@ -8,7 +8,7 @@ package sokoban;
  * 
  */
 
-public class Box {
+public class Box{
 
 	
 	public String hashString() {
@@ -55,6 +55,17 @@ public class Box {
 		row = pRow;
 		col = pCol;
 		isOnGoal = pIsOnGoal;
+	}
+	
+	/**
+	 * Constructs a "deep copy".
+	 * @param pBox
+	 */
+	public Box(Box pBox){
+		this.row = pBox.getRow();
+		this.col = pBox.getCol();
+		this.isOnGoal = pBox.isOnGoal();
+		this.isReachable = pBox.isReachable();
 	}
 
     /**

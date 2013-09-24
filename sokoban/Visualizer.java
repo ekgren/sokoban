@@ -1,4 +1,5 @@
 package sokoban;
+import java.util.Queue;
 import java.util.Vector;
 
 /*
@@ -71,13 +72,18 @@ public class Visualizer {
 		}//End for rows
 	}
 	
-	public static void printState(State pState){
-        Vector<StringBuilder> lBoardPrint = stringRepr;
-		System.out.println("");
-		System.out.println("Print state:");
+	public static void printState(State pState, String pLabel){
+        Vector<StringBuilder> lBoardPrint = new Vector<StringBuilder>();
+        
+        for(StringBuilder row : cleanMapStringRepr){ //must copy each element separately!
+        	lBoardPrint.add(new StringBuilder(row.toString()));
+        }
 
+        System.out.println("");
+		System.out.println(pLabel);
+		
         // insert player position
-        int lPlayerRow = pState.getPlayerCol();
+        int lPlayerRow = pState.getPlayerRow();
         int lPlayerCol = pState.getPlayerCol();
 
         if (Board.isGoal(lPlayerRow, lPlayerCol))
@@ -87,8 +93,8 @@ public class Visualizer {
             lBoardPrint.elementAt(lPlayerRow).setCharAt(lPlayerCol, '@');
 
         // insert boxes
-        for (Box box : pState.getBoxes()) {
-            if (box.isOnGoal())
+        for (Box box : pState.getBoxes()) {        	
+        	if (box.isOnGoal())
                 lBoardPrint.elementAt(box.getRow()).setCharAt(box.getCol(), '*');
             else
                 lBoardPrint.elementAt(box.getRow()).setCharAt(box.getCol(), '$');
@@ -98,5 +104,16 @@ public class Visualizer {
         }
     }
 	
+	public static void printState(State pState){
+		printState(pState, "State with no label:");
+	}
+
+	
+	public static void printStatesInQueue(Queue pQueue){
+		Object[] states = pQueue.toArray();
+		for(Object state : states){
+			printState((State) state);
+		}
+	}
 	
 }

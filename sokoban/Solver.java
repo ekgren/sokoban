@@ -47,20 +47,23 @@ public class Solver {
 	
 	public State getFinalState(){
 
-		int lAvoidEndlessLoop = 0;
+		int lIterations = 0;
 		
 		simpleQueue.add(Board.getInitialState());
 		visitedStates.add(Board.getInitialState());
 		
 		boolean lfoundFinalState = false;
 
-		while(!lfoundFinalState && lAvoidEndlessLoop<10 ){
+		while(!lfoundFinalState && lIterations<3000 && !simpleQueue.isEmpty() ){
 			
-			lAvoidEndlessLoop++;
+			lIterations++;
 			
 			State lCurState = simpleQueue.poll();
 
+			Visualizer.printState(lCurState, "--- State explored in iteration: #" + lIterations + " ---");
+			
 			if (lCurState.isFinalState()){
+				Visualizer.printState(lCurState, "THE FINAL STATE IS FOUND! See below:");
 				lfoundFinalState = true;
 				return lCurState;
 			}
@@ -71,11 +74,19 @@ public class Solver {
 					if(!visitedStates.contains(child)){
 						visitedStates.add(child);
 						simpleQueue.add(child);
+						Visualizer.printState(child, "accepted child in iteration: #" + lIterations);
+					}
+					else{
+						Visualizer.printState(child, "Rejected child in iteration: #" + lIterations);
 					}
 				}
 			}
+			
+			System.out.println("States in queue: " + simpleQueue.size());
+
+
 		}//while (searching for final state in queue)
-		
+
 		System.out.println("Solver line 77: No final sate was found, returned initial state.");
 		return Board.getInitialState();
 	}
@@ -537,6 +548,9 @@ public class Solver {
 	 */
 	public static boolean isPathToPath(State pState,int pRow,int pCol,int pRowPath,
 			int pColPath){
+		if(pRow==pRowPath && pCol==pColPath) //for some reason the function otherwise return false...
+			return true;
+		
 		Cell lCell = cellNeighboorToPath(pState,pRow,pCol,pRowPath,pColPath);
 		return (lCell != null);
 	}

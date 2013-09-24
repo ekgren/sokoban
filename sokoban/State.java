@@ -73,7 +73,10 @@ public class State implements Cloneable {
 	 */
 	public State(final State pParentState, int pBoxIndex, char pMoveDir) {
 		// set boxes
-		this.boxes = (Vector<Box>) pParentState.boxes.clone();
+		this.boxes = new Vector<Box>();
+		for (Box box : pParentState.getBoxes()){
+			this.boxes.add(new Box(box));
+		}
 
 		// set player position before moving the box
 		playerRow = this.boxes.get(pBoxIndex).getRow();
@@ -160,12 +163,6 @@ public class State implements Cloneable {
 		if (this.hashCode() != other.hashCode())
 			return false;
 	
-		System.out.println("State l137: ----------------");
-		System.out.println(this.playerRow);
-		System.out.println(this.playerCol);
-		System.out.println(other.playerRow);
-		System.out.println(other.playerCol);
-
 		
 		if(!Solver.isPathToPath(this, this.playerRow, this.playerCol, other.playerRow, other.playerCol))
 			return false;
@@ -247,11 +244,11 @@ public class State implements Cloneable {
 		if(!lCorrectInput){
 			if (Sokoban.debugMode) System.out.println("StateError: TryMove: wrong direction input");
 		}
-
-		return (!Board.isWall(lMoveToRow, lMoveToCol) &&
-				!this.isBox(lMoveToRow, lMoveToCol) &&
-				!Board.isDeadLockT0(lMoveToRow, lMoveToCol) &&
-				this.isConnected(playerRow, playerCol, lPlayerRow, lPlayerCol));
+		/*
+		 * All of the below must be valid, add check deadlock later!
+		 */
+		return (isFree(lMoveToRow, lMoveToCol) &&
+				Solver.isPathToPath(this, playerRow, playerCol, lPlayerRow, lPlayerCol));
 	}
 
 	public boolean isBox( int pRow, int pCol){
@@ -269,11 +266,8 @@ public class State implements Cloneable {
 		return false;
 	}
 
-	private boolean isConnected(Cell pCell1, Cell pCell){
-
-		//skrivs av Adam...
-
-		return true;
+	public boolean isFree(int pRow, int pCol){
+		return !Board.isWall(pRow, pCol) && !this.isBox(pRow, pCol);
 	}
 
 	private boolean isConnected(int pRow1, int pCol1,  int pRow2 , int pCol2){
@@ -320,14 +314,19 @@ public class State implements Cloneable {
 		int boxIndex = 0;
 		for (Box box : boxes) {
 			/* If a move is possible, then add the new state in the pStates vector */
-			if (tryMove(box, 'U'))
-				pStates.add(new State(this, boxIndex, 'U'));
-			if (tryMove(box, 'D'))
-				pStates.add(new State(this, boxIndex, 'D'));
-			if (tryMove(box, 'R'))
-				pStates.add(new State(this, boxIndex, 'R'));
-			if (tryMove(box, 'L'))
-				pStates.add(new State(this, boxIndex, 'L'));
+			try {
+				if (tryMove(box, 'U'))
+					pStates.add(new State((State) this.clone(), boxIndex, 'U'));
+				if (tryMove(box, 'D'))
+					pStates.add(new State((State) this.clone(), boxIndex, 'D'));
+				if (tryMove(box, 'R'))
+					pStates.add(new State((State) this.clone(), boxIndex, 'R'));
+				if (tryMove(box, 'L'))
+					pStates.add(new State((State) this.clone(), boxIndex, 'L'));
+			} catch (CloneNotSupportedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			boxIndex++;
 		} // End for boxes
 	} // End allSuccessors
