@@ -40,6 +40,7 @@ public class Sokoban {
 		 Visualizer.printOriginalMap(0);
 		 Visualizer.printCleanMap(0);
 		 Visualizer.printGoalGrad(1);
+		 Visualizer.printState(board.getInitialState());
 	}
 	
 	public Board getBoardFromFile(Reader r) throws IOException{
