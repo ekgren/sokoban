@@ -360,5 +360,21 @@ public class Board {
 	public static Vector<Goal> getListOFGoals(){
 		return goalsList;
 	}
+	
+	public static Vector<String> getStringRepr(){
+		return stringRepr;
+	}
+	
+	public static int getNbRows(){
+		return nbRows;
+	}
+	
+	public static int getNbCols(){
+		return nbCols;
+	}
+	
+	public static int[][][] getGoalGrad(){
+		return goalGrad;
+	}
 
 } // End Class Board

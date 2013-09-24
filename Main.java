@@ -27,12 +27,15 @@ public class Main {
 
 		 final Client client = new Client();
 		 final Board board = client.getBoardFromFile();
+		 final Visualizer visual = new Visualizer();
 		 
 		 Solver solver = new Solver(); //Reaches info incl. initial state from Map staticaly.
 
-		 System.out.println(solver.solutionPath());
+		 //System.out.println(solver.solutionPath());
 		 
-		 Board.printGoalGrad(1);
+		 //Board.printGoalGrad(1);
 		
+		 Visualizer.printGoalGrad(0);
+		 
 	} // main
 } // End Main
