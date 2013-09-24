@@ -19,6 +19,9 @@ import java.util.Vector;
 public class Sokoban {
 
 	/**
+	 * To test with our own maps we use the SolutionEvaluator class 
+	 * to run the program.
+	 * 
 	 * @param args
 	 * 
 	 */
@@ -33,14 +36,16 @@ public class Sokoban {
 		 Solver solver = new Solver(); //Reaches info incl. initial state from Map staticaly.
 		 State finalState = solver.getFinalState();
 		 
-		 //System.out.println(solver.solutionPath());
-		 
-		 //Board.printGoalGrad(1);
-
-		 Visualizer.printOriginalMap(0);
-		 Visualizer.printCleanMap(0);
-		 Visualizer.printGoalGrad(1);
-		 Visualizer.printState(board.getInitialState());
+		 if (debugMode){
+			 //System.out.println(solver.solutionPath());
+			 
+			 //Board.printGoalGrad(1);
+	
+			 Visualizer.printOriginalMap(0);
+			 Visualizer.printCleanMap(0);
+			 Visualizer.printGoalGrad(1);
+			 Visualizer.printState(board.getInitialState());
+		 }
 	}
 	
 	public Board getBoardFromFile(Reader r) throws IOException{
