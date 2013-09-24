@@ -42,6 +42,59 @@ public class Solver {
 		return  String.valueOf(row) + String.valueOf(col);
 	}
 	
+	/**
+	 * Checks if the state is already visited.
+	 * 
+	 * First it is checked whether there exists a identical box configuration,
+	 * if not than the state is added to visitedStates in a new vector for that
+	 * box configuration and false is returned.
+	 * If there is an identical box configuration it is then checked if the player
+	 * shares the same subspace as the player in any of the earlier states with
+	 * identical box configuration.
+	 * 
+	 * @param pState
+	 * @return
+	 */
+	private boolean isVisitedStateAndAdd(State pThisState){
+		
+		String lStateStringKey = pThisState.hashString();
+		
+		if(visitedStates.containsKey(lStateStringKey)){
+			Vector<State> lSameBoxConfig = visitedStates.get(lStateStringKey);
+			
+			boolean shareSubSpace = false;
+
+			for (State prevState : lSameBoxConfig){	
+				
+				/*
+				 * Could first check if players current position is marked as reachable
+				 * 
+				 * else check if connected...
+				 */
+
+				if(isPathToPath(pThisState, pThisState.getPlayerRow(),pThisState.getPlayerCol(),
+						prevState.getPlayerRow(), prevState.getPlayerCol())){
+					shareSubSpace = true;
+					/*
+					 * here is a possibility to add this player positions as "reachableCell"
+					 * for faster 
+					 */
+					break;
+				}
+			} //End for prevStates
+			
+			if( !shareSubSpace){
+				lSameBoxConfig.add(pThisState);
+			}	
+			return shareSubSpace;
+			
+		}//End if (contains same box configuration)
+		Vector<State> lNewBoxConfigVector = new Vector<State>();
+		lNewBoxConfigVector.add(pThisState);
+		return false;
+	}
+	
+	
 	public static String strPath(Cell pCell){
 		
 		if(pCell.getRow() == pCell.getParent().getRow()){
@@ -486,7 +539,7 @@ public class Solver {
 		Vector<State> successorStates= new Vector<State>();
 		Board.getInitialState().allSuccessors(successorStates); // the vector should now include all successor states...
 		
-		/*
+ 		/*
 		 * TODO for sure...	
 		 */
 		return "test: UuullL";

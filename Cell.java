@@ -16,6 +16,8 @@ public class Cell {
 	private int row;
 	private int col;
 	private Cell parent;
+	private int expansionLevel;
+
 	
 	public Cell(int pRow, int pCol){
 		this.row = pRow;
@@ -28,12 +30,22 @@ public class Cell {
 		this.parent = pParent;
 	}
 	
+	public Cell(int pRow,int pCol, int pExpansionLevel){
+		this.row = pRow;
+		this.col = pCol;
+		this.expansionLevel = pExpansionLevel;
+	}
+	
 	public int getRow(){
 		return row;
 	}
 	
 	public int getCol(){
 		return col;
+	}
+	
+	public int getExpansionLevel(){
+		return expansionLevel;
 	}
 	
 	public Cell getParent(){
