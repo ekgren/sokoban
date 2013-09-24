@@ -14,6 +14,9 @@ import java.util.Vector;
 
 public class State implements Cloneable {
 
+	
+	private State parentState;
+
 	private Vector<Box> boxes;
 	private Vector<Cell> reachableCells; //should be HashMap?
 	private Vector<Cell> unReachableCells; //should be HashMap?
@@ -40,6 +43,8 @@ public class State implements Cloneable {
 		lastBoxMovedIndex = -1; //No box is last moved in initial state.
 		//Should maybe be set to the box the player is moved to?
 		lastMoveDir = 'I'; // Initial state 'I', no last move direction.
+
+		this.parentState = null;
 
 		/*
 		 * TODO move player to one box...
@@ -90,6 +95,27 @@ public class State implements Cloneable {
 	} // End constructor State
 
 
+    
+    /**
+     * Creates a string representation for each state which is
+     * only dependent on which cells are occupied with boxes
+     * (irrespective of which box is where)
+     * @return
+     */
+
+    
+    public char getCharLastMove(){
+    	return this.lastMoveDir;
+    }
+    
+    public State getParent(){
+    	return this.parentState;
+    }
+    
+    public Box getLastMovedBox(){
+    	return this.boxes.get(this.lastBoxMovedIndex);
+    }
+    
 	/**
 	 * Creates a string representation for each state which is
 	 * only dependent on which cells are occupied with boxes
@@ -158,6 +184,10 @@ public class State implements Cloneable {
 
     public int getLastBoxMovedIndex() {
         return lastBoxMovedIndex;
+    }
+
+    public Vector<Box> getBoxes() {
+        return boxes;
     }
 
 	/**
