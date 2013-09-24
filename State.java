@@ -14,6 +14,7 @@ import java.util.Vector;
 
 public class State implements Cloneable {
 	
+	private State parentState;
 	private Vector<Box> boxes;
 	private Vector<Cell> reachableCells;
 	private Vector<Cell> unReachableCells;
@@ -39,7 +40,7 @@ public class State implements Cloneable {
 		lastBoxMovedIndex = -1; //No box is last moved in initial state.
 								//Should maybe be set to the box the player is moved to?
 		lastMoveDir = 'I'; // Initial state 'I', no last move direction.
-		
+		this.parentState = null;
 		/*
 		 * TODO move player to one box...
 		 * 
@@ -66,6 +67,8 @@ public class State implements Cloneable {
     public State(final State pParentState, int pBoxIndex, char pMoveDir) {
         // set boxes
         this.boxes = (Vector<Box>) pParentState.boxes.clone();
+        this.parentState = pParentState;
+        
         System.out.println(pMoveDir);
 
         // set player position before moving the box
@@ -110,6 +113,20 @@ public class State implements Cloneable {
     public int getPlayerCol(){
     	return playerCol;
     }
+    
+    public char getCharLastMove(){
+    	return this.lastMoveDir;
+    }
+    
+    public State getParent(){
+    	return this.parentState;
+    }
+    
+    public Box getLastMovedBox(){
+    	return this.boxes.get(this.lastBoxMovedIndex);
+    }
+    
+    
 
     /**
      * Does all necessary checks to see if a box is movable to the position.

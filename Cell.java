@@ -40,6 +40,10 @@ public class Cell {
 		return this.parent;
 	}
 	
+	public void setParent(Cell pCell){
+		this.parent = pCell;
+	}
+	
 	public boolean equals(Cell obj) {
 	    //null instanceof Object will always return false
 	    if (obj == this)
