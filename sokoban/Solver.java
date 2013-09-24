@@ -1,3 +1,4 @@
+package sokoban;
 /*
  * Solver
  * 
@@ -23,9 +24,11 @@ public class Solver {
 	 * player in different subspaces...)
 	 */
 	HashMap<String, Vector<State>> visitedStates = new HashMap<String, Vector<State>>();
+	Queue<State> simpleQueue = new LinkedList<State>();
 	
+
 	
-	Solver(){
+	public Solver(){
 		
 		/*
 		 *TODO
@@ -38,9 +41,50 @@ public class Solver {
 	
 	/* Must check if this hash function is a good one!*/ 
 	public static String getHashString(int row,int col){
-		
 		return  String.valueOf(row) + String.valueOf(col);
 	}
+	
+	public State getFinalState(){
+
+		int lAvoidEndlessLoop = 0;
+		
+		simpleQueue.add(Board.getInitialState());
+		boolean lfoundFinalState = false;
+
+		while(!lfoundFinalState && lAvoidEndlessLoop<1000 ){
+			
+			System.out.println("Solver line 55: " + lAvoidEndlessLoop + " " + simpleQueue.size());
+
+			
+			lAvoidEndlessLoop++;
+			
+			State lCurState = simpleQueue.poll();
+			if(isVisitedStateAndAdd(lCurState)){
+				/* 
+				 * If it is visited then do nothing!
+				 * If not visited than continue with els-checks below
+				 * THIS STATE IS AUTOMATICAL ADDED TO VISTED STATES
+				 * BY THE USE OF THE isVistedStateAndAdd method.
+				 */
+			}
+			else if (lCurState.isFinalState()){
+				lfoundFinalState = true;
+				return lCurState;
+			}
+			else{
+				Vector<State> childsOfCurState = new Vector<State>();
+				lCurState.allSuccessors(childsOfCurState); //fills with all children
+				for (State child : childsOfCurState){
+					simpleQueue.add(child);
+				}
+			}
+		}//while (searching for final state in queue)
+		
+		System.out.println("Solver line 77: No final sate was found, returned initial state.");
+		return Board.getInitialState();
+	}
+
+	
 	
 	/**
 	 * Checks if the state is already visited.
@@ -58,6 +102,9 @@ public class Solver {
 	private boolean isVisitedStateAndAdd(State pThisState){
 		
 		String lStateStringKey = pThisState.hashString();
+		System.out.println("Solver line 104: " + lStateStringKey);
+
+		
 		
 		if(visitedStates.containsKey(lStateStringKey)){
 			Vector<State> lSameBoxConfig = visitedStates.get(lStateStringKey);

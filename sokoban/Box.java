@@ -1,3 +1,4 @@
+package sokoban;
 /*
  * Box
  * 
@@ -83,6 +84,14 @@ public class Box {
         }
 	}
 
+	public void setIsOnGoal(boolean pIsOnGoal){
+		this.isOnGoal = pIsOnGoal;
+	}
+	
+	public boolean isOnGoal(){
+		return isOnGoal;
+	}
+	
 	public int getRow(){
 		return row;
 	}

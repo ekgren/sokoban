@@ -1,3 +1,4 @@
+package sokoban;
 /*
  * State
  * 
@@ -29,11 +30,11 @@ public class State implements Cloneable {
 	private int parentKey; //reference to make it possible to find parent state - for final path building.
 
 
-	/**
+    /**
 	 * Constructs the internal representation of the State
 	 *
 	 * USED ONLY WHEN CREATING INITIAL STATE
-	 * @param 
+	 * @param
 	 */
 	public State(Vector<Box> pBoxes, int pPlayerRow, int pPlayerCol) {
 		boxes = pBoxes;
@@ -53,7 +54,10 @@ public class State implements Cloneable {
 
 		for(Box box : pBoxes){
 			if(isConnected(playerRow, playerCol, box.getRow(),box.getCol())){
-				if(isConnected(playerRow, playerCol, box.getRow(),box.getCol()));
+				/*
+				 * Move player there
+				 * break
+				 */
 			}
 		}
 
@@ -70,7 +74,6 @@ public class State implements Cloneable {
 	public State(final State pParentState, int pBoxIndex, char pMoveDir) {
 		// set boxes
 		this.boxes = (Vector<Box>) pParentState.boxes.clone();
-		System.out.println(pMoveDir);
 
 		// set player position before moving the box
 		playerRow = this.boxes.get(pBoxIndex).getRow();
@@ -80,6 +83,14 @@ public class State implements Cloneable {
 
 		// move the box
 		this.boxes.get(pBoxIndex).move(pMoveDir);
+
+        // if the box position is on goal - add to the field boxesOnGoal
+        if (Board.isGoal(boxes.get(pBoxIndex).getRow(), boxes.get(pBoxIndex).getCol())){
+        	boxes.get(pBoxIndex).setIsOnGoal(true);
+        }
+        else{
+        	boxes.get(pBoxIndex).setIsOnGoal(false);
+        }
 
 	} // End constructor State
 
@@ -125,7 +136,6 @@ public class State implements Cloneable {
 			builder.append(element);
 		}
 		return builder.toString();
-
 	}
 
 	public int getPlayerRow(){
@@ -142,7 +152,7 @@ public class State implements Cloneable {
 
 	/**
 	 * Does all necessary checks to see if a box is movable to the position.
-	 * 
+	 *
 	 * Checks are:
 	 * 1) no wall in that position
 	 * 2) no box in that position
@@ -195,7 +205,7 @@ public class State implements Cloneable {
 		}
 
 		if(!lCorrectInput){
-			if (Main.debugMode) System.out.println("StateError: TryMove: wrong direction input");
+			if (Sokoban.debugMode) System.out.println("StateError: TryMove: wrong direction input");
 		}
 
 		return (!Board.isWall(lMoveToRow, lMoveToCol) &&
@@ -234,7 +244,7 @@ public class State implements Cloneable {
 	}
 	/**
 	 * Returnerar den cell som expanderades senast innan
-	 * 
+	 *
 	 * @param pRow1
 	 * @param pCol1
 	 * @param pRTarget
@@ -306,15 +316,16 @@ public class State implements Cloneable {
 	} // End allSuccessors
 
 
-	/**
-	 * Tries to make a move from a certain position
-	 * <p/>
-	 * up = row - 1
-	 * down = row + 1
-	 * right = column + 1
-	 * left = column - 1
-	 *
-	 * @param pDir direction
-	 */
+    public boolean isFinalState() {
+    	
+    	boolean allOnGoal = true;
+    	
+    	for (Box box : boxes){
+    		if(!box.isOnGoal()){
+    			return false;
+    		}
+    	}
+    	return allOnGoal;
+    }
 
 } // End Class State

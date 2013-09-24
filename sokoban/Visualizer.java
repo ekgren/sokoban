@@ -1,3 +1,4 @@
+package sokoban;
 import java.util.Vector;
 
 /*
