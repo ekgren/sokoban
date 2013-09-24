@@ -13,7 +13,7 @@ public class SolutionEvaluator {
 	public SolutionEvaluator() throws IOException{
 		System.out.println("Initializing evaluation.");
 		long timeStart = System.currentTimeMillis();	
-		String file = "C:/Alpha/eclipse/sokobanGit/sokoban/res/00_sample.in";
+		String file = "sokoban/res/00_sample.in";
 		Sokoban path = new Sokoban(new FileReader(file));
 		System.out.println((timeStart - System.currentTimeMillis()));
 	}
