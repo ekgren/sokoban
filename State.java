@@ -8,7 +8,6 @@
  * Should not be confused with the class Map. 
  */
 
-import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.Vector;
 
@@ -20,7 +19,8 @@ public class State implements Cloneable {
 
 	private int playerRow; // Player position in this state (after move that led to this state)
 	private int playerCol;
-	private int lastBoxMovedIndex; // Index of the box moved that led to this state
+
+    private int lastBoxMovedIndex; // Index of the box moved that led to this state
 	private char lastMoveDir; // Move direction of box according to above that led to this state
 
 	private int parentKey; //reference to make it possible to find parent state - for final path building.
@@ -53,7 +53,6 @@ public class State implements Cloneable {
 		}
 
 	} // End constructor State
-
 
 	/**
 	 * Constructs a state which is the result of applying one move.
@@ -110,6 +109,10 @@ public class State implements Cloneable {
 	public int getPlayerCol(){
 		return playerCol;
 	}
+
+    public int getLastBoxMovedIndex() {
+        return lastBoxMovedIndex;
+    }
 
 	/**
 	 * Does all necessary checks to see if a box is movable to the position.
@@ -208,8 +211,8 @@ public class State implements Cloneable {
 	 * 
 	 * @param pRow1
 	 * @param pCol1
-	 * @param pRow2
-	 * @param pCol2
+	 * @param pRTarget
+	 * @param pCTarget
 	 * @return
 	 */
 	private Cell cellNeighbour(int pRow1, int pCol1,  int pRTarget , int pCTarget){
@@ -219,7 +222,6 @@ public class State implements Cloneable {
 
 		return new Cell(0, 0);
 	}
-
 
 	/**
 	 * Operates on an (empty) Vector with States
@@ -277,7 +279,7 @@ public class State implements Cloneable {
 		} // End for boxes
 	} // End allSuccessors
 
-	
+
 	/**
 	 * Tries to make a move from a certain position
 	 * <p/>
