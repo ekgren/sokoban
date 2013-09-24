@@ -14,6 +14,7 @@ package sokoban;
  */
 
 import java.io.*;
+import java.util.Vector;
 
 public class Sokoban {
 
@@ -25,8 +26,8 @@ public class Sokoban {
 	public static boolean debugMode = true;
 	
 	public Sokoban(Reader r) throws IOException{
-		 final Client client = new Client();
-		 final Board board = client.getBoardFromFile();
+		 //final Client client = new Client();
+		 final Board board = getBoardFromFile(r);
 		 final Visualizer visual = new Visualizer();
 		 
 		 Solver solver = new Solver(); //Reaches info incl. initial state from Map staticaly.
@@ -39,6 +40,23 @@ public class Sokoban {
 		 Visualizer.printOriginalMap(0);
 		 Visualizer.printCleanMap(0);
 		 Visualizer.printGoalGrad(1);
+	}
+	
+	public Board getBoardFromFile(Reader r) throws IOException{
+		
+		Vector<String> board = new Vector<String>();
+
+		BufferedReader fileBr = new BufferedReader(r);
+		
+		String line = null;
+		
+		while(fileBr.ready()) {
+			line = fileBr.readLine();
+			board.add(line);
+		} // End while
+		fileBr.close();
+		
+		return new Board(board);
 	}
 	
 	public static void main(String[] args) throws IOException {
