@@ -1,3 +1,4 @@
+package sokoban;
 
 /*
  * Board
@@ -119,7 +120,7 @@ public class Board {
 					goalsList.add(new Goal(row, col, false));
 				}
 				else{
-					if(Main.debugMode){
+					if(Sokoban.debugMode){
 						System.out.println("MapError: Unknown character: " 
 								+ stringRepr.get(row).charAt(col) + " found!" );
 					}
@@ -133,7 +134,7 @@ public class Board {
 			nbBoxes = lBoxesList.size();
 		}
 		else{
-			if(Main.debugMode){
+			if(Sokoban.debugMode){
 				System.out.println("MapError: There is not an equal amout of boxes and goals!");
 			}
 		}

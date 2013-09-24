@@ -1,3 +1,4 @@
+package sokoban;
 /*
  * State
  * 
@@ -178,7 +179,7 @@ public class State implements Cloneable {
 		}
 
 		if(!lCorrectInput){
-			if (Main.debugMode) System.out.println("StateError: TryMove: wrong direction input");
+			if (Sokoban.debugMode) System.out.println("StateError: TryMove: wrong direction input");
 		}
 
 		return (!Board.isWall(lMoveToRow, lMoveToCol) &&

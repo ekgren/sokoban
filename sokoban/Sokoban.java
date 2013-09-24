@@ -1,3 +1,4 @@
+package sokoban;
 /*
  * Main
  * 
@@ -14,7 +15,7 @@
 
 import java.io.*;
 
-public class Main {
+public class Sokoban {
 
 	/**
 	 * @param args
@@ -23,8 +24,7 @@ public class Main {
 	
 	public static boolean debugMode = true;
 	
-	public static void main(String[] args) throws IOException {
-
+	public Sokoban(Reader r) throws IOException{
 		 final Client client = new Client();
 		 final Board board = client.getBoardFromFile();
 		 final Visualizer visual = new Visualizer();
@@ -36,9 +36,12 @@ public class Main {
 		 
 		 //Board.printGoalGrad(1);
 
-		 //Visualizer.printOriginalMap(0);
-		 //Visualizer.printCleanMap(0);
-		 //Visualizer.printGoalGrad(1);
-		 
+		 Visualizer.printOriginalMap(0);
+		 Visualizer.printCleanMap(0);
+		 Visualizer.printGoalGrad(1);
+	}
+	
+	public static void main(String[] args) throws IOException {
+		 Sokoban soko = new Sokoban(new InputStreamReader(System.in));
 	} // main
 } // End Main
