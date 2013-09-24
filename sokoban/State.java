@@ -134,8 +134,17 @@ public class State implements Cloneable {
 		if (this.hashCode() != other.hashCode())
 			return false;
 	
+		System.out.println("State l137: ----------------");
+		System.out.println(this.playerRow);
+		System.out.println(this.playerCol);
+		System.out.println(other.playerRow);
+		System.out.println(other.playerCol);
+
+		
 		if(!Solver.isPathToPath(this, this.playerRow, this.playerCol, other.playerRow, other.playerCol))
 			return false;
+	
+		
 		return true;
 	}
 

@@ -355,6 +355,7 @@ public class Board {
 	 * @return
 	 */
 	public static boolean isFree(State pState,int pRow,int pCol){
+		System.out.println("Board l359, row: " + pRow +" col: "+ pCol );
 		return (!isWall(pRow,pCol)&&!pState.isBox(pRow,pCol));
 	}
 

@@ -23,7 +23,7 @@ public class Solver {
 	 * containing the DIFFERNT states visited whith this config. (but whith
 	 * player in different subspaces...)
 	 */
-	HashMap<String, Vector<State>> visitedStates = new HashMap<String, Vector<State>>();
+	HashSet<State> visitedStates = new HashSet<State>();
 	Queue<State> simpleQueue = new LinkedList<State>();
 	
 
@@ -49,15 +49,13 @@ public class Solver {
 		int lAvoidEndlessLoop = 0;
 		
 		simpleQueue.add(Board.getInitialState());
-		isVisitedStateAndAdd(Board.getInitialState());
+		visitedStates.add(Board.getInitialState());
+		
 		boolean lfoundFinalState = false;
 
 		while(!lfoundFinalState && lAvoidEndlessLoop<10 ){
 			
 			lAvoidEndlessLoop++;
-			
-			System.out.println("Solver line 55: " + lAvoidEndlessLoop + " " + simpleQueue.size());
-
 			
 			State lCurState = simpleQueue.poll();
 
@@ -69,13 +67,8 @@ public class Solver {
 				Vector<State> childsOfCurState = new Vector<State>();
 				lCurState.allSuccessors(childsOfCurState); //fills with all children
 				for (State child : childsOfCurState){
-					if(!isVisitedStateAndAdd(lCurState)){
-						/* 
-						 * If it is not previously visited then add it!
-						 * THIS STATE IS AUTOMATICAL ADDED TO VISTED STATES
-						 * BY THE USE OF THE isVistedStateAndAdd method IF
-						 * IT IS NOT ALREADY VISITED
-						 */
+					if(!visitedStates.contains(child)){
+						visitedStates.add(child);
 						simpleQueue.add(child);
 					}
 				}
@@ -84,63 +77,6 @@ public class Solver {
 		
 		System.out.println("Solver line 77: No final sate was found, returned initial state.");
 		return Board.getInitialState();
-	}
-
-	
-	
-	/**
-	 * Checks if the state is already visited.
-	 * 
-	 * First it is checked whether there exists a identical box configuration,
-	 * if not than the state is added to visitedStates in a new vector for that
-	 * box configuration and false is returned.
-	 * If there is an identical box configuration it is then checked if the player
-	 * shares the same subspace as the player in any of the earlier states with
-	 * identical box configuration.
-	 * 
-	 * @param pState
-	 * @return
-	 */
-	private boolean isVisitedStateAndAdd(State pThisState){
-		
-		String lStateStringKey = pThisState.hashString();
-		System.out.println("Solver line 104: " + lStateStringKey);
-
-		
-		
-		if(visitedStates.containsKey(lStateStringKey)){
-			Vector<State> lSameBoxConfig = visitedStates.get(lStateStringKey);
-			
-			boolean shareSubSpace = false;
-
-			for (State prevState : lSameBoxConfig){	
-				
-				/*
-				 * Could first check if players current position is marked as reachable
-				 * 
-				 * else check if connected...
-				 */
-
-				if(isPathToPath(pThisState, pThisState.getPlayerRow(),pThisState.getPlayerCol(),
-						prevState.getPlayerRow(), prevState.getPlayerCol())){
-					shareSubSpace = true;
-					/*
-					 * here is a possibility to add this player positions as "reachableCell"
-					 * for faster 
-					 */
-					break;
-				}
-			} //End for prevStates
-			
-			if( !shareSubSpace){
-				lSameBoxConfig.add(pThisState);
-			}	
-			return shareSubSpace;
-			
-		}//End if (contains same box configuration)
-		Vector<State> lNewBoxConfigVector = new Vector<State>();
-		lNewBoxConfigVector.add(pThisState);
-		return false;
 	}
 	
 	
