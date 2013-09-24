@@ -31,6 +31,8 @@ public class Main {
 		 Solver solver = new Solver(); //Reaches info incl. initial state from Map staticaly.
 
 		 System.out.println(solver.solutionPath());
+		 
+		 Board.printGoalGrad(1);
 		
 	} // main
 } // End Main
