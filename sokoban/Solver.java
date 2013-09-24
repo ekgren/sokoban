@@ -648,7 +648,7 @@ public class Solver {
 		
 		String goalString = "";
 
-		while(pEndState.getParent()!=null){
+		while(pEndState.getParent().getParent()!=null){
 			goalString += pEndState.getCharLastMove();
 			
 			int playerRow = pEndState.getPlayerRow();
@@ -669,9 +669,15 @@ public class Solver {
 				goalString += strPath(nextPos);
 				pEndState = pEndState.getParent();
 			}
-			
 		}
-		
+		//If we are two steps from parent == null, we have that state.parent is 
+		//initial state where player pos is start pos.
+		goalString += pEndState.getCharLastMove();
+		Cell currentPos = cellLinkedToState(pEndState);
+		Cell nextPos = cellLinkedToPath(pEndState,currentPos.getRow(),currentPos.getCol(),
+				pEndState.getParent().getPlayerRow(),
+				pEndState.getParent().getPlayerCol());
+		goalString += strPath(nextPos);
 		
 		return goalString;
 	}
