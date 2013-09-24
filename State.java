@@ -24,13 +24,14 @@ public class State implements Cloneable {
 	private char lastMoveDir; // Move direction of box according to above that led to this state
 
 	private int parentKey; //reference to make it possible to find parent state - for final path building.
+    private Vector<Box> boxesOnGoal = new Vector<Box>();
 
 
-	/**
+    /**
 	 * Constructs the internal representation of the State
 	 *
 	 * USED ONLY WHEN CREATING INITIAL STATE
-	 * @param 
+	 * @param
 	 */
 	public State(Vector<Box> pBoxes, int pPlayerRow, int pPlayerCol) {
 		boxes = pBoxes;
@@ -50,6 +51,10 @@ public class State implements Cloneable {
 			if(isConnected(playerRow, playerCol, box.getRow(),box.getCol())){
 				if(isConnected(playerRow, playerCol, box.getRow(),box.getCol()));
 			}
+
+            // if the box position is on goal - add to the field boxesOnGoal
+            if (Board.isGoal(box.getRow(), box.getCol()))
+                boxesOnGoal.add(box);
 		}
 
 	} // End constructor State
@@ -75,6 +80,10 @@ public class State implements Cloneable {
 
 		// move the box
 		this.boxes.get(pBoxIndex).move(pMoveDir);
+
+        // if the box position is on goal - add to the field boxesOnGoal
+        if (Board.isGoal(boxes.get(pBoxIndex).getRow(), boxes.get(pBoxIndex).getCol()))
+            boxesOnGoal.add(boxes.get(pBoxIndex));
 
 	} // End constructor State
 
@@ -116,7 +125,7 @@ public class State implements Cloneable {
 
 	/**
 	 * Does all necessary checks to see if a box is movable to the position.
-	 * 
+	 *
 	 * Checks are:
 	 * 1) no wall in that position
 	 * 2) no box in that position
@@ -208,7 +217,7 @@ public class State implements Cloneable {
 	}
 	/**
 	 * Returnerar den cell som expanderades senast innan
-	 * 
+	 *
 	 * @param pRow1
 	 * @param pCol1
 	 * @param pRTarget
@@ -280,15 +289,8 @@ public class State implements Cloneable {
 	} // End allSuccessors
 
 
-	/**
-	 * Tries to make a move from a certain position
-	 * <p/>
-	 * up = row - 1
-	 * down = row + 1
-	 * right = column + 1
-	 * left = column - 1
-	 *
-	 * @param pDir direction
-	 */
+    public boolean isFinalState() {
+        return boxesOnGoal.size() == boxes.size();
+    }
 
 } // End Class State
