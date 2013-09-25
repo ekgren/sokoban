@@ -482,6 +482,10 @@ public class Solver {
 		return lCellNeighbor;
 	}
 	
+	public Cell cellNeighborToPath2(State pState, int pRow, int pCol, int pRowPath, int pColPath){
+		return null;
+	}
+	
 	/**
 	 * Returns cell next to some position.
 	 * @param pState
@@ -502,6 +506,7 @@ public class Solver {
         Comparator<Cell> comparator = new Cell.NormComparator(
         		pEndCell.getRow(),
         		pEndCell.getCol());
+        
 		HashSet<String> lSetPrPaths = new HashSet<String>();
         PriorityQueue<Cell> lQueChildren = new PriorityQueue<Cell>(10,comparator);
         
