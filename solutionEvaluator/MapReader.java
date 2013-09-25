@@ -1,12 +1,9 @@
 package solutionEvaluator;
 
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 
-import sokoban.Sokoban;
 
 public class MapReader {
 	
@@ -14,20 +11,29 @@ public class MapReader {
 	private int mapNo;
 	private int mapCount = 0;
 	private boolean thisMap = false;
+    private String map;
 	
 	public MapReader(int mapNo) throws IOException{
 		this.mapNo = mapNo;
 		
 		BufferedReader test = new BufferedReader(new FileReader(filePath));
+        StringBuilder lStringBuilder = new StringBuilder();
 		while(true){
 			String line = test.readLine();
 			if(line.charAt(0) == ';') mapCount = mapCount + 1;
-			else if(mapCount == mapNo) System.out.println(line);
+			else if(mapCount == mapNo) lStringBuilder.append(line + "\n");
 			else if(mapCount > mapNo) break;
 		}
+        // set map
+        map = lStringBuilder.toString();
 	}
+
+    public String getMap() {
+        return map;
+    }
 	
 	public static void main(String[] args) throws IOException {
 		MapReader MAP = new MapReader(1);
-	} // main
+        System.out.println(MAP.getMap());
+    } // main
 }

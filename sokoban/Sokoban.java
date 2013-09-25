@@ -34,7 +34,7 @@ public class Sokoban {
 		 this.debugMode = debugMode;
 		 final Board board = getBoardFromFile(r);
 		 final Visualizer visual = new Visualizer();
-		 
+
 		 if (debugMode) Visualizer.printState(board.getInitialState(), "INITIAL STATE");
 		 
 		 Solver solver = new Solver(); //Reaches info incl. initial state from Map staticaly.

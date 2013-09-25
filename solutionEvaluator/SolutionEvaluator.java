@@ -1,6 +1,6 @@
 package solutionEvaluator;
 
-import sokoban.*;
+import sokoban.Sokoban;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -22,13 +22,17 @@ public class SolutionEvaluator {
 	private String filePath;
 	private Vector<StringBuilder> board = new Vector<StringBuilder>();
 
+    // Insert Level number
+    private MapReader map = new MapReader(31);
+
 	public SolutionEvaluator() throws IOException{
 		System.out.println("Initializing evaluation... \n");
 		long startTime = System.currentTimeMillis();
 		
 		filePath = "./sokoban/res/TestTrack.in";
-		
+
 		// Initializing sokoban solver object with map from file.
+		// path = new Sokoban(new StringReader(map.getMap()), false);
 		path = new Sokoban(new FileReader(filePath), false);
 		
 		System.out.println("\nTime to execute: " + Double.toString((System.currentTimeMillis() - startTime)/1000.0) + " seconds.\n");
@@ -36,8 +40,8 @@ public class SolutionEvaluator {
 	}
 	
 	public void animateSolution() throws FileNotFoundException, IOException{
-		
-		
+
+		//BufferedReader fileBr = new BufferedReader(new StringReader(map.getMap()));
 		BufferedReader fileBr = new BufferedReader(new FileReader(filePath));
 		
 		String line = null;
@@ -64,16 +68,74 @@ public class SolutionEvaluator {
                 }
                 xy[1] += 1;
 			}
-            System.out.println(board.size());
-			board.add(new StringBuilder(line));
+            //System.out.println(board.size());
+			if(line.length()!=0) board.add(new StringBuilder(line));
 		} // End while
-		//fileBr.close();
+		fileBr.close();
 		
-		//board.elementAt(processNode.y).setCharAt(processNode.x, 'O');
-		
+		printMap();
 		for (int i = 0; i < path.solution.length(); i++){
 		    char c = path.solution.charAt(i);
-		    System.out.println(c);
+		    if(c=='u'){
+		    	board.elementAt(player[1]).setCharAt(player[0], ' ');
+				player[1] = player[1] - 1;
+				board.elementAt(player[1]).setCharAt(player[0], '@');
+		    	}
+		    else if(c=='d'){
+		    	board.elementAt(player[1]).setCharAt(player[0], ' ');
+				player[1] = player[1] + 1;
+				board.elementAt(player[1]).setCharAt(player[0], '@');
+		    	}
+		    else if(c=='l'){
+		    	board.elementAt(player[1]).setCharAt(player[0], ' ');
+				player[0] = player[0] - 1;
+				board.elementAt(player[1]).setCharAt(player[0], '@');
+		    	}
+		    else if(c=='r'){
+		    	board.elementAt(player[1]).setCharAt(player[0], ' ');
+				player[0] = player[0] + 1;
+				board.elementAt(player[1]).setCharAt(player[0], '@');
+		    	}
+		    else if(c=='U'){
+		    	board.elementAt(player[1]).setCharAt(player[0], ' ');
+				player[1] = player[1] - 1;
+				board.elementAt(player[1]).setCharAt(player[0], '@');
+				if(board.elementAt(player[1] - 1).charAt(player[0])=='.'){
+					board.elementAt(player[1] - 1).setCharAt(player[0], '*');
+				} else {
+					board.elementAt(player[1] - 1).setCharAt(player[0], '$');
+				}
+		    	}
+		    else if(c=='D'){
+		    	board.elementAt(player[1]).setCharAt(player[0], ' ');
+				player[1] = player[1] + 1;
+				board.elementAt(player[1]).setCharAt(player[0], '@');
+				if(board.elementAt(player[1] + 1).charAt(player[0])=='.'){
+					board.elementAt(player[1] + 1).setCharAt(player[0], '*');
+		    	} else {
+		    		board.elementAt(player[1] + 1).setCharAt(player[0], '$');
+		    	}
+		    	}
+		    else if(c=='L'){
+		    	board.elementAt(player[1]).setCharAt(player[0], ' ');
+				player[0] = player[0] - 1;
+				board.elementAt(player[1]).setCharAt(player[0], '@');
+				if(board.elementAt(player[1]).charAt(player[0] - 1)=='.'){
+					board.elementAt(player[1]).setCharAt(player[0] - 1, '*');
+		    	} else {
+		    		board.elementAt(player[1]).setCharAt(player[0] - 1, '$');
+		    	}
+		    	}
+		    else if(c=='R'){
+		    	board.elementAt(player[1]).setCharAt(player[0], ' ');
+				player[0] = player[0] + 1;
+				board.elementAt(player[1]).setCharAt(player[0], '@');
+				if(board.elementAt(player[1]).charAt(player[0] + 1)=='.'){
+					board.elementAt(player[1]).setCharAt(player[0] + 1, '*');
+		    	} else {
+		    		board.elementAt(player[1]).setCharAt(player[0] + 1, '$');
+		    	}
+		    	}
 		    printMap();
 			}
 		
@@ -84,7 +146,7 @@ public class SolutionEvaluator {
                 System.out.println(s);
         }
         try {
-            Thread.sleep(100);
+            Thread.sleep(300);
         } catch(InterruptedException ex) {
             Thread.currentThread().interrupt();
         }
