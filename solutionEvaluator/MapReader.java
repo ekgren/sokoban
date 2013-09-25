@@ -28,6 +28,6 @@ public class MapReader {
 	}
 	
 	public static void main(String[] args) throws IOException {
-		MapReader MAP = new MapReader(21);
+		MapReader MAP = new MapReader(1);
 	} // main
 }
