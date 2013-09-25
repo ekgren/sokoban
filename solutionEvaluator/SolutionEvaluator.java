@@ -19,7 +19,7 @@ import java.io.StringReader;
 public class SolutionEvaluator {
 
 	public SolutionEvaluator() throws IOException{
-		System.out.println("Initializing evaluation.");
+		System.out.println("Initializing evaluation... \n");
 		long startTime = System.currentTimeMillis();
 		
 		//String filePath = "./sokoban/res/00_sample.in";
@@ -29,7 +29,7 @@ public class SolutionEvaluator {
 		// Initializing sokoban solver object with map from file.
 		Sokoban path = new Sokoban(new FileReader(filePath));
 		
-		System.out.println((startTime - System.currentTimeMillis()));
+		System.out.println((System.currentTimeMillis() - startTime));
 	}
 	
 	public static void main(String[] args) throws IOException{

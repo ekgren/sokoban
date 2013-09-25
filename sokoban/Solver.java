@@ -60,7 +60,7 @@ public class Solver {
 			
 			State lCurState = simpleQueue.poll();
 
-			Visualizer.printState(lCurState, "--- State explored in iteration: #" + lIterations + " ---");
+			//Visualizer.printState(lCurState, "--- State explored in iteration: #" + lIterations + " ---");
 			
 			if (lCurState.isFinalState()){
 				Visualizer.printState(lCurState, "THE FINAL STATE IS FOUND! See below:");
@@ -74,10 +74,10 @@ public class Solver {
 					if(!visitedStates.contains(child)){
 						visitedStates.add(child);
 						simpleQueue.add(child);
-						Visualizer.printState(child, "accepted child in iteration: #" + lIterations);
+						//Visualizer.printState(child, "accepted child in iteration: #" + lIterations);
 					}
 					else{
-						Visualizer.printState(child, "Rejected child in iteration: #" + lIterations);
+						//Visualizer.printState(child, "Rejected child in iteration: #" + lIterations);
 					}
 				}
 			}
