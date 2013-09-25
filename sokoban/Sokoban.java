@@ -34,6 +34,10 @@ public class Sokoban {
 		 final Visualizer visual = new Visualizer();
 		 
 		 Visualizer.printState(board.getInitialState(), "INITIAL STATE");
+		 Visualizer.printGoalGrad(0);
+		 Visualizer.printGoalGrad(1);
+
+		 
 		 Solver solver = new Solver(); //Reaches info incl. initial state from Map staticaly.
 		 State finalState = solver.getFinalState();
 		 
