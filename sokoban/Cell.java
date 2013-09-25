@@ -75,7 +75,6 @@ public class Cell {
 		}
 		@Override
 		public int compare(Cell N1, Cell N2) {
-			// TODO Auto-generated method stub
 			int d1 = Math.abs(N1.getRow()-lRow) + Math.abs(N1.getCol() - lCol);
 			int d2 = Math.abs(N2.getRow()-lRow) + Math.abs(N2.getCol() - lCol);
 			return d1-d2;
