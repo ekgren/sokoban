@@ -15,7 +15,7 @@ import java.util.*;
 
 
 public class Solver {
-
+	private State processState;
 	
 	/*
 	 * The key-String represents the box configuration only.
@@ -44,8 +44,38 @@ public class Solver {
 	public static String getHashString(int row,int col){
 		return  String.valueOf(row) + String.valueOf(col);
 	}
-	
-	public State getFinalState(){
+
+	// Tried to improve old getFinalState() with a* implementation (did not work(because of longer time)). 
+	public State aStar(){
+		
+		simpleQueue.offer(Board.getInitialState());
+		
+		while(simpleQueue.peek().isFinalState() == false){
+			
+			processState = simpleQueue.remove();
+			visitedStates.add(processState);
+			
+			Vector<State> childsOfCurState = new Vector<State>();
+			processState.allSuccessors(childsOfCurState); //fills with all children
+			
+			for (State child : childsOfCurState){
+				
+				int cost = child.getG() + 1; 
+				
+				if(simpleQueue.contains(child) == true && cost < child.getG()){
+					simpleQueue.remove(child);
+				}
+				
+				if(simpleQueue.contains(child) == false && visitedStates.contains(child) == false){
+					simpleQueue.add(child);
+				}
+			}	
+		}
+		return simpleQueue.remove();
+	}
+
+
+	public State greedyBFS(){
 		
 		int lIterations = 0;
 		

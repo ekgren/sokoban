@@ -28,6 +28,8 @@ public class State implements Cloneable {
 	private char lastMoveDir; // Move direction of box according to above that led to this state
 
 	private int parentKey; //reference to make it possible to find parent state - for final path building.
+	
+	private int g = 0; // Cost of moving to this position.
 
 
     /**
@@ -97,6 +99,8 @@ public class State implements Cloneable {
         else{
         	boxes.get(pBoxIndex).setIsOnGoal(false);
         }
+        
+        this.g = pParentState.g + 1;
 
 	} // End constructor State
 
@@ -393,5 +397,9 @@ public class State implements Cloneable {
     	}
     	return allOnGoal;
     }
+    
+   public int getG() {
+	   return this.g;
+   }
 
 } // End Class State
