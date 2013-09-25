@@ -398,6 +398,9 @@ public class Solver {
         
         lQueChilds.add(pStartCell);
 		lSetPrPaths.add(getHashString(pStartCell.getRow(),pStartCell.getCol()));
+//		if(pRow == pRowPath && pCol == pColPath){
+	//		lCellNeighboor = new Cell()
+		//}
 		
 		while(!lQueChilds.isEmpty() &! bolFinished){
 			Cell lCellChild = lQueChilds.remove();
@@ -626,10 +629,16 @@ public class Solver {
 		//goalString += pEndState.getCharLastMove();
 		goalString = pEndState.getCharLastMove() + goalString;
 		Cell currentPos = cellLinkedToState(pEndState);
-		Cell nextPos = cellLinkedToPath(pEndState.getParent(),currentPos.getRow(),currentPos.getCol(),
-				pEndState.getParent().getPlayerRow(),
-				pEndState.getParent().getPlayerCol());
-		goalString = strPath(nextPos) + goalString;
+		if(currentPos.getRow()==pEndState.getParent().getPlayerRow() &&
+				currentPos.getCol()==pEndState.getParent().getPlayerCol()){
+			return goalString;
+		}
+		else{
+			Cell nextPos = cellLinkedToPath(pEndState.getParent(),currentPos.getRow(),currentPos.getCol(),
+					pEndState.getParent().getPlayerRow(),
+					pEndState.getParent().getPlayerCol());
+			goalString = strPath(nextPos) + goalString;
+		}
 		return goalString;
 	}
 	
