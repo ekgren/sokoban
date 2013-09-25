@@ -31,19 +31,21 @@ public class Visualizer {
 	
 	public static void printCleanMap(int pReferensGoalIndex){
 		
-		System.out.println("");
-		System.out.println("Clean Map String representation:");
-		for (StringBuilder row : cleanMapStringRepr){
-			System.out.println(row);
+		if (Sokoban.debugMode){ System.out.println("");
+			System.out.println("Clean Map String representation:");
+			for (StringBuilder row : cleanMapStringRepr){
+				System.out.println(row);
+			}
 		}
 	}
 	
 	public static void printOriginalMap(int pReferensGoalIndex){
-		
-		System.out.println("");
-		System.out.println("Original String representation:");
-		for (StringBuilder row : stringRepr){
-			System.out.println(row);
+		if (Sokoban.debugMode) {
+			System.out.println("");
+			System.out.println("Original String representation:");
+			for (StringBuilder row : stringRepr){
+				System.out.println(row);
+			}
 		}
 	}
 	

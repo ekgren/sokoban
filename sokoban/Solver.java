@@ -63,7 +63,7 @@ public class Solver {
 			//Visualizer.printState(lCurState, "--- State explored in iteration: #" + lIterations + " ---");
 			
 			if (lCurState.isFinalState()){
-				Visualizer.printState(lCurState, "THE FINAL STATE IS FOUND! See below:");
+				if (Sokoban.debugMode) Visualizer.printState(lCurState, "THE FINAL STATE IS FOUND! See below:");
 				lfoundFinalState = true;
 				return lCurState;
 			}
@@ -100,19 +100,19 @@ public class Solver {
 	public static String strChecker(Cell pCell){
 		
 		if(pCell.getRow() == pCell.getParent().getRow()){
-			if(pCell.getCol() < pCell.getParent().getCol()){
-				return "U";
+			if(pCell.getCol() > pCell.getParent().getCol()){
+				return "l";
 			}
 			else{
-				return "D";
+				return "r";
 			}
 		}
 		else{
-			if(pCell.getRow() < pCell.getParent().getRow()){
-				return "L";
+			if(pCell.getRow() > pCell.getParent().getRow()){
+				return "u";
 			}
 			else{
-				return "R";
+				return "d";
 			}
 		}
 	}
@@ -126,7 +126,7 @@ public class Solver {
 		
 		String strMoves = "";
 		while(pCell.getParent() != null){
-			strMoves += strChecker(pCell);
+			strMoves += strChecker(pCell); //+ strMoves;
 			pCell = pCell.getParent();
 		}
 		//strMoves += strChecker(pCell);
@@ -412,7 +412,7 @@ public class Solver {
 				if(!lSetPrPaths.contains(hashIndex1)){
 					lSetPrPaths.add(hashIndex1);
 			
-					if(!Board.isFree(pState,lRowChild, lCol)){
+					if(Board.isFree(pState,lRowChild, lCol)){
 						
 						if(lRowChild == pEndCell.getRow() &&
 								lCol == pEndCell.getCol()){
@@ -430,7 +430,7 @@ public class Solver {
 				if(!lSetPrPaths.contains(hashIndex2)){
 					lSetPrPaths.add(hashIndex2);
 			
-					if(!Board.isFree(pState,lRow, lColChild)){
+					if(Board.isFree(pState,lRow, lColChild)){
 						
 						if(lRow == pEndCell.getRow() &&
 								lColChild == pEndCell.getCol()){
@@ -577,10 +577,10 @@ public class Solver {
 		Cell lCellNeededPlayerPos = null;
 		
 		if(lMove == 'U'){
-			lCellNeededPlayerPos = new Cell(pState.getPlayerRow()-1,pState.getPlayerCol());
+			lCellNeededPlayerPos = new Cell(pState.getPlayerRow()+1,pState.getPlayerCol());
 		}
 		else if(lMove == 'D'){
-			lCellNeededPlayerPos = new Cell(pState.getPlayerRow()+1,pState.getPlayerCol());
+			lCellNeededPlayerPos = new Cell(pState.getPlayerRow()-1,pState.getPlayerCol());
 		}
 		else if(lMove == 'L'){
 			lCellNeededPlayerPos = new Cell(pState.getPlayerRow(),pState.getPlayerCol()+1);
@@ -597,40 +597,39 @@ public class Solver {
 	 * @return
 	 */
 	public static String getStrToGoal(State pEndState){
-		
-		String goalString = "";
 
+		String goalString = "";
+		
 		while(pEndState.getParent().getParent()!=null){
-			goalString += pEndState.getCharLastMove();
-			
-			int playerRow = pEndState.getPlayerRow();
-			int playerCol = pEndState.getPlayerCol();
-			int lastMovedBoxRow = pEndState.getParent().getLastMovedBox().getRow();
-			int lastMovedBoxCol = pEndState.getParent().getLastMovedBox().getCol();
-			
-			//If same box is moving we can continue adding chars to the solution string.
-			if(lastMovedBoxRow == playerRow && lastMovedBoxCol == playerCol){
-				pEndState = pEndState.getParent();
-			}
-			//If not same box is moving we have to player path between the successive states.
-			else{
-				Cell currentPos = cellLinkedToState(pEndState);
-				Cell nextPos = cellLinkedToPath(pEndState,currentPos.getRow(),currentPos.getCol(),
-						pEndState.getParent().getPlayerRow(),
+			//goalString += pEndState.getCharLastMove();
+			goalString = pEndState.getCharLastMove() + goalString;
+
+			//If not same box is moving we have to player path between the successive states.			
+			Cell currentPos = cellLinkedToState(pEndState);
+			Cell nextPos = cellLinkedToPath(pEndState.getParent(),currentPos.getRow(),
+						currentPos.getCol(),pEndState.getParent().getPlayerRow(),
 						pEndState.getParent().getPlayerCol());
-				goalString += strPath(nextPos);
-				pEndState = pEndState.getParent();
+			if(nextPos!=null){
+				goalString = strPath(nextPos) + goalString;
 			}
-		}
+			//else{
+				//System.out.println("No Path!");
+				//break;
+			//}
+				
+			pEndState = pEndState.getParent();
+			}
+		
+
 		//If we are two steps from parent == null, we have that state.parent is 
 		//initial state where player pos is start pos.
-		goalString += pEndState.getCharLastMove();
+		//goalString += pEndState.getCharLastMove();
+		goalString = pEndState.getCharLastMove() + goalString;
 		Cell currentPos = cellLinkedToState(pEndState);
-		Cell nextPos = cellLinkedToPath(pEndState,currentPos.getRow(),currentPos.getCol(),
+		Cell nextPos = cellLinkedToPath(pEndState.getParent(),currentPos.getRow(),currentPos.getCol(),
 				pEndState.getParent().getPlayerRow(),
 				pEndState.getParent().getPlayerCol());
-		goalString += strPath(nextPos);
-		
+		goalString = strPath(nextPos) + goalString;
 		return goalString;
 	}
 	
