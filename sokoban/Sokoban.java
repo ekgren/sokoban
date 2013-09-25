@@ -27,6 +27,7 @@ public class Sokoban {
 	 */
 	
 	public static boolean debugMode = true;
+	public String solution;
 	
 	public Sokoban(Reader r, boolean debugMode) throws IOException{
 		 //final Client client = new Client();
@@ -39,7 +40,11 @@ public class Sokoban {
 		 Solver solver = new Solver(); //Reaches info incl. initial state from Map staticaly.
 		 State finalState = solver.getFinalState();
 		 
-		 System.out.println(solver.getStrToGoal(finalState));
+		 if(finalState.isFinalState()){
+			 solution = solver.getStrToGoal(finalState);
+			 System.out.println(solution);
+			 }
+		 else {System.out.println("no path");}
 		 
 		 if (debugMode) Visualizer.printState(board.getInitialState(), "INITIAL STATE");
 		 

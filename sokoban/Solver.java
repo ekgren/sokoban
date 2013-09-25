@@ -63,7 +63,7 @@ public class Solver {
 			//Visualizer.printState(lCurState, "--- State explored in iteration: #" + lIterations + " ---");
 			
 			if (lCurState.isFinalState()){
-				Visualizer.printState(lCurState, "THE FINAL STATE IS FOUND! See below:");
+				if (Sokoban.debugMode) Visualizer.printState(lCurState, "THE FINAL STATE IS FOUND! See below:");
 				lfoundFinalState = true;
 				return lCurState;
 			}
@@ -612,10 +612,10 @@ public class Solver {
 			if(nextPos!=null){
 				goalString = strPath(nextPos) + goalString;
 			}
-			else{
-				System.out.println("No Path!");
-				break;
-			}
+			//else{
+				//System.out.println("No Path!");
+				//break;
+			//}
 				
 			pEndState = pEndState.getParent();
 			}
