@@ -34,46 +34,15 @@ public class Sokoban {
 		 this.debugMode = debugMode;
 		 final Board board = getBoardFromFile(r);
 		 final Visualizer visual = new Visualizer();
-
-		 if (debugMode) Visualizer.printState(board.getInitialState(), "INITIAL STATE");
 		 
 		 Solver solver = new Solver(); //Reaches info incl. initial state from Map staticaly.
-		 State finalState = solver.getFinalState();
+		 State finalState = solver.greedyBFS();
 		 
 		 if(finalState.isFinalState()){
 			 solution = solver.getStrToGoal(finalState);
-			 System.out.println(solution);
 			 }
 		 else {System.out.println("no path");}
-		 
-		 if (debugMode) Visualizer.printState(board.getInitialState(), "INITIAL STATE");
-		 
-		 if (debugMode) {
-			 while(finalState.getParent() != null){
-				 System.out.println(finalState.getCharLastMove());
-				 System.out.println(finalState.getLastMovedBox().getRow());
-				 System.out.println(finalState.getLastMovedBox().getCol());
-				 System.out.println(finalState.getPlayerRow());
-				 System.out.println(finalState.getPlayerCol());
-				 finalState = finalState.getParent();
-				 
-			 }
-			 System.out.println(finalState.getPlayerRow());
-			 System.out.println(finalState.getPlayerCol());
-		 }
-		 
-		 if (debugMode){
-			 //System.out.println(solver.solutionPath());
-			 
-			 //Board.printGoalGrad(1);
-	
-			/*
-			 Visualizer.printOriginalMap(0);
-			 Visualizer.printCleanMap(0);
-			 Visualizer.printGoalGrad(1);
-			 Visualizer.printState(board.getInitialState());
-			 */
-		 }
+
 	}
 	
 	public Board getBoardFromFile(Reader r) throws IOException{
@@ -95,5 +64,6 @@ public class Sokoban {
 	
 	public static void main(String[] args) throws IOException {
 		 Sokoban soko = new Sokoban(new InputStreamReader(System.in), false);
+		 System.out.println(soko.solution.toUpperCase());
 	} // main
 } // End Main

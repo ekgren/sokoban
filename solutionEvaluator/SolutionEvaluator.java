@@ -32,16 +32,16 @@ public class SolutionEvaluator {
 		filePath = "./sokoban/res/TestTrack.in";
 
 		// Initializing sokoban solver object with map from file.
-		// path = new Sokoban(new StringReader(map.getMap()), false);
 		path = new Sokoban(new FileReader(filePath), false);
 		
 		System.out.println("\nTime to execute: " + Double.toString((System.currentTimeMillis() - startTime)/1000.0) + " seconds.\n");
-		animateSolution();
+		//animateSolution();
 	}
 	
 	public void animateSolution() throws FileNotFoundException, IOException{
-
-		//BufferedReader fileBr = new BufferedReader(new StringReader(map.getMap()));
+		
+		// Method to animate solution to see if it's correct!
+		
 		BufferedReader fileBr = new BufferedReader(new FileReader(filePath));
 		
 		String line = null;
