@@ -612,10 +612,10 @@ public class Solver {
 			if(nextPos!=null){
 				goalString = strPath(nextPos) + goalString;
 			}
-			else{
-				System.out.println("No Path!");
-				break;
-			}
+			//else{
+				//System.out.println("No Path!");
+				//break;
+			//}
 				
 			pEndState = pEndState.getParent();
 			}

@@ -22,8 +22,8 @@ public class SolutionEvaluator {
 		System.out.println("Initializing evaluation.");
 		long startTime = System.currentTimeMillis();
 		
-		String filePath = "./sokoban/res/00_sample.in";
-		//String filePath = "./sokoban/res/TestTrack.in";
+		//String filePath = "./sokoban/res/00_sample.in";
+		String filePath = "./sokoban/res/TestTrack.in";
 
 		
 		// Initializing sokoban solver object with map from file.
