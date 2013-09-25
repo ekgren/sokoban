@@ -31,19 +31,21 @@ public class Visualizer {
 	
 	public static void printCleanMap(int pReferensGoalIndex){
 		
-		System.out.println("");
-		System.out.println("Clean Map String representation:");
-		for (StringBuilder row : cleanMapStringRepr){
-			System.out.println(row);
+		if (Sokoban.debugMode){ System.out.println("");
+			System.out.println("Clean Map String representation:");
+			for (StringBuilder row : cleanMapStringRepr){
+				System.out.println(row);
+			}
 		}
 	}
 	
 	public static void printOriginalMap(int pReferensGoalIndex){
-		
-		System.out.println("");
-		System.out.println("Original String representation:");
-		for (StringBuilder row : stringRepr){
-			System.out.println(row);
+		if (Sokoban.debugMode) {
+			System.out.println("");
+			System.out.println("Original String representation:");
+			for (StringBuilder row : stringRepr){
+				System.out.println(row);
+			}
 		}
 	}
 	
@@ -60,11 +62,18 @@ public class Visualizer {
 		System.out.println("Goal gradient:");
 		for (int row = 0; row<lNbRows; row++){
 			for (int col = 0; col<lNbCols; col++){				
-				if (Board.getGoalGrad(pReferensGoalIndex, row, col) != -1){
-					System.out.print(Board.getGoalGrad(pReferensGoalIndex, row, col));
-				}
-				else if(col<cleanMapStringRepr.get(row).length()){ //might be shorter than nbCols!
-					System.out.print(cleanMapStringRepr.get(row).charAt(col));
+				if(col<cleanMapStringRepr.get(row).length()){
+
+					char lCharAt = cleanMapStringRepr.get(row).charAt(col);
+					if (lCharAt == '#'){
+						System.out.print(lCharAt);
+					}
+					else if (Board.getGoalGrad(pReferensGoalIndex, row, col) != -1){
+						System.out.print(Board.getGoalGrad(pReferensGoalIndex, row, col));
+					}
+					else if(col<cleanMapStringRepr.get(row).length()){ //might be shorter than nbCols!
+						System.out.print("-");//cleanMapStringRepr.get(row).charAt(col));
+					}
 				}
 			}//End for columns	
 			System.out.println(" ");
