@@ -30,23 +30,22 @@ public class Sokoban {
 	public String solution;
 	
 	public Sokoban(Reader r, boolean debugMode) throws IOException{
-		 //final Client client = new Client();
-		 this.debugMode = debugMode;
-		 final Board board = getBoardFromFile(r);
-		 final Visualizer visual = new Visualizer();
+		//final Client client = new Client();
+		this.debugMode = debugMode;
+		final Board board = getBoardFromFile(r);
+	    final Visualizer visual = new Visualizer();
 
-		 if (debugMode) Visualizer.printState(board.getInitialState(), "INITIAL STATE");
+		if (debugMode) Visualizer.printState(board.getInitialState(), "INITIAL STATE");
 		 
-		 Solver solver = new Solver(); //Reaches info incl. initial state from Map staticaly.
-		 State finalState = solver.getFinalState();
+		Solver solver = new Solver(); //Reaches info incl. initial state from Map staticaly.
+		State finalState = solver.getFinalState();
 		 
-		 if(finalState.isFinalState()){
-			 solution = solver.getStrToGoal(finalState);
-			 System.out.println(solution);
-			 }
-		 else {System.out.println("no path");}
+	    if(finalState.isFinalState()) solution = solver.getStrToGoal(finalState);
+        else solution = "no path";
+
+
 		 
-		 if (debugMode) Visualizer.printState(board.getInitialState(), "INITIAL STATE");
+	    if (debugMode) Visualizer.printState(board.getInitialState(), "INITIAL STATE");
 		 
 		 if (debugMode) {
 			 while(finalState.getParent() != null){
@@ -94,6 +93,8 @@ public class Sokoban {
 	}
 	
 	public static void main(String[] args) throws IOException {
-		 Sokoban soko = new Sokoban(new InputStreamReader(System.in), false);
-	} // main
+	    Sokoban soko = new Sokoban(new InputStreamReader(System.in), false);
+        // Prints the solution to Kattis
+        System.out.println(soko.solution.toUpperCase());
+    } // main
 } // End Main

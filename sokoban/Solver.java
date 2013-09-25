@@ -68,9 +68,9 @@ public class Solver {
 				return lCurState;
 			}
 			else{
-				Vector<State> childsOfCurState = new Vector<State>();
-				lCurState.allSuccessors(childsOfCurState); //fills with all children
-				for (State child : childsOfCurState){
+				Vector<State> childrenOfCurState = new Vector<State>();
+				lCurState.allSuccessors(childrenOfCurState); //fills with all children
+				for (State child : childrenOfCurState){
 					if(!visitedStates.contains(child)){
 						visitedStates.add(child);
 						simpleQueue.add(child);
@@ -86,8 +86,9 @@ public class Solver {
 
 
 		}//while (searching for final state in queue)
+        if(Sokoban.debugMode)
+		    System.out.println("Solver line 77: No final sate was found, returned initial state.");
 
-		System.out.println("Solver line 77: No final sate was found, returned initial state.");
 		return Board.getInitialState();
 	}
 	
@@ -142,26 +143,26 @@ public class Solver {
 	 * @param pColBox
 	 * @return
 	 */
-	public static Cell cellNeighboorToBox(State state ,
-			int pRow,int pCol,int pRowBox,int pColBox){
+	public static Cell cellNeighborToBox(State state,
+                                         int pRow, int pCol, int pRowBox, int pColBox) {
 		
 		Cell pStartCell = new Cell(pRow,pCol);
 		Cell pEndCell = new Cell(pRowBox,pColBox);
 		
 		boolean bolFinished = false;
-		Cell lCellNeighboor = null;
+		Cell lCellNeighbor = null;
 		
         Comparator<Cell> comparator = new Cell.NormComparator(
         		pEndCell.getRow(),
         		pEndCell.getCol());
 		HashSet<String> lSetPrPaths = new HashSet<String>();
-        PriorityQueue<Cell> lQueChilds = new PriorityQueue<Cell>(10,comparator);
+        PriorityQueue<Cell> lQueChildren = new PriorityQueue<Cell>(10,comparator);
         
-        lQueChilds.add(pStartCell);
+        lQueChildren.add(pStartCell);
 		lSetPrPaths.add(getHashString(pStartCell.getRow(),pStartCell.getCol()));
 		
-		while(!lQueChilds.isEmpty() &! bolFinished){
-			Cell lCellChild = lQueChilds.remove();
+		while(!lQueChildren.isEmpty() &! bolFinished){
+			Cell lCellChild = lQueChildren.remove();
 			int lRow = lCellChild.getRow();
 			int lCol = lCellChild.getCol();
 			int incInt = -1;
@@ -179,12 +180,12 @@ public class Solver {
 						
 						if(!state.isBox(lRowChild,lCol)){
 							//If we are not finished add child to queue.
-							lQueChilds.add(new Cell(lRowChild,lCol));
+							lQueChildren.add(new Cell(lRowChild,lCol));
 						}
 						else if(lRowChild == pEndCell.getRow() &&
 								lCol == pEndCell.getCol()){
 							//If we have found path return cell which is next to searched position.
-							lCellNeighboor = lCellChild;
+							lCellNeighbor = lCellChild;
 							bolFinished = true;
 							break;
 						}
@@ -201,11 +202,11 @@ public class Solver {
 					if(!Board.isWall(lRow, lColChild)){
 						
 						if(!state.isBox(lRow,lColChild)){
-							lQueChilds.add(new Cell(lRow,lColChild));
+							lQueChildren.add(new Cell(lRow,lColChild));
 						}
 						else if(lRow == pEndCell.getRow() &&
 								lColChild == pEndCell.getCol()){
-							lCellNeighboor = lCellChild;
+							lCellNeighbor = lCellChild;
 							bolFinished = true;
 							break;
 						}
@@ -214,7 +215,7 @@ public class Solver {
 			incInt = incInt + 2;	
 			}
 		}
-		return lCellNeighboor;
+		return lCellNeighbor;
 	}
 	
 	/**
@@ -226,25 +227,25 @@ public class Solver {
 	 * @param pColBox
 	 * @return
 	 */
-	public static Cell cellLinkedNeighboorToBox(State state ,
-			int pRow,int pCol,int pRowBox,int pColBox){
+	public static Cell cellLinkedNeighborToBox(State state,
+                                               int pRow, int pCol, int pRowBox, int pColBox) {
 
 		Cell pStartCell = new Cell(pRow,pCol);
 		Cell pEndCell = new Cell(pRowBox,pColBox);
 		boolean bolFinished = false;
-		Cell lCellNeighboor = null;
+		Cell lCellNeighbor = null;
 		
         Comparator<Cell> comparator = new Cell.NormComparator(
         		pEndCell.getRow(),
         		pEndCell.getCol());
 		HashSet<String> lSetPrPaths = new HashSet<String>();
-        PriorityQueue<Cell> lQueChilds = new PriorityQueue<Cell>(10,comparator);
+        PriorityQueue<Cell> lQueChildren = new PriorityQueue<Cell>(10,comparator);
         
-        lQueChilds.add(pStartCell);
+        lQueChildren.add(pStartCell);
 		lSetPrPaths.add(getHashString(pStartCell.getRow(),pStartCell.getCol()));
 		
-		while(!lQueChilds.isEmpty() &! bolFinished){
-			Cell lCellChild = lQueChilds.remove();
+		while(!lQueChildren.isEmpty() &! bolFinished){
+			Cell lCellChild = lQueChildren.remove();
 			int lRow = lCellChild.getRow();
 			int lCol = lCellChild.getCol();
 			int incInt = -1;
@@ -259,11 +260,11 @@ public class Solver {
 					if(!Board.isWall(lRowChild, lCol)){
 						
 						if(!state.isBox(lRowChild,lCol)){
-							lQueChilds.add(new Cell(lCellChild,lRowChild,lCol));
+							lQueChildren.add(new Cell(lCellChild,lRowChild,lCol));
 						}
 						else if(lRowChild == pEndCell.getRow() &&
 								lCol == pEndCell.getCol()){
-							lCellNeighboor = new Cell(lCellChild,lRowChild,lCol);
+							lCellNeighbor = new Cell(lCellChild,lRowChild,lCol);
 							bolFinished = true;
 							break;
 						}
@@ -278,11 +279,11 @@ public class Solver {
 					if(!Board.isWall(lRow, lColChild)){
 						
 						if(!state.isBox(lRow,lColChild)){
-							lQueChilds.add(new Cell(lCellChild,lRow,lColChild));
+							lQueChildren.add(new Cell(lCellChild,lRow,lColChild));
 						}
 						else if(lRow == pEndCell.getRow() &&
 								lColChild == pEndCell.getCol()){
-							lCellNeighboor = new Cell(lCellChild,lRow,lColChild);
+							lCellNeighbor = new Cell(lCellChild,lRow,lColChild);
 							bolFinished = true;
 							break;
 						}
@@ -291,11 +292,11 @@ public class Solver {
 			incInt = incInt + 2;	
 			}
 		}
-		if(lCellNeighboor != null){
-			return lCellNeighboor.getParent();
+		if(lCellNeighbor != null){
+			return lCellNeighbor.getParent();
 		}
 		else{
-			return lCellNeighboor;
+			return lCellNeighbor;
 		}
 	}
 	/**
@@ -307,25 +308,25 @@ public class Solver {
 	 * @param pColBox
 	 * @return
 	 */
-	public static Cell cellLinkedNeighboorToPath(State pState ,
-			int pRow,int pCol,int pRowPath,int pColPath){
+	public static Cell cellLinkedNeighborToPath(State pState,
+                                                int pRow, int pCol, int pRowPath, int pColPath) {
 
 		Cell pStartCell = new Cell(pRow,pCol);
 		Cell pEndCell = new Cell(pRowPath,pColPath);
 		boolean bolFinished = false;
-		Cell lCellNeighboor = null;
+		Cell lCellNeighbor = null;
 		
         Comparator<Cell> comparator = new Cell.NormComparator(
         		pEndCell.getRow(),
         		pEndCell.getCol());
 		HashSet<String> lSetPrPaths = new HashSet<String>();
-        PriorityQueue<Cell> lQueChilds = new PriorityQueue<Cell>(10,comparator);
+        PriorityQueue<Cell> lQueChildren = new PriorityQueue<Cell>(10,comparator);
         
-        lQueChilds.add(pStartCell);
+        lQueChildren.add(pStartCell);
 		lSetPrPaths.add(getHashString(pStartCell.getRow(),pStartCell.getCol()));
 		
-		while(!lQueChilds.isEmpty() &! bolFinished){
-			Cell lCellChild = lQueChilds.remove();
+		while(!lQueChildren.isEmpty() &! bolFinished){
+			Cell lCellChild = lQueChildren.remove();
 			int lRow = lCellChild.getRow();
 			int lCol = lCellChild.getCol();
 			int incInt = -1;
@@ -341,11 +342,11 @@ public class Solver {
 						
 						if(lRowChild == pEndCell.getRow() &&
 								lCol == pEndCell.getCol()){
-							lCellNeighboor = lCellChild;
+							lCellNeighbor = lCellChild;
 							bolFinished = true;
 						}
 						else{
-							lQueChilds.add(new Cell(lCellChild,lRowChild,lCol));
+							lQueChildren.add(new Cell(lCellChild,lRowChild,lCol));
 						}	
 					}
 				}
@@ -359,18 +360,18 @@ public class Solver {
 						
 						if(lRow == pEndCell.getRow() &&
 								lColChild == pEndCell.getCol()){
-							lCellNeighboor = lCellChild;
+							lCellNeighbor = lCellChild;
 							bolFinished = true;
 						}
 						else{
-							lQueChilds.add(new Cell(lCellChild,lRow,lColChild));
+							lQueChildren.add(new Cell(lCellChild,lRow,lColChild));
 						}	
 					}
 				}
 			incInt = incInt + 2;	
 			}
 		}
-		return lCellNeighboor;
+		return lCellNeighbor;
 	}
 	
 	/**
@@ -382,28 +383,28 @@ public class Solver {
 	 * @param pColPath
 	 * @return
 	 */
-	public static Cell cellLinkedToPath(State pState ,
-			int pRow,int pCol,int pRowPath,int pColPath){
+	public static Cell cellLinkedToPath(State pState,
+                                        int pRow, int pCol, int pRowPath, int pColPath) {
 
 		Cell pStartCell = new Cell(pRow,pCol);
 		Cell pEndCell = new Cell(pRowPath,pColPath);
 		boolean bolFinished = false;
-		Cell lCellNeighboor = null;
+		Cell lCellNeighbor = null;
 		
         Comparator<Cell> comparator = new Cell.NormComparator(
         		pEndCell.getRow(),
         		pEndCell.getCol());
 		HashSet<String> lSetPrPaths = new HashSet<String>();
-        PriorityQueue<Cell> lQueChilds = new PriorityQueue<Cell>(10,comparator);
+        PriorityQueue<Cell> lQueChildren = new PriorityQueue<Cell>(10,comparator);
         
-        lQueChilds.add(pStartCell);
+        lQueChildren.add(pStartCell);
 		lSetPrPaths.add(getHashString(pStartCell.getRow(),pStartCell.getCol()));
 //		if(pRow == pRowPath && pCol == pColPath){
-	//		lCellNeighboor = new Cell()
+	//		lCellNeighbor = new Cell()
 		//}
 		
-		while(!lQueChilds.isEmpty() &! bolFinished){
-			Cell lCellChild = lQueChilds.remove();
+		while(!lQueChildren.isEmpty() &! bolFinished){
+			Cell lCellChild = lQueChildren.remove();
 			int lRow = lCellChild.getRow();
 			int lCol = lCellChild.getCol();
 			int incInt = -1;
@@ -419,11 +420,11 @@ public class Solver {
 						
 						if(lRowChild == pEndCell.getRow() &&
 								lCol == pEndCell.getCol()){
-							lCellNeighboor = new Cell(lCellChild,lRowChild,lCol);
+							lCellNeighbor = new Cell(lCellChild,lRowChild,lCol);
 							bolFinished = true;
 						}
 						else{
-							lQueChilds.add(new Cell(lCellChild,lRowChild,lCol));
+							lQueChildren.add(new Cell(lCellChild,lRowChild,lCol));
 						}	
 					}
 				}
@@ -437,18 +438,18 @@ public class Solver {
 						
 						if(lRow == pEndCell.getRow() &&
 								lColChild == pEndCell.getCol()){
-							lCellNeighboor = new Cell(lCellChild,lRow,lColChild);
+							lCellNeighbor = new Cell(lCellChild,lRow,lColChild);
 							bolFinished = true;
 						}
 						else{
-							lQueChilds.add(new Cell(lCellChild,lRow,lColChild));
+							lQueChildren.add(new Cell(lCellChild,lRow,lColChild));
 						}	
 					}
 				}
 			incInt = incInt + 2;	
 			}
 		}
-		return lCellNeighboor;
+		return lCellNeighbor;
 	}
 	
 	/**
@@ -460,25 +461,25 @@ public class Solver {
 	 * @param pColPath
 	 * @return
 	 */
-	public static Cell cellNeighboorToPath(State pState ,
-			int pRow,int pCol,int pRowPath,int pColPath){
+	public static Cell cellNeighborToPath(State pState,
+                                          int pRow, int pCol, int pRowPath, int pColPath) {
 
 		Cell pStartCell = new Cell(pRow,pCol);
 		Cell pEndCell = new Cell(pRowPath,pColPath);
 		boolean bolFinished = false;
-		Cell lCellNeighboor = null;
+		Cell lCellNeighbor = null;
 		
         Comparator<Cell> comparator = new Cell.NormComparator(
         		pEndCell.getRow(),
         		pEndCell.getCol());
 		HashSet<String> lSetPrPaths = new HashSet<String>();
-        PriorityQueue<Cell> lQueChilds = new PriorityQueue<Cell>(10,comparator);
+        PriorityQueue<Cell> lQueChildren = new PriorityQueue<Cell>(10,comparator);
         
-        lQueChilds.add(pStartCell);
+        lQueChildren.add(pStartCell);
 		lSetPrPaths.add(getHashString(pStartCell.getRow(),pStartCell.getCol()));
 		
-		while(!lQueChilds.isEmpty() &! bolFinished){
-			Cell lCellChild = lQueChilds.remove();
+		while(!lQueChildren.isEmpty() &! bolFinished){
+			Cell lCellChild = lQueChildren.remove();
 			int lRow = lCellChild.getRow();
 			int lCol = lCellChild.getCol();
 			int incInt = -1;
@@ -494,11 +495,11 @@ public class Solver {
 						
 						if(lRowChild == pEndCell.getRow() &&
 								lCol == pEndCell.getCol()){
-							lCellNeighboor = lCellChild;
+							lCellNeighbor = lCellChild;
 							bolFinished = true;
 						}
 						else{
-							lQueChilds.add(new Cell(lRowChild,lCol));
+							lQueChildren.add(new Cell(lRowChild,lCol));
 						}	
 					}
 				}
@@ -512,18 +513,18 @@ public class Solver {
 						
 						if(lRow == pEndCell.getRow() &&
 								lColChild == pEndCell.getCol()){
-							lCellNeighboor = lCellChild;
+							lCellNeighbor = lCellChild;
 							bolFinished = true;
 						}
 						else{
-							lQueChilds.add(new Cell(lRow,lColChild));
+							lQueChildren.add(new Cell(lRow,lColChild));
 						}	
 					}
 				}
 			incInt = incInt + 2;	
 			}
 		}
-		return lCellNeighboor;
+		return lCellNeighbor;
 	}
 
 	
@@ -536,7 +537,7 @@ public class Solver {
 	 */
 	public static boolean isPathToBox(State pState ,int pRow,int pCol,int pRowBox,
 			int pColBox){
-		Cell lCell = cellNeighboorToBox(pState,pRow,pCol,pRowBox,pColBox);
+		Cell lCell = cellNeighborToBox(pState, pRow, pCol, pRowBox, pColBox);
 		return (lCell != null);
 	}
 	
@@ -554,19 +555,8 @@ public class Solver {
 		if(pRow==pRowPath && pCol==pColPath) //for some reason the function otherwise return false...
 			return true;
 		
-		Cell lCell = cellNeighboorToPath(pState,pRow,pCol,pRowPath,pColPath);
+		Cell lCell = cellNeighborToPath(pState, pRow, pCol, pRowPath, pColPath);
 		return (lCell != null);
-	}
-	
-	public String solutionPath(){
-	
-		Vector<State> successorStates= new Vector<State>();
-		Board.getInitialState().allSuccessors(successorStates); // the vector should now include all successor states...
-		
- 		/*
-		 * TODO for sure...	
-		 */
-		return "test: UuullL";
 	}
 	
 	/**
@@ -609,9 +599,9 @@ public class Solver {
 
 			//If not same box is moving we have to player path between the successive states.			
 			Cell currentPos = cellLinkedToState(pEndState);
-			Cell nextPos = cellLinkedToPath(pEndState.getParent(),currentPos.getRow(),
-						currentPos.getCol(),pEndState.getParent().getPlayerRow(),
-						pEndState.getParent().getPlayerCol());
+			Cell nextPos = cellLinkedToPath(pEndState.getParent(), currentPos.getRow(),
+                    currentPos.getCol(), pEndState.getParent().getPlayerRow(),
+                    pEndState.getParent().getPlayerCol());
 			if(nextPos!=null){
 				goalString = strPath(nextPos) + goalString;
 			}
@@ -641,14 +631,4 @@ public class Solver {
 		}
 		return goalString;
 	}
-	
-	private void heuristic(){
-		/*
-		 * 
-		 * TODO
-		 * 
-		 * Might of course not be a void function...
-		 */
-	}
-	
 }

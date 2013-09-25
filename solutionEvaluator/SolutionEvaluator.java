@@ -6,7 +6,6 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.StringReader;
 import java.util.Vector;
 
 /**
@@ -18,7 +17,7 @@ import java.util.Vector;
  */
 
 public class SolutionEvaluator {
-	private Sokoban path;
+	private static Sokoban path;
 	private String filePath;
 	private Vector<StringBuilder> board = new Vector<StringBuilder>();
 
@@ -154,5 +153,6 @@ public class SolutionEvaluator {
 	
 	public static void main(String[] args) throws IOException{
 		SolutionEvaluator MapEval = new SolutionEvaluator();
+        System.out.println(path.solution.toUpperCase());
 	}
 }
