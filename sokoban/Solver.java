@@ -54,7 +54,7 @@ public class Solver {
 		
 		boolean lfoundFinalState = false;
 
-		while(!lfoundFinalState && lIterations<20000 && !simpleQueue.isEmpty() ){
+		while(!lfoundFinalState && lIterations<500000 && !simpleQueue.isEmpty() ){
 			
 			lIterations++;
 			
