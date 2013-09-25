@@ -28,16 +28,34 @@ public class Sokoban {
 	
 	public static boolean debugMode = true;
 	
-	public Sokoban(Reader r) throws IOException{
+	public Sokoban(Reader r, boolean debugMode) throws IOException{
 		 //final Client client = new Client();
+		 this.debugMode = debugMode;
 		 final Board board = getBoardFromFile(r);
 		 final Visualizer visual = new Visualizer();
 		 
-		 Visualizer.printState(board.getInitialState(), "INITIAL STATE");
+		 if (debugMode) Visualizer.printState(board.getInitialState(), "INITIAL STATE");
+		 
 		 Solver solver = new Solver(); //Reaches info incl. initial state from Map staticaly.
 		 State finalState = solver.getFinalState();
 		 
-		// System.out.println(solver.getStrToGoal(finalState));
+		 System.out.println(solver.getStrToGoal(finalState));
+		 
+		 if (debugMode) Visualizer.printState(board.getInitialState(), "INITIAL STATE");
+		 
+		 if (debugMode) {
+			 while(finalState.getParent() != null){
+				 System.out.println(finalState.getCharLastMove());
+				 System.out.println(finalState.getLastMovedBox().getRow());
+				 System.out.println(finalState.getLastMovedBox().getCol());
+				 System.out.println(finalState.getPlayerRow());
+				 System.out.println(finalState.getPlayerCol());
+				 finalState = finalState.getParent();
+				 
+			 }
+			 System.out.println(finalState.getPlayerRow());
+			 System.out.println(finalState.getPlayerCol());
+		 }
 		 
 		 if (debugMode){
 			 //System.out.println(solver.solutionPath());
@@ -71,6 +89,6 @@ public class Sokoban {
 	}
 	
 	public static void main(String[] args) throws IOException {
-		 Sokoban soko = new Sokoban(new InputStreamReader(System.in));
+		 Sokoban soko = new Sokoban(new InputStreamReader(System.in), false);
 	} // main
 } // End Main
