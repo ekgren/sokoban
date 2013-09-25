@@ -1,10 +1,7 @@
 package solutionEvaluator;
 
-import sokoban.*;
+import sokoban.Sokoban;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.StringReader;
 
@@ -24,11 +21,12 @@ public class SolutionEvaluator {
 		long startTime = System.currentTimeMillis();
 		
 		//String filePath = "./sokoban/res/00_sample.in";
-		String filePath = "./sokoban/res/TestTrack.in";
+		//String filePath = "./sokoban/res/TestTrack.in";
+        // Insert Level number
+        MapReader map = new MapReader(31);
 
-		
 		// Initializing sokoban solver object with map from file.
-		path = new Sokoban(new FileReader(filePath), false);
+		path = new Sokoban(new StringReader(map.getMap()), false);
 		
 		System.out.println("Time to execute: " + Double.toString((System.currentTimeMillis() - startTime)/1000.0) + " seconds.");
 		animateSolution();
