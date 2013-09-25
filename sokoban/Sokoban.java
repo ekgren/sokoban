@@ -82,10 +82,9 @@ public class Sokoban {
 
 		BufferedReader fileBr = new BufferedReader(r);
 		
-		String line = null;
+		String line;
 		
-		while(fileBr.ready()) {
-			line = fileBr.readLine();
+		while((line = fileBr.readLine()) != null) {
 			board.add(line);
 		} // End while
 		fileBr.close();

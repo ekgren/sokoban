@@ -2,10 +2,7 @@ package solutionEvaluator;
 
 import sokoban.Sokoban;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.Vector;
 
 /**
@@ -18,39 +15,38 @@ import java.util.Vector;
 
 public class SolutionEvaluator {
 	private static Sokoban path;
-	private String filePath;
 	private Vector<StringBuilder> board = new Vector<StringBuilder>();
 
-    // Insert Level number
-    private MapReader map = new MapReader(31);
+    // Insert Level number 0 = TestTrack
+    private int levelNo = 0;
+    private MapReader map;
 
 	public SolutionEvaluator() throws IOException{
 		System.out.println("Initializing evaluation... \n");
 		long startTime = System.currentTimeMillis();
 		
-		filePath = "./sokoban/res/TestTrack.in";
 
-		// Initializing sokoban solver object with map from file.
-		path = new Sokoban(new FileReader(filePath), false);
+		// Initializing sokoban solver object with map from mapReader.
+        map = new MapReader(levelNo + 1);
+		path = new Sokoban(new StringReader(map.getMap()), false);
 		
 		System.out.println("\nTime to execute: " + Double.toString((System.currentTimeMillis() - startTime)/1000.0) + " seconds.\n");
-		//animateSolution();
+		animateSolution();
 	}
 	
 	public void animateSolution() throws FileNotFoundException, IOException{
 		
 		// Method to animate solution to see if it's correct!
 		
-		BufferedReader fileBr = new BufferedReader(new FileReader(filePath));
+		BufferedReader fileBr = new BufferedReader(new StringReader(map.getMap()));
 		
-		String line = null;
+		String line;
 		boolean STATE = false;
 		
 		int[] xy = new int[2];
 		int[] player = new int[2];
 		
-		while(fileBr.ready()) {
-			line = fileBr.readLine();
+		while((line = fileBr.readLine()) != null) {
 			if(STATE == false){
                 xy[0] = line.indexOf("+");
                 if ( xy[0] != -1 ) {
@@ -145,7 +141,7 @@ public class SolutionEvaluator {
                 System.out.println(s);
         }
         try {
-            Thread.sleep(300);
+            Thread.sleep(100);
         } catch(InterruptedException ex) {
             Thread.currentThread().interrupt();
         }
