@@ -69,7 +69,7 @@ public class Heuristic {
     }
 
     /**
-     * Hasselhoff heuristics - Returns the the average of the box distances (only the smallest distance per box)
+     * Hasselhoff heuristics - Returns the the average of the box distances ( sum(smallest distance per box)/#boxes )
      *
      * @param pState input state
      * @return int
@@ -87,8 +87,8 @@ public class Heuristic {
         }
         return lStateScore / lBoxes.size();
     }
-    
-    public static int arielHeuristic(State pState){
-    	return 0;
+
+    public static int arielHeuristic(State pState) {
+        return 0;
     }
 }

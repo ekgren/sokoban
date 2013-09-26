@@ -26,7 +26,7 @@ public class Solver {
 	 */
 	HashSet<State> visitedStates = new HashSet<State>();
 	Comparator comparator = new StatePriorityComparator();
-	PriorityQueue<State> simpleQueue = new PriorityQueue<State>(10, comparator);
+	PriorityQueue<State> simpleQueue = new PriorityQueue<State>(1000, comparator);
 
 	
 	public Solver(){
@@ -77,50 +77,54 @@ public class Solver {
 
 	public State greedyBFS(){
 		
-		int lIterations = 0;
+        int lIterations = 0;
 		
-		simpleQueue.add(Board.getInitialState());
-		visitedStates.add(Board.getInitialState());
+        simpleQueue.add(Board.getInitialState());
+        visitedStates.add(Board.getInitialState());
 		
-		boolean lfoundFinalState = false;
+        boolean lfoundFinalState = false;
 
-		while(!lfoundFinalState && lIterations<500000 && !simpleQueue.isEmpty() ){
-			
-			lIterations++;
-			
-			State lCurState = simpleQueue.poll();
+        while(!lfoundFinalState && lIterations<500000 && !simpleQueue.isEmpty() ){
+            // Iteration counter
+            lIterations++;
 
-			//Visualizer.printState(lCurState, "--- State explored in iteration: #" + lIterations + " ---");
+            // Get state first in line
+            State lCurState = simpleQueue.poll();
+
+            //Visualizer.printState(lCurState, "--- State explored in iteration: #" + lIterations + " ---");
+
+            // Get children of current state
+            Vector<State> childrenOfCurState = new Vector<State>();
+            lCurState.allSuccessors(childrenOfCurState); //fills with all children
+
+            // Iterate through the children and add them to the queue and in Closed
+            for (State child : childrenOfCurState){
+                // If the child is final state, then return it!
+                if (child.isFinalState()) {
+                    if (Sokoban.debugMode) Visualizer.printState(lCurState, "THE FINAL STATE IS FOUND! See below:");
+                    return child;
+                }
+
+                // If child is NOT in closed (Visited states), add it!
+                if(!visitedStates.contains(child)){
+                    visitedStates.add(child);
+                    simpleQueue.add(child);
+                    //Visualizer.printState(child, "accepted child in iteration: #" + lIterations);
+                }
+                else{
+                    //Visualizer.printState(child, "Rejected child in iteration: #" + lIterations);
+                }
+            }
+        }
 			
-			if (lCurState.isFinalState()){
-				if (Sokoban.debugMode) Visualizer.printState(lCurState, "THE FINAL STATE IS FOUND! See below:");
-				lfoundFinalState = true;
-				return lCurState;
-			}
-			else{
-				Vector<State> childrenOfCurState = new Vector<State>();
-				lCurState.allSuccessors(childrenOfCurState); //fills with all children
-				for (State child : childrenOfCurState){
-					if(!visitedStates.contains(child)){
-						visitedStates.add(child);
-						simpleQueue.add(child);
-						//Visualizer.printState(child, "accepted child in iteration: #" + lIterations);
-					}
-					else{
-						//Visualizer.printState(child, "Rejected child in iteration: #" + lIterations);
-					}
-				}
-			}
-			
-			//System.out.println("States in queue: " + simpleQueue.size());
+        //System.out.println("States in queue: " + simpleQueue.size());
 
 
-		}//while (searching for final state in queue)
         if(Sokoban.debugMode)
-		    System.out.println("Solver line 77: No final sate was found, returned initial state.");
+            System.out.println("Solver line 77: No final sate was found, returned initial state.");
 
-		return Board.getInitialState();
-	}
+        return Board.getInitialState();
+	} // End greedyBFS
 	
 	
 	/**

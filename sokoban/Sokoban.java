@@ -34,7 +34,6 @@ public class Sokoban {
 		//final Client client = new Client();
 		this.debugMode = debugMode;
 		final Board board = getBoardFromFile(r);
-	    final Visualizer visual = new Visualizer();
 
 		if (debugMode) Visualizer.printState(board.getInitialState(), "INITIAL STATE");
 		 
