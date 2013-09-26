@@ -99,10 +99,13 @@ public class State implements Cloneable {
 		// move the box
 		this.boxes.get(pBoxIndex).move(pMoveDir);
        
+		int lRowAfterMove = this.boxes.get(pBoxIndex).getRow();
+		int lColAfterMove = this.boxes.get(pBoxIndex).getCol();
+				
 		// if the box position is on goal
-        if (Board.isGoal(boxes.get(pBoxIndex).getRow(), boxes.get(pBoxIndex).getCol())){
+        if (Board.isGoal(lRowAfterMove, lColAfterMove)){
         	boxes.get(pBoxIndex).setIsOnGoal(true);
-        	//markthisgoal?
+        	goalsOccupied[Board.getGoalIndexAt(lRowAfterMove, lColAfterMove)] = true;
         	if(!onGoalBeforeMove){
         		
         	}
