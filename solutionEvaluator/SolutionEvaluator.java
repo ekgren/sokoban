@@ -189,7 +189,7 @@ public class SolutionEvaluator {
                 System.out.println(s);
         }
         try {
-            Thread.sleep(200);
+            Thread.sleep(500);
         } catch(InterruptedException ex) {
             Thread.currentThread().interrupt();
         }

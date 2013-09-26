@@ -49,7 +49,45 @@ public class Heuristic {
 
         return lSumOfMovesToClosestGoal;
     }
-    
+
+    /**
+     * David Hasselhoff heuristics - Returns the the distance that is the smallest distance of all boxes
+     *
+     * @param pState input state
+     * @return int
+     */
+    public static int getDavidHeuristic(State pState) {
+
+        Vector<Box> lBoxes = pState.getBoxes();
+        int lStateScore = Integer.MAX_VALUE;
+        for (Box box : lBoxes) {
+            for (int i = 0; i < Board.getNbOfGoals(); i++) {
+                lStateScore = Math.min(lStateScore, Board.getGoalGrad(i, box.getRow(), box.getCol()));
+            }
+        }
+        return lStateScore;
+    }
+
+    /**
+     * Hasselhoff heuristics - Returns the the average of the box distances ( sum(smallest distance per box)/#boxes )
+     *
+     * @param pState input state
+     * @return int
+     */
+    public static int getHasselhoffHeuristic(State pState) {
+
+        Vector<Box> lBoxes = pState.getBoxes();
+        int lStateScore = 0;
+        for (Box box : lBoxes) {
+            int lBoxScore = Integer.MAX_VALUE;
+            for (int i = 0; i < Board.getNbOfGoals(); i++) {
+                lBoxScore = Math.min(lBoxScore, Board.getGoalGrad(i, box.getRow(), box.getCol()));
+            }
+            lStateScore = lStateScore + lBoxScore;
+        }
+        return lStateScore / lBoxes.size();
+    }
+
     public static int arielHeuristic(State pState){
     	
     	int lPOINTS = 0;

@@ -102,7 +102,7 @@ public class State implements Cloneable {
         }
         
         this.g = pParentState.g + 1;
-        this.h = Heuristic.arielHeuristic(this);
+        this.h = Heuristic.getDavidHeuristic(this);
 
 	} // End constructor State
 
@@ -409,46 +409,5 @@ public class State implements Cloneable {
    public int getH() {
 	   return this.h;
    }
-
-   
-   public int heuristic1(State pState){
-	   return 0;
-   }
-   
-	/**
-	 * First simple heuristic
-	 * 
-	 * lower value means "better" i.e. closer to solution.
-	 * @param pState
-	 * @return
-	 */
-	public int heuristic2(State pState){
-		
-		int lSumOfMovesToClosestGoal = 0;
-				
-		for (Box box : pState.getBoxes()){
-			
-			int lowestBoxMove = Integer.MAX_VALUE;
-	
-			int nbOfDeadLockT1 = 0;
-			
-			for (int goalIndex = 0; goalIndex < Board.getNbOfGoals(); goalIndex++){
-				if( Board.getGoalGrad(goalIndex, box.getRow(), box.getCol()) != -1){
-					lowestBoxMove = Math.min(lowestBoxMove, Board.getGoalGrad(goalIndex, box.getRow(), box.getCol()));
-				}
-				else{
-					nbOfDeadLockT1++;
-				}
-			}
-			if(Board.getNbOfGoals() == nbOfDeadLockT1){
-				return Integer.MAX_VALUE;
-			}
-			else{
-				lSumOfMovesToClosestGoal = lSumOfMovesToClosestGoal + lowestBoxMove + nbOfDeadLockT1*5; //just test!
-			}
-		}
-		
-		return lSumOfMovesToClosestGoal;
-	}
    
 } // End Class State
