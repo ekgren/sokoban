@@ -17,7 +17,7 @@ public class SolutionEvaluator {
 	private static Sokoban path;
 	private Vector<StringBuilder> board = new Vector<StringBuilder>();
 
-    // Insert Level number 0 = TestTrack
+    // Insert Level number (0 = TestTrack)
     private int levelNo = 0;
     private MapReader map;
 
