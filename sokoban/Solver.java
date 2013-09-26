@@ -642,8 +642,9 @@ public class Solver {
                     currentPos.getCol(), pEndState.getParent().getPlayerRow(),
                     pEndState.getParent().getPlayerCol());
 			
-			if(currentPos.getRow()!=pEndState.getParent().getPlayerRow() &&
-					currentPos.getCol()!=pEndState.getParent().getPlayerCol()){
+			/*if(currentPos.getRow()!=pEndState.getParent().getPlayerRow() &&
+					currentPos.getCol()!=pEndState.getParent().getPlayerCol()){*/
+            if (nextPos != null) {
 				goalString = strPath(nextPos) + goalString;
 			}
 				
