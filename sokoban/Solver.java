@@ -641,13 +641,11 @@ public class Solver {
 			Cell nextPos = cellLinkedToPath(pEndState.getParent(), currentPos.getRow(),
                     currentPos.getCol(), pEndState.getParent().getPlayerRow(),
                     pEndState.getParent().getPlayerCol());
-			if(nextPos!=null){
+			
+			if(currentPos.getRow()!=pEndState.getParent().getPlayerRow() &&
+					currentPos.getCol()!=pEndState.getParent().getPlayerCol()){
 				goalString = strPath(nextPos) + goalString;
 			}
-			//else{
-				//System.out.println("No Path!");
-				//break;
-			//}
 				
 			pEndState = pEndState.getParent();
 			}
