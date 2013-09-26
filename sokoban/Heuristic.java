@@ -91,4 +91,21 @@ public class Heuristic {
     public static int arielHeuristic(State pState) {
         return 0;
     }
+
+    /**
+     * Hasselhoff heuristics - Returns the the average of the box distances ( sum(smallest distance per box)/#boxes )
+     *
+     * @param pState input state
+     * @return int
+     */
+    public static int getDavidDistanceHeuristic(State pState) {
+
+        Vector<Box> lBoxes = pState.getBoxes();
+        int lBoxScore = Integer.MAX_VALUE;
+        for (Box box : lBoxes) {
+            if (!box.isOnGoal())
+                lBoxScore = Math.min(lBoxScore, Board.getSummedGoalGrad(box.getRow(), box.getCol()));
+        }
+        return lBoxScore;
+    }
 }

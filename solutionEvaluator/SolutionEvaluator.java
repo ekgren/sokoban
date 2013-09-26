@@ -18,20 +18,25 @@ public class SolutionEvaluator {
 	private Vector<StringBuilder> board = new Vector<StringBuilder>();
 
     // Insert Level number (0 = TestTrack)
-    private int levelNo = 4806;
+    private int levelNo = 0;
     private MapReader map;
 
 	public SolutionEvaluator() throws IOException{
 		System.out.println("Initializing evaluation... \n");
-		long startTime = System.currentTimeMillis();
-		
+
 
 		// Initializing sokoban solver object with map from mapReader.
         map = new MapReader(levelNo + 1);
+
+        // Start time
+        long startTime = System.currentTimeMillis();
+
+        // Try to solve
 		path = new Sokoban(new StringReader(map.getMap()), false);
-		
+
+		// Print end time
 		System.out.println("\nTime to execute: " + Double.toString((System.currentTimeMillis() - startTime)/1000.0) + " seconds.\n");
-		animateSolution();
+		//animateSolution();
 	}
 	
 	public void animateSolution() throws FileNotFoundException, IOException{
@@ -189,7 +194,7 @@ public class SolutionEvaluator {
                 System.out.println(s);
         }
         try {
-            Thread.sleep(500);
+            Thread.sleep(100);
         } catch(InterruptedException ex) {
             Thread.currentThread().interrupt();
         }

@@ -82,9 +82,7 @@ public class Solver {
         simpleQueue.add(Board.getInitialState());
         visitedStates.add(Board.getInitialState());
 		
-        boolean lfoundFinalState = false;
-
-        while(!lfoundFinalState && lIterations<500000 && !simpleQueue.isEmpty() ){
+        while(lIterations<5000000 && !simpleQueue.isEmpty() ){
             // Iteration counter
             lIterations++;
 
@@ -103,16 +101,11 @@ public class Solver {
                 if (child.isFinalState()) {
                     if (Sokoban.debugMode) Visualizer.printState(lCurState, "THE FINAL STATE IS FOUND! See below:");
                     return child;
-                }
 
                 // If child is NOT in closed (Visited states), add it!
-                if(!visitedStates.contains(child)){
+                } else if(!visitedStates.contains(child)){
                     visitedStates.add(child);
                     simpleQueue.add(child);
-                    //Visualizer.printState(child, "accepted child in iteration: #" + lIterations);
-                }
-                else{
-                    //Visualizer.printState(child, "Rejected child in iteration: #" + lIterations);
                 }
             }
         }
@@ -129,7 +122,7 @@ public class Solver {
 	
 	/**
 	 * Returns move necessary from cell to first parent cell.
-	 * @param aCell
+	 * @param pCell
 	 * @return
 	 */
 	public static String strChecker(Cell pCell){
@@ -335,11 +328,11 @@ public class Solver {
 	}
 	/**
 	 * Returns linked cell with position next to some position.
-	 * @param state
+	 * @param pState
 	 * @param pRow
 	 * @param pCol
-	 * @param pRowBox
-	 * @param pColBox
+	 * @param pRowPath
+	 * @param pColPath
 	 * @return
 	 */
 	public static Cell cellLinkedNeighborToPath(State pState,

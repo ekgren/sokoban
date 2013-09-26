@@ -38,10 +38,10 @@ public class Sokoban {
 		if (debugMode) Visualizer.printState(board.getInitialState(), "INITIAL STATE");
 		 
 		Solver solver = new Solver(); //Reaches info incl. initial state from Map staticaly.
-		State finalState = solver.greedyBFS();
+		State solution = solver.greedyBFS();
 		 
-	    if(finalState.isFinalState()) solution = solver.getStrToGoal(finalState);
-        else solution = "no path";
+	    if(solution.isFinalState()) this.solution = solver.getStrToGoal(solution);
+        else this.solution = "no path";
 
 	}
 	
@@ -55,7 +55,7 @@ public class Sokoban {
 		
 		while((line = fileBr.readLine()) != null) {
 			board.add(line);
-		} // End while
+        } // End while
 		fileBr.close();
 		
 		return new Board(board);

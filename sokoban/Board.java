@@ -51,6 +51,7 @@ public class Board {
 	private static boolean [][] deadLocksT0; //marks Type0 deadlocks = corners (independet of goals) [row][col].
 	private static boolean[][][] deadLocksT1; //marks Type1 deadlocks [goal][row][col].
 	private static int[][][] goalGrad; //Gradient to each goal considering only walls [goal][row][col].
+    private static int[][] goalGradSum; // Summed GoalGrad
 
 
 	/**
@@ -145,6 +146,7 @@ public class Board {
 		deadLocksT0 = new boolean[nbRows][nbCols];
 		deadLocksT1 = new boolean[nbBoxes][nbRows][nbCols];
 		goalGrad = new int[nbBoxes][nbRows][nbCols];
+        goalGradSum = new int[nbRows][nbCols];
 
 		
 		//Fix the cleanMapString:		
@@ -161,6 +163,8 @@ public class Board {
 		
 		//mark DealLocks and Gradient to respective Goal:
 		markDeadlocksAndGrad();
+        // sum the gradients
+        setGoalGradSum();
 
 	} // End constructor Map
 
@@ -294,6 +298,20 @@ public class Board {
 		}//End for goal in goalsList
 	}
 
+    /**
+     * Summed goalGrad
+     */
+    private void setGoalGradSum() {
+        // for every goal
+        for (int i = 0; i < nbBoxes; i++) {
+            for (int row = 0; row < nbRows; row++) {
+                for (int col = 0; col < nbCols; col++) {
+                    goalGradSum[row][col] = goalGradSum[row][col] + goalGrad[i][row][col];
+                }
+            }
+        }
+    }
+
 	
 	/**
 	 * ONLY VERIFICATION METHOD FOR PLOTTING GOAL-GRADIENTS
@@ -377,6 +395,10 @@ public class Board {
 	public static int getGoalGrad(int pGoalIndex, int pRow, int pCol){
 		return goalGrad[pGoalIndex][pRow][pCol];
 	}
+
+    public static int getSummedGoalGrad(int pRow, int pCol) {
+        return goalGradSum[pRow][pCol];
+    }
 
 	public static int getNbOfBoxes(){
 		return nbBoxes;

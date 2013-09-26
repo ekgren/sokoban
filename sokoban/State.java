@@ -102,7 +102,7 @@ public class State implements Cloneable {
         }
         
         this.g = pParentState.g + 1;
-        this.h = Heuristic.getDavidHeuristic(this);
+        this.h = Heuristic.getDavidDistanceHeuristic(this);
 
 	} // End constructor State
 
