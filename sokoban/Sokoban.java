@@ -30,12 +30,15 @@ public class Sokoban {
 	public String solution;
 	
 	public Sokoban(Reader r, boolean debugMode) throws IOException{
-
+		
 		//final Client client = new Client();
 		this.debugMode = debugMode;
 		final Board board = getBoardFromFile(r);
 
-		if (debugMode) Visualizer.printState(board.getInitialState(), "INITIAL STATE");
+		if (debugMode){
+			Visualizer v = new Visualizer();
+			Visualizer.printState(board.getInitialState(), "INITIAL STATE");
+		}
 		 
 		Solver solver = new Solver(); //Reaches info incl. initial state from Map staticaly.
 		State finalState = solver.greedyBFS();

@@ -86,6 +86,7 @@ public class Visualizer {
         for(StringBuilder row : cleanMapStringRepr){ //must copy each element separately!
         	lBoardPrint.add(new StringBuilder(row.toString()));
         }
+        
 
         System.out.println("");
 		System.out.println(pLabel);
@@ -98,7 +99,7 @@ public class Visualizer {
         	//board.elementAt(processNode.y).setCharAt(processNode.x, 'O');
             lBoardPrint.elementAt(lPlayerRow).setCharAt(lPlayerCol, '+');
         else
-            lBoardPrint.elementAt(lPlayerRow).setCharAt(lPlayerCol, '@');
+        	lBoardPrint.elementAt(lPlayerRow).setCharAt(lPlayerCol, '@');
 
         // insert boxes
         for (Box box : pState.getBoxes()) {        	
@@ -122,6 +123,55 @@ public class Visualizer {
 		for(Object state : states){
 			printState((State) state);
 		}
+	}
+	
+	public static void printMatrix(int[][] pObject, String pLabel){
+		System.out.println();
+		System.out.println(pLabel);
+		for( int row=0; row < pObject.length; row++){
+			for( int col=0; col < pObject[row].length; col++){
+				System.out.print(pObject[row][col]);
+			}
+			System.out.println();
+		}
+	}
+	public static void printMatrix(boolean[][] pObject, String pLabel){
+		System.out.println();
+		System.out.println(pLabel);
+		for( int row=0; row < pObject.length; row++){
+			for( int col=0; col < pObject[row].length; col++){
+				if(pObject[row][col]){
+					System.out.print("t");
+				}
+				else{
+					System.out.print("f");
+				}
+			}
+			System.out.println();
+		}
+	}
+	
+	public static void printVector(int[] pObject, String pLabel){
+		System.out.println();
+		System.out.println(pLabel);
+		for( int col=0; col < pObject.length; col++){
+				System.out.print(pObject[col] +" ");
+		}
+		System.out.println("");
+	}
+	
+	public static void printVector(boolean[] pObject, String pLabel){
+		System.out.println();
+		System.out.println(pLabel);
+		for( int col=0; col < pObject.length; col++){
+			if(pObject[col]){
+				System.out.print("t ");
+			}
+			else{
+				System.out.print("f ");
+			}
+		}
+		System.out.println("");
 	}
 	
 }

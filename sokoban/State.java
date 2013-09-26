@@ -32,21 +32,25 @@ public class State implements Cloneable {
 	private int g = 0; // Cost of moving to this position.
 	private int h = 0; // Heuristic cost.
 
-
+	private boolean[] goalsOccupied; //Vector which indicates if a goal(index) is occupied.
+	int nbOfBoxesOnGoal;
+	
     /**
 	 * Constructs the internal representation of the State
 	 *
 	 * USED ONLY WHEN CREATING INITIAL STATE
 	 * @param
 	 */
-	public State(Vector<Box> pBoxes, int pPlayerRow, int pPlayerCol) {
+	public State(Vector<Box> pBoxes, int pPlayerRow, int pPlayerCol, boolean[] pGoalsOccupied, int pNbOfBoxesOnGoal) {
 		boxes = pBoxes;
 		playerRow = pPlayerRow;
 		playerCol= pPlayerCol;
 		lastBoxMovedIndex = -1; //No box is last moved in initial state.
 		//Should maybe be set to the box the player is moved to?
 		lastMoveDir = 'I'; // Initial state 'I', no last move direction.
-
+		goalsOccupied = pGoalsOccupied;
+		nbOfBoxesOnGoal = pNbOfBoxesOnGoal;
+		
 		this.parentState = null;
 
 		/*
@@ -89,13 +93,19 @@ public class State implements Cloneable {
 		lastBoxMovedIndex = pBoxIndex;
 		lastMoveDir = pMoveDir;
 		this.parentState = pParentState;
-
+		this.nbOfBoxesOnGoal = pParentState.nbOfBoxesOnGoal;
+		
+		boolean onGoalBeforeMove = this.boxes.get(pBoxIndex).isOnGoal();
 		// move the box
 		this.boxes.get(pBoxIndex).move(pMoveDir);
-
-        // if the box position is on goal - add to the field boxesOnGoal
+       
+		// if the box position is on goal
         if (Board.isGoal(boxes.get(pBoxIndex).getRow(), boxes.get(pBoxIndex).getCol())){
         	boxes.get(pBoxIndex).setIsOnGoal(true);
+        	//markthisgoal?
+        	if(!onGoalBeforeMove){
+        		
+        	}
         }
         else{
         	boxes.get(pBoxIndex).setIsOnGoal(false);
@@ -295,7 +305,6 @@ public class State implements Cloneable {
 				return false; //If the position is not a DeadLockT1 relative to any Goal return false.
 			}
 		}
-		if (Sokoban.debugMode) System.out.println("found complete deadlock at: " + pRow +":" + pCol);
 		return true; //If the position was a DeadLockT1 to all goals (i.e. == -1) return true.
 	}
 	

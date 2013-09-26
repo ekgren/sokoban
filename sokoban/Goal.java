@@ -34,4 +34,8 @@ public class Goal {
 	public int getCol(){
 		return col;
 	}
+	
+	public boolean isOccupied(){
+		return isOccupied;
+	}
 }

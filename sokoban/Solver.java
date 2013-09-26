@@ -101,7 +101,7 @@ public class Solver {
             for (State child : childrenOfCurState){
                 // If the child is final state, then return it!
                 if (child.isFinalState()) {
-                    if (Sokoban.debugMode) Visualizer.printState(lCurState, "THE FINAL STATE IS FOUND! See below:");
+                    if (Sokoban.debugMode) Visualizer.printState(child, "THE FINAL STATE IS FOUND! See below:");
                     return child;
                 }
 
