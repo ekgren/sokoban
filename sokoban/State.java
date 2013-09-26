@@ -32,7 +32,7 @@ public class State implements Cloneable {
 	private int g = 0; // Cost of moving to this position.
 	private int h = 0; // Heuristic cost.
 
-	private boolean[] goalsOccupied; //Vector which indicates if a goal(index) is occupied.
+	boolean[] goalsOccupied; //Vector which indicates if a goal(index) is occupied.
 	int nbOfBoxesOnGoal;
 	
     /**
@@ -50,25 +50,8 @@ public class State implements Cloneable {
 		lastMoveDir = 'I'; // Initial state 'I', no last move direction.
 		goalsOccupied = pGoalsOccupied;
 		nbOfBoxesOnGoal = pNbOfBoxesOnGoal;
-		
 		this.parentState = null;
 
-		/*
-		 * TODO move player to one box...
-		 * 
-		 *
-		 */
-
-		for(Box box : pBoxes){
-			if(isConnected(playerRow, playerCol, box.getRow(),box.getCol())){
-				/*
-				 * Move player there
-				 * break
-				 * 
-				 * NOT NECESSARY?
-				 */
-			}
-		}
 
 	} // End constructor State
 
@@ -95,7 +78,15 @@ public class State implements Cloneable {
 		this.parentState = pParentState;
 		this.nbOfBoxesOnGoal = pParentState.nbOfBoxesOnGoal;
 		
+		this.goalsOccupied = new boolean[pParentState.goalsOccupied.length];
+		for(int i = 0; i < pParentState.goalsOccupied.length; i++){
+			this.goalsOccupied[i] = pParentState.goalsOccupied[i];
+		}
+		
 		boolean onGoalBeforeMove = this.boxes.get(pBoxIndex).isOnGoal();
+    	if (onGoalBeforeMove){
+    		goalsOccupied[Board.getGoalIndexAt(playerRow, playerCol)] = false;
+    	}
 		// move the box
 		this.boxes.get(pBoxIndex).move(pMoveDir);
        
@@ -107,11 +98,14 @@ public class State implements Cloneable {
         	boxes.get(pBoxIndex).setIsOnGoal(true);
         	goalsOccupied[Board.getGoalIndexAt(lRowAfterMove, lColAfterMove)] = true;
         	if(!onGoalBeforeMove){
-        		
+        		nbOfBoxesOnGoal++;
         	}
         }
         else{
         	boxes.get(pBoxIndex).setIsOnGoal(false);
+        	if(onGoalBeforeMove){
+        		nbOfBoxesOnGoal--;
+        	}
         }
         
         this.g = pParentState.g + 1;

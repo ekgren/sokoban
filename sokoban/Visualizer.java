@@ -117,6 +117,13 @@ public class Visualizer {
 		printState(pState, "State with no label:");
 	}
 
+	public static void printStateDelux(State pState, String pLabel){
+		printState(pState, pLabel);
+		System.out.println("#Boxes on goal: " + pState.nbOfBoxesOnGoal);
+		System.out.print("Goal index occ.: ");
+		printVector(pState.goalsOccupied," ");
+
+	}
 	
 	public static void printStatesInQueue(Queue pQueue){
 		Object[] states = pQueue.toArray();
@@ -152,7 +159,6 @@ public class Visualizer {
 	}
 	
 	public static void printVector(int[] pObject, String pLabel){
-		System.out.println();
 		System.out.println(pLabel);
 		for( int col=0; col < pObject.length; col++){
 				System.out.print(pObject[col] +" ");
@@ -161,7 +167,6 @@ public class Visualizer {
 	}
 	
 	public static void printVector(boolean[] pObject, String pLabel){
-		System.out.println();
 		System.out.println(pLabel);
 		for( int col=0; col < pObject.length; col++){
 			if(pObject[col]){

@@ -151,8 +151,10 @@ public class Board {
 		nbGoals = nbBoxes;
 		
 		if(Sokoban.debugMode){
-			if (goalsList.size() == lBoxesList.size()){
-				System.out.println("MapError: There is not an equal amout of boxes and goals!");
+			if (goalsList.size() != lBoxesList.size()){
+				System.out.println("MapError: There is not an equal amout of boxes and goals!!");
+				System.out.println("#goals: " + goalsList.size());
+				System.out.println("#boxes: " + lBoxesList.size());
 			}
 		}
 
