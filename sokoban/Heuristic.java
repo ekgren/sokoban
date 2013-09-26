@@ -1,7 +1,5 @@
 package sokoban;
 
-import java.util.Vector;
-
 /**
  * This class holds all the Heuristics. Feel free to add new heuristic methods
  */
@@ -86,5 +84,9 @@ public class Heuristic {
             lStateScore = lStateScore + lBoxScore;
         }
         return lStateScore / lBoxes.size();
+    }
+    
+    public static int arielHeuristic(State pState){
+    	return 0;
     }
 }

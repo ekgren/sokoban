@@ -18,7 +18,7 @@ public class SolutionEvaluator {
 	private Vector<StringBuilder> board = new Vector<StringBuilder>();
 
     // Insert Level number (0 = TestTrack)
-    private int levelNo = 4806;
+    private int levelNo = 0;
     private MapReader map;
 
 	public SolutionEvaluator() throws IOException{
@@ -72,29 +72,59 @@ public class SolutionEvaluator {
 		for (int i = 0; i < path.solution.length(); i++){
 		    char c = path.solution.charAt(i);
 		    if(c=='u'){
-		    	board.elementAt(player[1]).setCharAt(player[0], ' ');
+		    	if(board.elementAt(player[1]).charAt(player[0])=='+')
+					board.elementAt(player[1]).setCharAt(player[0], '.');
+				else
+					board.elementAt(player[1]).setCharAt(player[0], ' ');
 				player[1] = player[1] - 1;
-				board.elementAt(player[1]).setCharAt(player[0], '@');
+				if(board.elementAt(player[1]).charAt(player[0])=='.')
+					board.elementAt(player[1]).setCharAt(player[0], '+');
+				else
+					board.elementAt(player[1]).setCharAt(player[0], '@');
 		    	}
 		    else if(c=='d'){
-		    	board.elementAt(player[1]).setCharAt(player[0], ' ');
+		    	if(board.elementAt(player[1]).charAt(player[0])=='+')
+					board.elementAt(player[1]).setCharAt(player[0], '.');
+				else
+					board.elementAt(player[1]).setCharAt(player[0], ' ');
 				player[1] = player[1] + 1;
-				board.elementAt(player[1]).setCharAt(player[0], '@');
+				if(board.elementAt(player[1]).charAt(player[0])=='.')
+					board.elementAt(player[1]).setCharAt(player[0], '+');
+				else
+					board.elementAt(player[1]).setCharAt(player[0], '@');
 		    	}
 		    else if(c=='l'){
-		    	board.elementAt(player[1]).setCharAt(player[0], ' ');
+		    	if(board.elementAt(player[1]).charAt(player[0])=='+')
+					board.elementAt(player[1]).setCharAt(player[0], '.');
+				else
+					board.elementAt(player[1]).setCharAt(player[0], ' ');
 				player[0] = player[0] - 1;
-				board.elementAt(player[1]).setCharAt(player[0], '@');
+				if(board.elementAt(player[1]).charAt(player[0])=='.')
+					board.elementAt(player[1]).setCharAt(player[0], '+');
+				else
+					board.elementAt(player[1]).setCharAt(player[0], '@');
 		    	}
 		    else if(c=='r'){
-		    	board.elementAt(player[1]).setCharAt(player[0], ' ');
+		    	if(board.elementAt(player[1]).charAt(player[0])=='+')
+					board.elementAt(player[1]).setCharAt(player[0], '.');
+				else
+					board.elementAt(player[1]).setCharAt(player[0], ' ');
 				player[0] = player[0] + 1;
-				board.elementAt(player[1]).setCharAt(player[0], '@');
+				if(board.elementAt(player[1]).charAt(player[0])=='.')
+					board.elementAt(player[1]).setCharAt(player[0], '+');
+				else
+					board.elementAt(player[1]).setCharAt(player[0], '@');
 		    	}
 		    else if(c=='U'){
-		    	board.elementAt(player[1]).setCharAt(player[0], ' ');
+		    	if(board.elementAt(player[1]).charAt(player[0])=='+')
+					board.elementAt(player[1]).setCharAt(player[0], '.');
+				else
+					board.elementAt(player[1]).setCharAt(player[0], ' ');
 				player[1] = player[1] - 1;
-				board.elementAt(player[1]).setCharAt(player[0], '@');
+				if(board.elementAt(player[1]).charAt(player[0])=='*')
+					board.elementAt(player[1]).setCharAt(player[0], '+');
+				else
+					board.elementAt(player[1]).setCharAt(player[0], '@');
 				if(board.elementAt(player[1] - 1).charAt(player[0])=='.'){
 					board.elementAt(player[1] - 1).setCharAt(player[0], '*');
 				} else {
@@ -102,9 +132,15 @@ public class SolutionEvaluator {
 				}
 		    	}
 		    else if(c=='D'){
-		    	board.elementAt(player[1]).setCharAt(player[0], ' ');
+		    	if(board.elementAt(player[1]).charAt(player[0])=='+')
+					board.elementAt(player[1]).setCharAt(player[0], '.');
+				else
+					board.elementAt(player[1]).setCharAt(player[0], ' ');
 				player[1] = player[1] + 1;
-				board.elementAt(player[1]).setCharAt(player[0], '@');
+				if(board.elementAt(player[1]).charAt(player[0])=='*')
+					board.elementAt(player[1]).setCharAt(player[0], '+');
+				else
+					board.elementAt(player[1]).setCharAt(player[0], '@');
 				if(board.elementAt(player[1] + 1).charAt(player[0])=='.'){
 					board.elementAt(player[1] + 1).setCharAt(player[0], '*');
 		    	} else {
@@ -112,9 +148,15 @@ public class SolutionEvaluator {
 		    	}
 		    	}
 		    else if(c=='L'){
-		    	board.elementAt(player[1]).setCharAt(player[0], ' ');
+		    	if(board.elementAt(player[1]).charAt(player[0])=='+')
+					board.elementAt(player[1]).setCharAt(player[0], '.');
+				else
+					board.elementAt(player[1]).setCharAt(player[0], ' ');
 				player[0] = player[0] - 1;
-				board.elementAt(player[1]).setCharAt(player[0], '@');
+				if(board.elementAt(player[1]).charAt(player[0])=='*')
+					board.elementAt(player[1]).setCharAt(player[0], '+');
+				else
+					board.elementAt(player[1]).setCharAt(player[0], '@');
 				if(board.elementAt(player[1]).charAt(player[0] - 1)=='.'){
 					board.elementAt(player[1]).setCharAt(player[0] - 1, '*');
 		    	} else {
@@ -122,9 +164,15 @@ public class SolutionEvaluator {
 		    	}
 		    	}
 		    else if(c=='R'){
-		    	board.elementAt(player[1]).setCharAt(player[0], ' ');
+		    	if(board.elementAt(player[1]).charAt(player[0])=='+')
+					board.elementAt(player[1]).setCharAt(player[0], '.');
+				else
+					board.elementAt(player[1]).setCharAt(player[0], ' ');
 				player[0] = player[0] + 1;
-				board.elementAt(player[1]).setCharAt(player[0], '@');
+				if(board.elementAt(player[1]).charAt(player[0])=='*')
+					board.elementAt(player[1]).setCharAt(player[0], '+');
+				else
+					board.elementAt(player[1]).setCharAt(player[0], '@');
 				if(board.elementAt(player[1]).charAt(player[0] + 1)=='.'){
 					board.elementAt(player[1]).setCharAt(player[0] + 1, '*');
 		    	} else {
@@ -141,7 +189,7 @@ public class SolutionEvaluator {
                 System.out.println(s);
         }
         try {
-            Thread.sleep(600);
+            Thread.sleep(200);
         } catch(InterruptedException ex) {
             Thread.currentThread().interrupt();
         }
