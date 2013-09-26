@@ -1,5 +1,7 @@
 package sokoban;
 
+import java.util.Vector;
+
 /**
  * This class holds all the Heuristics. Feel free to add new heuristic methods
  */
