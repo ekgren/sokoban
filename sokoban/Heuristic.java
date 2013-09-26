@@ -47,4 +47,8 @@ public class Heuristic {
 
         return lSumOfMovesToClosestGoal;
     }
+    
+    public static int arielHeuristic(State pState){
+    	return 0;
+    }
 }
