@@ -89,7 +89,7 @@ public class Solver {
             // Get state first in line
             State lCurState = simpleQueue.poll();
 
-            //Visualizer.printState(lCurState, "--- State explored in iteration: #" + lIterations + " ---");
+            //Visualizer.printStateDelux(lCurState, "--- State explored in iteration: #" + lIterations + " ---");
 
             // Get children of current state
             Vector<State> childrenOfCurState = new Vector<State>();
@@ -99,7 +99,7 @@ public class Solver {
             for (State child : childrenOfCurState){
                 // If the child is final state, then return it!
                 if (child.isFinalState()) {
-                    if (Sokoban.debugMode) Visualizer.printState(lCurState, "THE FINAL STATE IS FOUND! See below:");
+                    if (Sokoban.debugMode) Visualizer.printState(child, "THE FINAL STATE IS FOUND! See below:");
                     return child;
 
                 // If child is NOT in closed (Visited states), add it!
