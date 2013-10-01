@@ -264,7 +264,7 @@ public class State implements Cloneable {
 		 * All of the below must be valid, add check deadlock later!
 		 */
 		return (isFree(lMoveToRow, lMoveToCol) &&
-				!isCompleteDeadLockT1(lMoveToRow, lMoveToCol) &&
+				!Board.isDeadLockT0(lMoveToRow, lMoveToCol) &&
 				Solver.isPathToPath(this, playerRow, playerCol, lPlayerRow, lPlayerCol));
 	}
 
@@ -286,25 +286,8 @@ public class State implements Cloneable {
 	public boolean isFree(int pRow, int pCol){
 		return !Board.isWall(pRow, pCol) && !this.isBox(pRow, pCol);
 	}
-	
-	/**
-	 * Returns true if the position (pRow, pCol) is a DeadLockT1 relative to ALL goals.
-	 * If this is true, a solution can never be found after performing a move to this
-	 * position.
-	 * 
-	 * @param pRow
-	 * @param pCol
-	 * @return
-	 */
-	public boolean isCompleteDeadLockT1(int pRow, int pCol){
-		for(int goalIndex = 0; goalIndex < Board.getNbOfGoals(); goalIndex++ ){
-			if (Board.getGoalGrad(goalIndex, pRow, pCol) != -1){
-				return false; //If the position is not a DeadLockT1 relative to any Goal return false.
-			}
-		}
-		return true; //If the position was a DeadLockT1 to all goals (i.e. == -1) return true.
-	}
-	
+
+
 	private boolean isConnected(int pRow1, int pCol1,  int pRow2 , int pCol2){
 
 		//skrivs av Adam...
@@ -395,15 +378,7 @@ public class State implements Cloneable {
 	
 
     public boolean isFinalState() {
-    	
-    	boolean allOnGoal = true;
-    	
-    	for (Box box : boxes){
-    		if(!box.isOnGoal()){
-    			return false;
-    		}
-    	}
-    	return allOnGoal;
+        return nbOfBoxesOnGoal == Board.getNbOfGoals();
     }
    
    // Return value of cost to path.

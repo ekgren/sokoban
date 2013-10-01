@@ -103,9 +103,15 @@ public class Heuristic {
         Vector<Box> lBoxes = pState.getBoxes();
         int lBoxScore = Integer.MAX_VALUE;
         for (Box box : lBoxes) {
-            if (!box.isOnGoal())
-                lBoxScore = Math.min(lBoxScore, Board.getSummedGoalGrad(box.getRow(), box.getCol()));
+            lBoxScore = Math.min(lBoxScore / (pState.nbOfBoxesOnGoal + 1), Board.getSummedGoalGrad(box.getRow(), box.getCol()));
         }
         return lBoxScore;
+    }
+
+    /**
+     * Number of boxes of goals
+     */
+    public static int getBoxesOnGoals(State pState) {
+        return pState.nbOfBoxesOnGoal;
     }
 }

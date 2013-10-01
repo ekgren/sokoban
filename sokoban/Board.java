@@ -322,6 +322,22 @@ public class Board {
 				}//End if, check "Pushed left from right"
 			}
 		}//End for goal in goalsList
+
+
+        for(int row = 0; row < nbRows; row++){
+            for(int col = 0; col < nbCols; col++){
+                boolean allDeadT1 = true;
+                for(int goalIndex = 0; goalIndex < nbGoals; goalIndex++){
+                    if (goalGrad[goalIndex][row][col] != -1){
+                        allDeadT1 = false;
+                        break;
+                    }
+                }
+                if (allDeadT1){
+                    deadLocksT0[row][col]=true;
+                }
+            }
+        }
 	}
 
     /**
@@ -355,9 +371,7 @@ public class Board {
 		return goalsIndexAtPos[pRow][pCol] - 1; 
 	}
 
-	/**
-	 * Not initiated always returns false!
-	 */
+
 	public static boolean isDeadLockT0(int pRow, int pCol){
 		return deadLocksT0[pRow][pCol];
 	}

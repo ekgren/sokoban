@@ -89,7 +89,7 @@ public class Solver {
             // Get state first in line
             State lCurState = simpleQueue.poll();
 
-            //Visualizer.printStateDelux(lCurState, "--- State explored in iteration: #" + lIterations + " ---");
+            Visualizer.printStateDelux(lCurState, "--- State explored in iteration: #" + lIterations + " ---");
 
             // Get children of current state
             Vector<State> childrenOfCurState = new Vector<State>();
