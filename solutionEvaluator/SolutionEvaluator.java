@@ -18,7 +18,7 @@ public class SolutionEvaluator {
 	private Vector<StringBuilder> board = new Vector<StringBuilder>();
 
     // Insert Level number (0 = TestTrack)
-    private int levelNo = 1;
+    private int levelNo = 0;
     private MapReader map;
 
 	public SolutionEvaluator() throws IOException{
@@ -32,7 +32,7 @@ public class SolutionEvaluator {
         long startTime = System.currentTimeMillis();
 
         // Try to solve
-		path = new Sokoban(new StringReader(map.getMap()), true);
+		path = new Sokoban(new StringReader(map.getMap()), false, true);
 
 		// Print end time
 		System.out.println("\nTime to execute: " + Double.toString((System.currentTimeMillis() - startTime)/1000.0) + " seconds.\n");

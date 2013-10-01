@@ -26,26 +26,55 @@ public class Sokoban {
 	 * 
 	 */
 	
-	public static boolean debugMode = true;
+	public static boolean debugMode;
+    public static boolean profilingMode;
+    // Start time for the profiling
+    private long startTime;
+
 	public String solution;
 	
-	public Sokoban(Reader r, boolean debugMode) throws IOException{
+	public Sokoban(Reader r, boolean debugMode, boolean profilingMode) throws IOException{
 		
 		//final Client client = new Client();
 		this.debugMode = debugMode;
-		final Board board = getBoardFromFile(r);
+        this.profilingMode = profilingMode;
+
+        // Start time for board init
+        if (profilingMode) startTime = System.currentTimeMillis();
+
+        // Set the board
+        final Board board = getBoardFromFile(r);
+
+        // End time for board init
+        if (profilingMode) {
+            System.err.println("Initialized board in: " +
+                    (System.currentTimeMillis() - startTime) + " ms");
+        }
 
 		if (debugMode){
 			Visualizer v = new Visualizer();
 			Visualizer.printState(board.getInitialState(), "INITIAL STATE");
 		}
-		 
-		Solver solver = new Solver(); //Reaches info incl. initial state from Map staticaly.
-		State solution = solver.greedyBFS();
-		 
+
+        //Reaches info incl. initial state from Map statically.
+		Solver solver = new Solver();
+
+        // Start time search after solution
+        if (profilingMode) startTime = System.currentTimeMillis();
+
+        // Search after solution
+        State solution = solver.greedyBFS();
+
+        // End time searching for solution
+        if (profilingMode)
+            System.err.println("Searched for a solution in: " +
+                    (System.currentTimeMillis() - startTime) + " ms");
+
 	    if(solution.isFinalState()) this.solution = solver.getStrToGoal(solution);
         else this.solution = "no path";
 
+        if(profilingMode)
+            System.err.println("Time spent constructing states: " + State.time + " ms");
 	}
 	
 	public Board getBoardFromFile(Reader r) throws IOException{
@@ -65,7 +94,7 @@ public class Sokoban {
 	}
 	
 	public static void main(String[] args) throws IOException {
-	    Sokoban soko = new Sokoban(new InputStreamReader(System.in), false);
+	    Sokoban soko = new Sokoban(new InputStreamReader(System.in), false, true);
         // Prints the solution to Kattis
         System.out.println(soko.solution.toUpperCase());
     } // main

@@ -11,11 +11,11 @@ package sokoban;
 
 import java.util.*;
 
-
-
-
 public class Solver {
 	private State processState;
+
+    // Time field
+    private long startTime;
 	
 	/*
 	 * The key-String represents the box configuration only.
@@ -26,9 +26,8 @@ public class Solver {
 	 */
 	HashSet<State> visitedStates = new HashSet<State>();
 	Comparator comparator = new StatePriorityComparator();
-	PriorityQueue<State> simpleQueue = new PriorityQueue<State>(1000, comparator);
+	PriorityQueue<State> simpleQueue = new PriorityQueue<State>(10000, comparator);
 
-	
 	public Solver(){
 		
 		/*
@@ -76,29 +75,50 @@ public class Solver {
 
 
 	public State greedyBFS(){
-		
-        int lIterations = 0;
+
+        if (Sokoban.profilingMode) System.err.println("\n--- Greedy BFS ---");
+
+        int lExpandedNodes = 0;
+        int lCreatedNodes = 0;
 		
         simpleQueue.add(Board.getInitialState());
         visitedStates.add(Board.getInitialState());
-		
-        while(lIterations<5000000 && !simpleQueue.isEmpty() ){
-            // Iteration counter
-            lIterations++;
+        // First state created
+        lCreatedNodes++;
+
+        // Start time iterating through nodes
+        if (Sokoban.profilingMode) startTime = System.currentTimeMillis();
+
+        // Expand nodes until the queue is empty or until max iterations
+        while(lExpandedNodes<5000000 && !simpleQueue.isEmpty() ){
 
             // Get state first in line
             State lCurState = simpleQueue.poll();
+            // Add one - new expanded node
+            lExpandedNodes++;
 
-            Visualizer.printStateDelux(lCurState, "--- State explored in iteration: #" + lIterations + " ---");
+            //Visualizer.printStateDelux(lCurState, "--- State explored in iteration: #" + lIterations + " ---");
 
             // Get children of current state
             Vector<State> childrenOfCurState = new Vector<State>();
             lCurState.allSuccessors(childrenOfCurState); //fills with all children
+            // Add the number of new states
+            lCreatedNodes = lCreatedNodes + childrenOfCurState.size();
 
             // Iterate through the children and add them to the queue and in Closed
             for (State child : childrenOfCurState){
                 // If the child is final state, then return it!
                 if (child.isFinalState()) {
+
+                    // End time searching for solution
+                    if (Sokoban.profilingMode) {
+                        long endTime = System.currentTimeMillis() - startTime;
+                        double seconds = (double) endTime / 1000;
+                        System.err.println("Expanded nodes for: " + endTime + " ms");
+                        System.err.println("Number of Expanded nodes/second: " + lExpandedNodes / seconds);
+                        System.err.println("Number of Created nodes/second: " + lCreatedNodes / seconds);
+                    }
+
                     if (Sokoban.debugMode) Visualizer.printState(child, "THE FINAL STATE IS FOUND! See below:");
                     return child;
 
@@ -109,9 +129,6 @@ public class Solver {
                 }
             }
         }
-			
-        //System.out.println("States in queue: " + simpleQueue.size());
-
 
         if(Sokoban.debugMode)
             System.out.println("Solver line 77: No final sate was found, returned initial state.");

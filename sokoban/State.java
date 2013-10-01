@@ -34,6 +34,10 @@ public class State implements Cloneable {
 
 	boolean[] goalsOccupied; //Vector which indicates if a goal(index) is occupied.
 	int nbOfBoxesOnGoal;
+
+    // Time field
+    public static long time;
+    private long startTime;
 	
     /**
 	 * Constructs the internal representation of the State
@@ -64,6 +68,10 @@ public class State implements Cloneable {
 	 * @param pMoveDir     the direction to move the box
 	 */
 	public State(final State pParentState, int pBoxIndex, char pMoveDir) {
+        // Constructor time
+        if (Sokoban.profilingMode)
+             startTime = System.currentTimeMillis();
+
 		// set boxes
 		this.boxes = new Vector<Box>();
 		for (Box box : pParentState.getBoxes()){
@@ -110,6 +118,9 @@ public class State implements Cloneable {
         
         this.g = pParentState.g + 1;
         this.h = Heuristic.getDavidDistanceHeuristic(this);
+
+        if (Sokoban.profilingMode)
+            State.time = State.time + (System.currentTimeMillis() - startTime);
 
 	} // End constructor State
 
