@@ -59,21 +59,16 @@ public class Sokoban {
         //Reaches info incl. initial state from Map statically.
 		Solver solver = new Solver();
 
-        // Start constructorTime search after solution
-        if (profilingMode) startTime = System.currentTimeMillis();
-
         // Search after solution
         State solution = solver.greedyBFS();
-
-        // End constructorTime searching for solution
-        if (profilingMode)
-            System.err.println("Searched for a solution in: " +
-                    (System.currentTimeMillis() - startTime) + " ms");
 
 	    if(solution.isFinalState()) this.solution = solver.getStrToGoal(solution);
         else this.solution = "no path";
 
         if(profilingMode) {
+            System.err.println("\n--- Total RunTime ---");
+            System.err.println("Total Time: " + (System.currentTimeMillis() - startTime) + " ms");
+
             System.err.println("\n--- Accumulated Time in State Methods ---");
             System.err.println("Time spent constructing states: " + State.constructorTime + " ms");
             System.err.println("Time spent in ''allSuccessors'': " + State.allSuccessorsTime + " ms");

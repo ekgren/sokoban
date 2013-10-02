@@ -371,21 +371,16 @@ public class State implements Cloneable {
 			 * 
 			 * Not sure if cloning is necessary? fields have to be copied any way...
 			 */
-			try {
-				if (tryMove(box, 'U'))
-					pStates.add(new State((State) this.clone(), boxIndex, 'U'));
-				if (tryMove(box, 'D'))
-					pStates.add(new State((State) this.clone(), boxIndex, 'D'));
-				if (tryMove(box, 'R'))
-					pStates.add(new State((State) this.clone(), boxIndex, 'R'));
-				if (tryMove(box, 'L'))
-					pStates.add(new State((State) this.clone(), boxIndex, 'L'));
-			} catch (CloneNotSupportedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			boxIndex++;
-		} // End for boxes
+            if (tryMove(box, 'U'))
+                pStates.add(new State(this, boxIndex, 'U'));
+            if (tryMove(box, 'D'))
+                pStates.add(new State(this, boxIndex, 'D'));
+            if (tryMove(box, 'R'))
+                pStates.add(new State(this, boxIndex, 'R'));
+            if (tryMove(box, 'L'))
+                pStates.add(new State(this, boxIndex, 'L'));
+            boxIndex++;
+        } // End for boxes
 
         // Append time
         if (Sokoban.profilingMode)

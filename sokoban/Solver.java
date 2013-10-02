@@ -76,8 +76,6 @@ public class Solver {
 
 	public State greedyBFS(){
 
-        if (Sokoban.profilingMode) System.err.println("\n--- Greedy BFS ---");
-
         int lExpandedNodes = 0;
         int lCreatedNodes = 0;
 		
@@ -90,7 +88,7 @@ public class Solver {
         if (Sokoban.profilingMode) startTime = System.currentTimeMillis();
 
         // Expand nodes until the queue is empty or until max iterations
-        while(lExpandedNodes<5000000 && !simpleQueue.isEmpty() ){
+        while(lExpandedNodes<10000 && !simpleQueue.isEmpty() ){
 
             // Get state first in line
             State lCurState = simpleQueue.poll();
@@ -114,6 +112,7 @@ public class Solver {
                     if (Sokoban.profilingMode) {
                         long endTime = System.currentTimeMillis() - startTime;
                         double seconds = (double) endTime / 1000;
+                        System.err.println("\n--- Greedy BFS ---");
                         System.err.println("Expanded nodes for: " + endTime + " ms");
                         System.err.println("Number of Expanded nodes/second: " + lExpandedNodes / seconds);
                         System.err.println("Number of Created nodes/second: " + lCreatedNodes / seconds);
@@ -128,6 +127,16 @@ public class Solver {
                     simpleQueue.add(child);
                 }
             }
+        }
+
+        // End time
+        if (Sokoban.profilingMode) {
+            long endTime = System.currentTimeMillis() - startTime;
+            double seconds = (double) endTime / 1000;
+            System.err.println("\n--- Greedy BFS ---");
+            System.err.println("Expanded nodes for: " + endTime + " ms");
+            System.err.println("Number of Expanded nodes/second: " + lExpandedNodes / seconds);
+            System.err.println("Number of Created nodes/second: " + lCreatedNodes / seconds);
         }
 
         if(Sokoban.debugMode)
