@@ -38,7 +38,10 @@ public class State implements Cloneable {
     // Time fields
     public static long constructorTime;
     public static long allSuccessorsTime;
-    private long startTime;
+    public static long tryMoveTime;
+    private long constructorStartTime;
+    private long allSuccessorsStartTime;
+    private long tryMoveStartTime;
 	
     /**
 	 * Constructs the internal representation of the State
@@ -71,7 +74,7 @@ public class State implements Cloneable {
 	public State(final State pParentState, int pBoxIndex, char pMoveDir) {
         // Constructor constructorTime
         if (Sokoban.profilingMode)
-             startTime = System.currentTimeMillis();
+             constructorStartTime = System.currentTimeMillis();
 
 		// set boxes
 		this.boxes = new Vector<Box>();
@@ -122,7 +125,7 @@ public class State implements Cloneable {
 
         // Append constructorTime to the constructorTime field
         if (Sokoban.profilingMode)
-            State.constructorTime = State.constructorTime + (System.currentTimeMillis() - startTime);
+            State.constructorTime = State.constructorTime + (System.currentTimeMillis() - constructorStartTime);
 
 	} // End constructor State
 
@@ -229,6 +232,10 @@ public class State implements Cloneable {
 	 */
 	public boolean tryMove(Box pBox, char pDir){
 
+        // Start time
+        if (Sokoban.profilingMode)
+            tryMoveStartTime = System.currentTimeMillis();
+
 		int lR = pBox.getRow();
 		int lC = pBox.getCol();
 
@@ -246,6 +253,9 @@ public class State implements Cloneable {
 			lPlayerRow = lR + 1;
 			lPlayerCol = lC;
 			lCorrectInput = true;
+            // Append time
+            if (Sokoban.profilingMode)
+                tryMoveTime = tryMoveTime + (System.currentTimeMillis() - tryMoveStartTime);
 			break;
 		case 'D':
 			lMoveToRow = lR + 1;
@@ -253,6 +263,9 @@ public class State implements Cloneable {
 			lPlayerRow = lR - 1;
 			lPlayerCol = lC;
 			lCorrectInput = true;
+            // Append time
+            if (Sokoban.profilingMode)
+                tryMoveTime = tryMoveTime + (System.currentTimeMillis() - tryMoveStartTime);
 			break;
 		case 'R':
 			lMoveToRow = lR;
@@ -260,6 +273,9 @@ public class State implements Cloneable {
 			lPlayerRow = lR;
 			lPlayerCol = lC - 1;
 			lCorrectInput = true;
+            // Append time
+            if (Sokoban.profilingMode)
+                tryMoveTime = tryMoveTime + (System.currentTimeMillis() - tryMoveStartTime);
 			break;
 		case 'L':
 			lMoveToRow = lR;
@@ -267,6 +283,9 @@ public class State implements Cloneable {
 			lPlayerRow = lR;
 			lPlayerCol = lC + 1;
 			lCorrectInput = true;
+            // Append time
+            if (Sokoban.profilingMode)
+                tryMoveTime = tryMoveTime + (System.currentTimeMillis() - tryMoveStartTime);
 			break;
 		}
 
@@ -342,7 +361,7 @@ public class State implements Cloneable {
 
         // Start the timer
         if (Sokoban.profilingMode)
-            startTime = System.currentTimeMillis();
+            allSuccessorsStartTime = System.currentTimeMillis();
 
 		pStates.clear();
 
@@ -370,7 +389,7 @@ public class State implements Cloneable {
 
         // Append time
         if (Sokoban.profilingMode)
-            State.allSuccessorsTime = State.allSuccessorsTime + (System.currentTimeMillis() - startTime);
+            State.allSuccessorsTime = State.allSuccessorsTime + (System.currentTimeMillis() - allSuccessorsStartTime);
 
 	} // End allSuccessors
 
