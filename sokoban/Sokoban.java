@@ -71,6 +71,7 @@ public class Sokoban {
 
             System.err.println("\n--- Accumulated Time in State Methods ---");
             System.err.println("Time spent constructing states: " + State.constructorTime + " ms");
+            System.err.println("Time spent in ''changeBoxConfig'': " + State.changeBoxConfigTime + " ms");
             System.err.println("Time spent in ''allSuccessors'': " + State.allSuccessorsTime + " ms");
             System.err.println("Time spend in ''tryMove'': " + State.tryMoveTime + " ms");
         }

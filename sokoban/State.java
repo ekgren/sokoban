@@ -10,14 +10,16 @@ package sokoban;
  */
 
 import java.util.Arrays;
+import java.util.Stack;
 import java.util.Vector;
 
 public class State implements Cloneable {
 
 	
 	private State parentState;
+    private static Stack<State> reusableStates = new Stack<State>();
 
-	private Vector<Box> boxes;
+	private Vector<Box> boxes = new Vector<Box>();
 	private Vector<Cell> reachableCells; //should be HashMap?
 	private Vector<Cell> unReachableCells; //should be HashMap?
 
@@ -39,9 +41,11 @@ public class State implements Cloneable {
     public static long constructorTime;
     public static long allSuccessorsTime;
     public static long tryMoveTime;
+    public static long changeBoxConfigTime;
     private long constructorStartTime;
     private long allSuccessorsStartTime;
     private long tryMoveStartTime;
+    private long changeBoxConfigStartTime;
 	
     /**
 	 * Constructs the internal representation of the State
@@ -72,14 +76,18 @@ public class State implements Cloneable {
 	 * @param pMoveDir     the direction to move the box
 	 */
 	public State(final State pParentState, int pBoxIndex, char pMoveDir) {
-        // Constructor constructorTime
+        // Constructor Time
         if (Sokoban.profilingMode)
              constructorStartTime = System.currentTimeMillis();
 
 		// set boxes
-		this.boxes = new Vector<Box>();
-		for (Box box : pParentState.getBoxes()){
-			this.boxes.add(new Box(box)); // necessary to avoid having several states sharing same box objects!
+		for (int boxIndex = 0; boxIndex < Board.getNbOfBoxes(); boxIndex++){
+            if(boxIndex == pBoxIndex){
+                this.boxes.add(new Box(pParentState.getBoxes().get(boxIndex))); // necessary to avoid having several states sharing same box objects!
+            }
+            else{
+                this.boxes.add(pParentState.getBoxes().get(boxIndex)); // necessary to avoid having several states sharing same box objects!
+            }
 		}
 
 		// set player position before moving the box
@@ -128,6 +136,71 @@ public class State implements Cloneable {
             State.constructorTime = State.constructorTime + (System.currentTimeMillis() - constructorStartTime);
 
 	} // End constructor State
+
+    // Change box configuration
+    private void changeBoxConfig(State pParentState, int pBoxIndex, char pMoveDir) {
+        // Constructor Time
+        if (Sokoban.profilingMode)
+            changeBoxConfigStartTime = System.currentTimeMillis();
+
+        // Remove old boxes
+        boxes.clear();
+
+        // set boxes
+        for (int boxIndex = 0; boxIndex < Board.getNbOfBoxes(); boxIndex++){
+            if(boxIndex == pBoxIndex){
+                this.boxes.add(new Box(pParentState.getBoxes().get(boxIndex))); // necessary to avoid having several states sharing same box objects!
+            }
+            else{
+                this.boxes.add(pParentState.getBoxes().get(boxIndex)); // necessary to avoid having several states sharing same box objects!
+            }
+        }
+
+        // set player position before moving the box
+        playerRow = this.boxes.get(pBoxIndex).getRow();
+        playerCol = this.boxes.get(pBoxIndex).getCol();
+        lastBoxMovedIndex = pBoxIndex;
+        lastMoveDir = pMoveDir;
+        this.parentState = pParentState;
+        this.nbOfBoxesOnGoal = pParentState.nbOfBoxesOnGoal;
+
+        this.goalsOccupied = new boolean[pParentState.goalsOccupied.length];
+        for(int i = 0; i < pParentState.goalsOccupied.length; i++){
+            this.goalsOccupied[i] = pParentState.goalsOccupied[i];
+        }
+
+        boolean onGoalBeforeMove = this.boxes.get(pBoxIndex).isOnGoal();
+        if (onGoalBeforeMove){
+            goalsOccupied[Board.getGoalIndexAt(playerRow, playerCol)] = false;
+        }
+        // move the box
+        this.boxes.get(pBoxIndex).move(pMoveDir);
+
+        int lRowAfterMove = this.boxes.get(pBoxIndex).getRow();
+        int lColAfterMove = this.boxes.get(pBoxIndex).getCol();
+
+        // if the box position is on goal
+        if (Board.isGoal(lRowAfterMove, lColAfterMove)){
+            boxes.get(pBoxIndex).setIsOnGoal(true);
+            goalsOccupied[Board.getGoalIndexAt(lRowAfterMove, lColAfterMove)] = true;
+            if(!onGoalBeforeMove){
+                nbOfBoxesOnGoal++;
+            }
+        }
+        else{
+            boxes.get(pBoxIndex).setIsOnGoal(false);
+            if(onGoalBeforeMove){
+                nbOfBoxesOnGoal--;
+            }
+        }
+
+        this.g = pParentState.g + 1;
+        this.h = Heuristic.getDavidDistanceHeuristic(this);
+
+        // Append constructorTime to the constructorTime field
+        if (Sokoban.profilingMode)
+            State.changeBoxConfigTime = State.changeBoxConfigTime + (System.currentTimeMillis() - changeBoxConfigStartTime);
+    }
 
 
     
@@ -253,9 +326,6 @@ public class State implements Cloneable {
 			lPlayerRow = lR + 1;
 			lPlayerCol = lC;
 			lCorrectInput = true;
-            // Append time
-            if (Sokoban.profilingMode)
-                tryMoveTime = tryMoveTime + (System.currentTimeMillis() - tryMoveStartTime);
 			break;
 		case 'D':
 			lMoveToRow = lR + 1;
@@ -263,9 +333,6 @@ public class State implements Cloneable {
 			lPlayerRow = lR - 1;
 			lPlayerCol = lC;
 			lCorrectInput = true;
-            // Append time
-            if (Sokoban.profilingMode)
-                tryMoveTime = tryMoveTime + (System.currentTimeMillis() - tryMoveStartTime);
 			break;
 		case 'R':
 			lMoveToRow = lR;
@@ -273,9 +340,6 @@ public class State implements Cloneable {
 			lPlayerRow = lR;
 			lPlayerCol = lC - 1;
 			lCorrectInput = true;
-            // Append time
-            if (Sokoban.profilingMode)
-                tryMoveTime = tryMoveTime + (System.currentTimeMillis() - tryMoveStartTime);
 			break;
 		case 'L':
 			lMoveToRow = lR;
@@ -283,9 +347,6 @@ public class State implements Cloneable {
 			lPlayerRow = lR;
 			lPlayerCol = lC + 1;
 			lCorrectInput = true;
-            // Append time
-            if (Sokoban.profilingMode)
-                tryMoveTime = tryMoveTime + (System.currentTimeMillis() - tryMoveStartTime);
 			break;
 		}
 
@@ -295,9 +356,16 @@ public class State implements Cloneable {
 		/*
 		 * All of the below must be valid, add check deadlock later!
 		 */
-		return (isFree(lMoveToRow, lMoveToCol) &&
+		if (isFree(lMoveToRow, lMoveToCol) &&
 				!Board.isDeadLockT0(lMoveToRow, lMoveToCol) &&
-				Solver.isPathToPath(this, playerRow, playerCol, lPlayerRow, lPlayerCol));
+				Solver.isPathToPath(this, playerRow, playerCol, lPlayerRow, lPlayerCol)) {
+
+            // Append time
+            if (Sokoban.profilingMode)
+                tryMoveTime = tryMoveTime + (System.currentTimeMillis() - tryMoveStartTime);
+
+            return true;
+        } else return false;
 	}
 
 	public boolean isBox( int pRow, int pCol){
@@ -367,18 +435,37 @@ public class State implements Cloneable {
 
 		int boxIndex = 0;
 		for (Box box : boxes) {
-			/* If a move is possible, then add the new state in the pStates vector 
-			 * 
-			 * Not sure if cloning is necessary? fields have to be copied any way...
-			 */
+
+            // If there are reusable states... then use them,
+            // Else, create new State
             if (tryMove(box, 'U'))
-                pStates.add(new State(this, boxIndex, 'U'));
+                if (!reusableStates.isEmpty()) {
+                    pStates.add(reusableStates.pop());
+                    pStates.lastElement().changeBoxConfig(this, boxIndex, 'U');
+                } else {
+                    pStates.add(new State(this, boxIndex, 'U'));
+                }
             if (tryMove(box, 'D'))
-                pStates.add(new State(this, boxIndex, 'D'));
+                if (!reusableStates.isEmpty()) {
+                    pStates.add(reusableStates.pop());
+                    pStates.lastElement().changeBoxConfig(this, boxIndex, 'D');
+                } else {
+                    pStates.add(new State(this, boxIndex, 'D'));
+                }
             if (tryMove(box, 'R'))
-                pStates.add(new State(this, boxIndex, 'R'));
+                if (!reusableStates.isEmpty()) {
+                    pStates.add(reusableStates.pop());
+                    pStates.lastElement().changeBoxConfig(this, boxIndex, 'R');
+                } else {
+                    pStates.add(new State(this, boxIndex, 'R'));
+                }
             if (tryMove(box, 'L'))
-                pStates.add(new State(this, boxIndex, 'L'));
+                if (!reusableStates.isEmpty()) {
+                    pStates.add(reusableStates.pop());
+                    pStates.lastElement().changeBoxConfig(this, boxIndex, 'L');
+                } else {
+                    pStates.add(new State(this, boxIndex, 'L'));
+                }
             boxIndex++;
         } // End for boxes
 
@@ -426,5 +513,10 @@ public class State implements Cloneable {
    public int getH() {
 	   return this.h;
    }
+
+    // Static method to add reusable states from Solver
+    public static void addReusableState(State pState) {
+        reusableStates.push(pState);
+    }
    
 } // End Class State

@@ -88,7 +88,7 @@ public class Solver {
         if (Sokoban.profilingMode) startTime = System.currentTimeMillis();
 
         // Expand nodes until the queue is empty or until max iterations
-        while(lExpandedNodes<10000 && !simpleQueue.isEmpty() ){
+        while(lExpandedNodes<100000 && !simpleQueue.isEmpty() ){
 
             // Get state first in line
             State lCurState = simpleQueue.poll();
@@ -125,6 +125,10 @@ public class Solver {
                 } else if(!visitedStates.contains(child)){
                     visitedStates.add(child);
                     simpleQueue.add(child);
+
+                } else {
+                    // Add the state to the reusable container
+                    State.addReusableState(child);
                 }
             }
         }
