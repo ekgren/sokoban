@@ -28,13 +28,13 @@ public class SolutionEvaluator {
 		// Initializing sokoban solver object with map from mapReader.
         map = new MapReader(levelNo + 1);
 
-        // Start time
+        // Start constructorTime
         long startTime = System.currentTimeMillis();
 
         // Try to solve
 		path = new Sokoban(new StringReader(map.getMap()), false, true);
 
-		// Print end time
+		// Print end constructorTime
 		System.out.println("\nTime to execute: " + Double.toString((System.currentTimeMillis() - startTime)/1000.0) + " seconds.\n");
 		//animateSolution();
 	}

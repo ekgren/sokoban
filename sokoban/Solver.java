@@ -44,7 +44,7 @@ public class Solver {
 		return  String.valueOf(row) + String.valueOf(col);
 	}
 
-	// Tried to improve old getFinalState() with a* implementation (did not work(because of longer time)). 
+	// Tried to improve old getFinalState() with a* implementation (did not work(because of longer constructorTime)).
 	public State aStar(){
 		
 		simpleQueue.offer(Board.getInitialState());
@@ -86,7 +86,7 @@ public class Solver {
         // First state created
         lCreatedNodes++;
 
-        // Start time iterating through nodes
+        // Start constructorTime iterating through nodes
         if (Sokoban.profilingMode) startTime = System.currentTimeMillis();
 
         // Expand nodes until the queue is empty or until max iterations
@@ -110,7 +110,7 @@ public class Solver {
                 // If the child is final state, then return it!
                 if (child.isFinalState()) {
 
-                    // End time searching for solution
+                    // End constructorTime searching for solution
                     if (Sokoban.profilingMode) {
                         long endTime = System.currentTimeMillis() - startTime;
                         double seconds = (double) endTime / 1000;

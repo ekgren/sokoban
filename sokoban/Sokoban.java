@@ -28,7 +28,7 @@ public class Sokoban {
 	
 	public static boolean debugMode;
     public static boolean profilingMode;
-    // Start time for the profiling
+    // Start constructorTime for the profiling
     private long startTime;
 
 	public String solution;
@@ -39,13 +39,13 @@ public class Sokoban {
 		this.debugMode = debugMode;
         this.profilingMode = profilingMode;
 
-        // Start time for board init
+        // Start constructorTime for board init
         if (profilingMode) startTime = System.currentTimeMillis();
 
         // Set the board
         final Board board = getBoardFromFile(r);
 
-        // End time for board init
+        // End constructorTime for board init
         if (profilingMode) {
             System.err.println("Initialized board in: " +
                     (System.currentTimeMillis() - startTime) + " ms");
@@ -59,13 +59,13 @@ public class Sokoban {
         //Reaches info incl. initial state from Map statically.
 		Solver solver = new Solver();
 
-        // Start time search after solution
+        // Start constructorTime search after solution
         if (profilingMode) startTime = System.currentTimeMillis();
 
         // Search after solution
         State solution = solver.greedyBFS();
 
-        // End time searching for solution
+        // End constructorTime searching for solution
         if (profilingMode)
             System.err.println("Searched for a solution in: " +
                     (System.currentTimeMillis() - startTime) + " ms");
@@ -73,9 +73,12 @@ public class Sokoban {
 	    if(solution.isFinalState()) this.solution = solver.getStrToGoal(solution);
         else this.solution = "no path";
 
-        if(profilingMode)
-            System.err.println("Time spent constructing states: " + State.time + " ms");
-	}
+        if(profilingMode) {
+            System.err.println("\n--- Accumulated Time in State Methods ---");
+            System.err.println("Time spent constructing states: " + State.constructorTime + " ms");
+            System.err.println("Time spent in ''allSuccessors'': " + State.allSuccessorsTime + " ms");
+        }
+    }
 	
 	public Board getBoardFromFile(Reader r) throws IOException{
 		

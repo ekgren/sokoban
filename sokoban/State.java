@@ -35,8 +35,9 @@ public class State implements Cloneable {
 	boolean[] goalsOccupied; //Vector which indicates if a goal(index) is occupied.
 	int nbOfBoxesOnGoal;
 
-    // Time field
-    public static long time;
+    // Time fields
+    public static long constructorTime;
+    public static long allSuccessorsTime;
     private long startTime;
 	
     /**
@@ -68,14 +69,14 @@ public class State implements Cloneable {
 	 * @param pMoveDir     the direction to move the box
 	 */
 	public State(final State pParentState, int pBoxIndex, char pMoveDir) {
-        // Constructor time
+        // Constructor constructorTime
         if (Sokoban.profilingMode)
              startTime = System.currentTimeMillis();
 
 		// set boxes
 		this.boxes = new Vector<Box>();
 		for (Box box : pParentState.getBoxes()){
-			this.boxes.add(new Box(box)); //nesecary to aviod having several states sharing same box objects!
+			this.boxes.add(new Box(box)); // necessary to avoid having several states sharing same box objects!
 		}
 
 		// set player position before moving the box
@@ -119,8 +120,9 @@ public class State implements Cloneable {
         this.g = pParentState.g + 1;
         this.h = Heuristic.getDavidDistanceHeuristic(this);
 
+        // Append constructorTime to the constructorTime field
         if (Sokoban.profilingMode)
-            State.time = State.time + (System.currentTimeMillis() - startTime);
+            State.constructorTime = State.constructorTime + (System.currentTimeMillis() - startTime);
 
 	} // End constructor State
 
@@ -338,6 +340,10 @@ public class State implements Cloneable {
 		 * 
 		 */
 
+        // Start the timer
+        if (Sokoban.profilingMode)
+            startTime = System.currentTimeMillis();
+
 		pStates.clear();
 
 		int boxIndex = 0;
@@ -361,6 +367,11 @@ public class State implements Cloneable {
 			}
 			boxIndex++;
 		} // End for boxes
+
+        // Append time
+        if (Sokoban.profilingMode)
+            State.allSuccessorsTime = State.allSuccessorsTime + (System.currentTimeMillis() - startTime);
+
 	} // End allSuccessors
 
 	/**
