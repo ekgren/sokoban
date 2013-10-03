@@ -23,7 +23,7 @@ public class Board {
 	// Cells, boxes, goals and player in map.
 	private HashSet<Cell> mapCells = new HashSet<Cell>();
 	private HashSet<Box> initialBoxes = new HashSet<Box>();
-	private HashSet<Cell> allGoals = new HashSet<Cell>();
+	private HashSet<Cell> goals = new HashSet<Cell>();
 	private Player player;
 	
 	/**
@@ -40,7 +40,7 @@ public class Board {
 		if(Sokoban.debug) System.out.println("Boardsize: " + 
 				Integer.toString(Factory.getCellCount()) + ", boxes: " + 
 				Integer.toString(initialBoxes.size()) + ", goals: " + 
-				Integer.toString(allGoals.size()));
+				Integer.toString(goals.size()));
 	}
 	
 	
@@ -300,7 +300,7 @@ public class Board {
 				else if( c == '*'){
 					mapCells.add(Factory.createCell(x, y));
 					initialBoxes.add(Factory.createBox(x, y));
-					allGoals.add(Factory.getCell(x,y));
+					goals.add(Factory.getCell(x,y));
 					Factory.getCell(x,y).isGoal = true;
 				}
 				// If char at x, y is player create map cell and player.
@@ -311,14 +311,14 @@ public class Board {
 				// If char at x, y is player on goal create map cell, goal and player.
 				else if( c == '+'){
 					mapCells.add(Factory.createCell(x, y));
-					allGoals.add(Factory.getCell(x,y));
+					goals.add(Factory.getCell(x,y));
 					Factory.getCell(x,y).isGoal = true;
 					player = Factory.createPlayer(x,y);
 				}
 				// If char at x, y is goal create map cell and goal.
 				else if( c == '.'){
 					mapCells.add(Factory.createCell(x, y));
-					allGoals.add(Factory.getCell(x,y));
+					goals.add(Factory.getCell(x,y));
 					Factory.getCell(x,y).isGoal = true;
 				}
 			} // End for each column loop.
@@ -328,6 +328,10 @@ public class Board {
 	
 	public HashSet<Box> getBoxes(){
 		return initialBoxes;
+	}
+	
+	public HashSet<Cell> getGoals(){
+		return goals;
 	}
 	
 	public Player getPlayer(){
