@@ -30,7 +30,7 @@ public class SolutionEvaluator {
         map = new MapReader(levelNo + 1);
 
         // Try to solve
-		path = new Sokoban(new StringReader(map.getMap()), false, true);
+		path = new Sokoban(new StringReader(map.getMap()), true);
 
         // Animate solution
 		//animateSolution();

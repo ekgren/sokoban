@@ -1,87 +1,50 @@
 package sokoban;
 
-/*
- * Cell
+import java.awt.Point;
+
+/**
+ * NEO-SOKOBAN CELL CLASS.
  * 
- * Verison 0.1
- * 
- * Represents a Cell, initially its row, col position.
- * 
+ * The basic building block of our map representation.
  */
 
-import java.util.Comparator;
+@SuppressWarnings("serial")
+public class Cell extends Point{
+	
+	// Boolean to tell if cell is goal.
+	public boolean isGoal = false;
+	
+	// True if box is allowed on cell, false otherwise.
+	public boolean boxAllowed = true;
+	
+	// Board corner information.
+	public boolean upperLeftCorner = false;
+	public boolean upperRightCorner = false;
+	public boolean lowerLeftCorner = false;
+	public boolean lowerRightCorner = false;
+	
+	// Board corridor information.
+	public boolean horizontalCorridor = false;
+	public boolean verticalCorridor = false;
 
-
-public class Cell {
-
-	private int row;
-	private int col;
+	// Parent cell. Will be changed when cell is used for search.
 	private Cell parent;
-	private int expansionLevel;
-
 	
-	public Cell(int pRow, int pCol){
-		this.row = pRow;
-		this.col = pCol;
-	}
-	
-	public Cell(Cell pParent,int pRow,int pCol){
-		this.row = pRow;
-		this.col = pCol;
-		this.parent = pParent;
-	}
-	
-	public Cell(int pRow,int pCol, int pExpansionLevel){
-		this.row = pRow;
-		this.col = pCol;
-		this.expansionLevel = pExpansionLevel;
-	}
-	
-	public int getRow(){
-		return row;
-	}
-	
-	public int getCol(){
-		return col;
-	}
-	
-	public int getExpansionLevel(){
-		return expansionLevel;
-	}
-	
+	// Heuristic value for BFGS, maybe we wont use this.
+	private int heuristicValue;
+		
+	/** Get the parent cell of this cell. */
 	public Cell getParent(){
 		return this.parent;
 	}
 	
-	public void setParent(Cell pCell){
-		this.parent = pCell;
+	/** Set the parent cell of this cell. */
+	public void setParent(Cell parent){
+		this.parent = parent;
 	}
 	
-	public boolean equals(Cell obj) {
-	    //null instanceof Object will always return false
-	    if (obj == this)
-	      return true;
-	    return  this.getRow() == ((Cell) obj).getRow() &&
-	            this.getCol() == ((Cell) obj).getCol();  
-	}
-	
-	public static class NormComparator implements Comparator<Cell>{
-		int lRow = 0;
-		int lCol = 0;
-		
-		public NormComparator(int pRow,int pCol){
-			this.lRow = pRow;
-			this.lCol = pCol;
-		}
-		@Override
-		public int compare(Cell N1, Cell N2) {
-			int d1 = Math.abs(N1.getRow()-lRow) + Math.abs(N1.getCol() - lCol);
-			int d2 = Math.abs(N2.getRow()-lRow) + Math.abs(N2.getCol() - lCol);
-			return d1-d2;
-		}
-		public void setStart(int pRow,int pCol){
-			this.lRow = pRow;
-			this.lCol = pCol;
-		}
+	/** Manhattan distance heuristic for search. */
+	public void heuristic(int goalX, int goalY){
+		this.heuristicValue = (int)(Math.abs(this.getX() - goalX) + Math.abs(this.getY() - goalY));
 	}
 }

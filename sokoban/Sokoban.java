@@ -1,101 +1,52 @@
 package sokoban;
-/*
- * Main
- * 
- * Version 0.1
- * 
- * 
- * Gnerall conventions:
- * - All class constants desricptiveName
- * - All input parameters pDesricptiveName
- * - All local variables lDescriptiveName
- * - "GameState" is used equivalent to "Node"; one GameState is expanded, has parent and successors... 
- * 
- */
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.Vector;
 
+/**
+ * NEO-SOKOBAN SOKOBAN CLASS.
+ * 
+ * @author Ariel
+ */
 public class Sokoban {
-
-	/**
-	 * To test with our own maps we use the SolutionEvaluator class 
-	 * to run the program.
-	 * 
-	 * @param args
-	 * 
-	 */
 	
-	public static boolean debugMode;
-    public static boolean profilingMode;
-    // Start constructorTime for the profiling
-    private long startTime;
-
+	public static boolean debug = false;
+	public static boolean debugTime = true;
 	public String solution;
 	
-	public Sokoban(Reader r, boolean debugMode, boolean profilingMode) throws IOException{
+	/**
+	 * You can say that the magic happens in this constructor.
+	 * @param r
+	 * @param debug
+	 * @throws IOException
+	 */
+	public Sokoban (Reader r, boolean debug) throws IOException{
 		
-		//final Client client = new Client();
-		this.debugMode = debugMode;
-        this.profilingMode = profilingMode;
-
-        // Start constructorTime for board init
-        if (profilingMode) startTime = System.currentTimeMillis();
-
-        // Set the board
-        final Board board = getBoardFromFile(r);
-
-        // End constructorTime for board init
-        if (profilingMode) {
-            System.err.println("Initialized board in: " +
-                    (System.currentTimeMillis() - startTime) + " ms");
-        }
-
-		if (debugMode){
-			Visualizer v = new Visualizer();
-			Visualizer.printState(board.getInitialState(), "INITIAL STATE");
-		}
-
-        //Reaches info incl. initial state from Map statically.
-		Solver solver = new Solver();
-
-        // Search after solution
-        State solution = solver.greedyBFS();
-
-	    if(solution.isFinalState()) this.solution = solver.getStrToGoal(solution);
-        else this.solution = "no path";
-
-        if(profilingMode) {
-            System.err.println("\n--- Total RunTime ---");
-            System.err.println("Total Time: " + (System.currentTimeMillis() - startTime) + " ms");
-
-            System.err.println("\n--- Accumulated Time in State Methods ---");
-            System.err.println("Time spent constructing states: " + State.constructorTime + " ms");
-            System.err.println("Time spent in ''changeBoxConfig'': " + State.changeBoxConfigTime + " ms");
-            System.err.println("Time spent in ''allSuccessors'': " + State.allSuccessorsTime + " ms");
-            System.err.println("Time spend in ''tryMove'': " + State.tryMoveTime + " ms");
-        }
-    }
-	
-	public Board getBoardFromFile(Reader r) throws IOException{
+		//Apply debug setting.
+		this.debug = debug;
 		
-		Vector<String> board = new Vector<String>();
-
-		BufferedReader fileBr = new BufferedReader(r);
+		/** "Fun" debug message to signal start of program. */
+		if(debug) System.out.println("NEO-SOKOBAN IS ONLINE.");
 		
-		String line;
+		// Create board.
+		final Board board = new Board(r);
 		
-		while((line = fileBr.readLine()) != null) {
-			board.add(line);
-        } // End while
-		fileBr.close();
+		// Initialize solver.
 		
-		return new Board(board);
+		// Set the solution string to desired answer.
+		solution = "ul";
+		
+		/** "Fun" debug message to signal end of program. */
+		if(debug) System.out.println("NEO-SOKOBAN HAS TERMINATED.");
 	}
 	
 	public static void main(String[] args) throws IOException {
-	    Sokoban soko = new Sokoban(new InputStreamReader(System.in), false, true);
+		// Initiate and run Sokoban solver.
+	    Sokoban soko = new Sokoban(new InputStreamReader(System.in), false);
         // Prints the solution to Kattis
         System.out.println(soko.solution.toUpperCase());
-    } // main
-} // End Main
+    } 
+}

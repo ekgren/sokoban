@@ -1,425 +1,328 @@
 package sokoban;
 
-/*
- * Board
- * 
- * Version 0.1
- * 
- * Represents the Sokoban map (contains all info).
- * It separates the fixed part of the map (walls and goals)
- * from dynamic (player and boxes).
- * 
- * Contains several "layers" of representation for:
- * - typeIDeadLock
- * - gradient to goals
- * - ...
- * 
- * Should not be confused with the class State which is
- * a representation of a particular state/node in a game
- * 
- * Should be declared "final" "static"...? for one level/solution.
- */
-
-import java.util.LinkedList;
-import java.util.Queue;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.Reader;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Vector;
 
-
+/**
+ * NEO-SOKOBAN BOARD CLASS.
+ * 
+ * Class to store original board.
+ * 
+ * Current idea is to store the complete board as a set of cells.
+ * 
+ * @author Ariel
+ *
+ */
 public class Board {
-
-	/*
-	 * CONSTANTS
-	 */
-	private static int nbRows;
-	private static int nbCols;
-	private static int nbBoxes; // same as number of goals 
-	private static int nbGoals;
-
-	private static Vector<String> stringRepr; //string Representation of Map
-	private static Vector<String> cleanMapStringRepr = new Vector<String>(); //string Representation of Map
-	private static State initialState; //The initial game state
-
-	/*
-	 * LAYERS
-	 * Other representation ArrayList etc. is possible, discuss this.
-	 * e.g. ArrayList<Wall> walls; or HashMap...
-	 */
-
-	private static boolean[][] walls; //all "fixed" parts of map i.e. walls are true [row][col].
-	private static boolean[][] goals; //all goals are true [row][col].
-	private static int[][] goalsIndexAtPos; //all goals are true [row][col].
-
-	private static Vector<Goal> goalsList = new Vector<Goal>(); //might sometimes or always be more efficient can have both...
-
-	private static boolean [][] deadLocksT0; //marks Type0 deadlocks = corners (independet of goals) [row][col].
-	private static int[][][] goalGrad; //Gradient to each goal considering only walls [goal][row][col].
-    //Includes the information about deadlocksT1 marked by -1 in goalGrad!
-    private static int[][] goalGradSum; // Summed GoalGrad
-
+	
+	// Cells, boxes, goals and player in map.
+	HashSet<Cell> mapCells = new HashSet<Cell>();
+	HashSet<Box> initialBoxes = new HashSet<Box>();
+	HashSet<Cell> allGoals = new HashSet<Cell>();
+	Player player;
+	
 	/**
-	 * Constructs the internal representation of the Map
-	 * from the standard string representation.
-	 *
-	 * @param pMessage the compact string representation of the state
+	 * Constructor takes Reader object.
 	 */
-	public Board(final Vector<String> pStringRepr) {
-
-		//Storing String representation
-		stringRepr = pStringRepr;
-
-		//Counting columns
-		int lMaxNbOfCol = 0;
-		for(String row : stringRepr){
-			if(row.length() > lMaxNbOfCol){
-				lMaxNbOfCol = row.length();
-			}
-		}
-
-		//Set class constants
-		nbRows = pStringRepr.size();
-		nbCols = lMaxNbOfCol;
-
-		//Set dimensions
-		walls = new boolean[nbRows][nbCols];
-		goals = new boolean[nbRows][nbCols];	
-		goalsIndexAtPos = new int[nbRows][nbCols]; //all zero initially
+	public Board(Reader r) throws IOException{
 		
-		int lPlayerStartRow = 0; //can never be zero since there must be wall here...
-		int lPlayerStartCol = 0; //can never be zero since there must be wall here...
-		Vector<Box> lBoxesList = new Vector<Box>();
-
-		int lBoxesOnGoalCounter = 0;
-		int lGoalIndexCounter = 1;
-
+		// Build our board representation from map.
+		buildBoard(getMapFromReader(r));
+		locateCornersAndCorridors();
+		locateCornerWallDeadlocks();
 		
-		for(int row=0; row<nbRows; row++){
-			if (stringRepr.get(row).length() > lMaxNbOfCol) {
-				lMaxNbOfCol = stringRepr.get(row).length();
-			}
-			for(int col=0; col<stringRepr.get(row).length(); col++){
-
-				if(stringRepr.get(row).charAt(col) == ' '){ //Free space
-					//Do nothing, this comes first since most common.
-				}
-				else if(stringRepr.get(row).charAt(col) == '#'){ //Wall
-					walls[row][col]=true; //All automatically false initially
-				}
-				else if(stringRepr.get(row).charAt(col) == '$'){ //Box
-					lBoxesList.add(new Box(row, col, false));
-				}
-				else if(stringRepr.get(row).charAt(col) == '.'){ //Goal
-					goals[row][col]=true; //All automatically false initially
-					goalsIndexAtPos[row][col] = lGoalIndexCounter; //all zero initially
-					goalsList.add(new Goal(row, col, false));
-					lGoalIndexCounter++; //should start at 1 to be able to tell diff. from zero where ter is no goal.
-
-				}
-				else if(stringRepr.get(row).charAt(col) == '*'){ //Box on goal
-					
-					goals[row][col]=true; //All automatically false initially
-					goalsIndexAtPos[row][col] = lGoalIndexCounter;
-					goalsList.add(new Goal(row, col, true)); //true means is occupied.
-					lBoxesList.add(new Box(row, col, true)); //true means is on goal
-					lBoxesOnGoalCounter++;
-					lGoalIndexCounter++;
-				}
-				else if(stringRepr.get(row).charAt(col) == '@'){ //Sokoban Player
-					lPlayerStartRow = row;
-					lPlayerStartCol = col;
-				}
-				else if(stringRepr.get(row).charAt(col) == '+'){ //Sokoban PLayer on Goal
-					lPlayerStartRow = row;
-					lPlayerStartCol = col;
-					goals[row][col]=true; //All automatically false initially
-					goalsIndexAtPos[row][col] = lGoalIndexCounter;
-					goalsList.add(new Goal(row, col, false));
-					lGoalIndexCounter++;
-				}
-				else{
-					if(Sokoban.debugMode){
-						System.out.println("MapError: Unknown character: " 
-								+ stringRepr.get(row).charAt(col) + " found!" );
-					}
-				}
-			}
-		}
-
-
-		//Check and set number of boxes/goals
-		
-		nbBoxes = lBoxesList.size();
-		nbGoals = nbBoxes;
-		
-		if(Sokoban.debugMode){
-			if (goalsList.size() != lBoxesList.size()){
-				System.out.println("MapError: There is not an equal amout of boxes and goals!!");
-				System.out.println("#goals: " + goalsList.size());
-				System.out.println("#boxes: " + lBoxesList.size());
-			}
-		}
-
-		//Pass on info about which goals are initially occupied to initial state, later updated by state itself.
-		boolean[] lGoalsOccupied = new boolean[nbGoals];
-		for (int goalIndex = 0; goalIndex < nbGoals; goalIndex++){
-			if (goalsList.get(goalIndex).isOccupied()){
-				lGoalsOccupied[goalIndex] = true;
-			}
-		}
-		
-		initialState = new State(lBoxesList, lPlayerStartRow, lPlayerStartCol, lGoalsOccupied, lBoxesOnGoalCounter);
-
-
-		//Set dimension
-		deadLocksT0 = new boolean[nbRows][nbCols];
-		goalGrad = new int[nbBoxes][nbRows][nbCols];
-        goalGradSum = new int[nbRows][nbCols];
-
-		
-		//Fix the cleanMapString:		
-		for(String lRow : stringRepr){
-			String lStringCopy = lRow;
-			
-			lStringCopy = lStringCopy.replace('$', ' '); //Box to nothing
-			lStringCopy = lStringCopy.replace('*', '.'); //Box on goal to Goal
-			lStringCopy = lStringCopy.replace('@', ' '); //Player to nothing
-			lStringCopy = lStringCopy.replace('+', '.'); //Player on goal to Goal
-			
-			cleanMapStringRepr.add(lStringCopy);
-		}
-		
-		//mark DealLocks and Gradient to respective Goal:
-		markDeadlocksAndGrad();
-        // sum the gradients
-        setGoalGradSum();
-
-	} // End constructor Map
-
+		// Debug message.
+		if(Sokoban.debug) System.out.println("Boardsize: " + 
+				Integer.toString(Factory.getCellCount()) + ", boxes: " + 
+				Integer.toString(initialBoxes.size()) + ", goals: " + 
+				Integer.toString(allGoals.size()));
+	}
 	
 	
-	private void markDeadlocksAndGrad(){
-
-		/* Gradient to goal and deadLock (-) is marked according to "BFS" see below.
-		 * deadlocks get -1 as value.
-		  	########
-			#---#-.####
-			#-5432123-#
-			####43-####
-			   #--##
-			   ####
-		 */
-
-		int lGoalIndex = -1;
-		for (Goal goal : goalsList){
-			lGoalIndex++;
+	/** Method that will examine walls between two corners to see if deadlock. */
+	public void locateCornerWallDeadlocks(){
+		
+		// Boolean to check for deadlock and a Cell holder.
+		boolean isDeadlock;
+		Cell examine;
+		
+		// Check all cells for corners.
+		for(Cell cornerCell : mapCells){
 			
-			for(int row=0; row<nbRows; row++){
-				for(int col=0; col<nbCols; col++){
-					goalGrad[lGoalIndex][row][col] = -1; //marks Deadlock type 1 for this Goal.
+			// Examine walls connected to upper left corners.
+			if(cornerCell.upperLeftCorner && cornerCell.isGoal == false){
+				
+				// Set corner cell to examine cell.
+				examine = cornerCell;
+				
+				// Reset isDeadlock boolean for each corner and direction.
+				isDeadlock = false;
+				
+				// Check all cells to the right of corner until either a goal is found,
+				// a wall is reached or another corner is reached.
+				while(examine != null){
+					examine = Factory.getCellRight(examine);
+					if(examine.isGoal) break;
+					if(examine.upperRightCorner){ isDeadlock = true; break;}
 				}
-			}				
+				
+				// If another corner was reached without finding a goal it
+				// means we found a deadlock and we will not allow boxes in there.
+				if(isDeadlock){
+					examine = cornerCell;
+					while(examine != null){
+						examine = Factory.getCellRight(examine);
+						if(examine.upperRightCorner){break;}
+						examine.boxAllowed = false;
+					}
+				}
+				
+				// Reset isDeadlock boolean for each corner and direction.
+				isDeadlock = false;
+				
+				// Check all cells below corner until either a goal is found,
+				// a wall is reached or another corner is reached.
+				while(examine != null){
+					examine = Factory.getCellDown(examine);
+					if(examine.isGoal) break;
+					if(examine.lowerLeftCorner){ isDeadlock = true; break;}
+				}
+				
+				// If another corner was reached without finding a goal it
+				// means we found a deadlock and we will not allow boxes in there.
+				if(isDeadlock){
+					examine = cornerCell;
+					while(examine != null){
+						examine = Factory.getCellDown(examine);
+						if(examine.lowerLeftCorner){break;}
+						examine.boxAllowed = false;
+					}
+				}
+			} // End if upper left corner.
 			
-			goalGrad[lGoalIndex][goal.getRow()][goal.getCol()] = 0; //marks goals position
-			
-			boolean[][] lVisitedCell = new boolean[nbRows][nbCols]; //Keeps track of where we have been.
-
-			lVisitedCell[goal.getRow()][goal.getCol()] = true;
-			
-			//Create queue and add a first node.	
-			Queue<Cell> qe=new LinkedList<Cell>();
-			qe.add(new Cell(goal.getRow(), goal.getCol(),0)); //last index means "expansion level=0"
-
-			//Main search
-			while(!qe.isEmpty()){
-				
-				int curRow = qe.peek().getRow();
-				int curCol = qe.peek().getCol(); //also removes Cell!
-				int lMovesFromGoal = qe.poll().getExpansionLevel() + 1; //also removes Cell!
-
-				
-				// Next cell to check if the box can come from...
-				int lBoxFromRow;
-				int lBoxFromCol;
-				
-				// The cell to check that the player can be to be able to push box...
-				int lPlayerPushRow;
-				int lPlayerPushCol;
-
-				
-				//check "Pushed down from above"	
-				if(curRow>1){ //if on 1st row it can never be pushed down (must be walls on 0th row).
-					lBoxFromRow = curRow - 1;
-					lBoxFromCol = curCol;
-					lPlayerPushRow = curRow - 2;
-					lPlayerPushCol = curCol;
-					
-					if(lVisitedCell[lBoxFromRow][lBoxFromCol]){
-						//if been here do nothing
-					}	
-					else if(!walls[lBoxFromRow][lBoxFromCol]){
-						if(!walls[lPlayerPushRow][lPlayerPushCol]){
-							goalGrad[lGoalIndex][lBoxFromRow][lBoxFromCol] = lMovesFromGoal;
-							qe.add(new Cell(lBoxFromRow, lBoxFromCol, lMovesFromGoal));
-							lVisitedCell[lBoxFromRow][lBoxFromCol] = true; //save to repeated states...
-						}
-					}
-				}//End if, check "Pushed down from above"
-				
-				//check "Pushed up from below"	
-				if(curRow<nbRows-1){ //if on next to last row it can never be pushed up (must be walls on last row).
-					lBoxFromRow = curRow + 1;
-					lBoxFromCol = curCol;
-					lPlayerPushRow = curRow + 2;
-					lPlayerPushCol = curCol;
-					
-					if(lVisitedCell[lBoxFromRow][lBoxFromCol]){
-						//if been here do nothing
-					}	
-					else if(!walls[lBoxFromRow][lBoxFromCol]){
-						if(!walls[lPlayerPushRow][lPlayerPushCol]){
-							goalGrad[lGoalIndex][lBoxFromRow][lBoxFromCol] = lMovesFromGoal;
-							qe.add(new Cell(lBoxFromRow, lBoxFromCol, lMovesFromGoal));
-							lVisitedCell[lBoxFromRow][lBoxFromCol] = true; //save to repeated states...
-						}
-					}
-				}//End if, check "Pushed up from below"
-				
-				//check "Pushed right from left"	
-				if(curCol>1){ //if in column 1 it can never be pushed right (must be walls on column 0).
-					lBoxFromRow = curRow;
-					lBoxFromCol = curCol-1;
-					lPlayerPushRow = curRow;
-					lPlayerPushCol = curCol-2;
-					
-					if(lVisitedCell[lBoxFromRow][lBoxFromCol]){
-						//if been here do nothing
-					}	
-					else if(!walls[lBoxFromRow][lBoxFromCol]){
-						if(!walls[lPlayerPushRow][lPlayerPushCol]){
-							goalGrad[lGoalIndex][lBoxFromRow][lBoxFromCol] = lMovesFromGoal;
-							qe.add(new Cell(lBoxFromRow, lBoxFromCol, lMovesFromGoal));
-							lVisitedCell[lBoxFromRow][lBoxFromCol] = true; //save to repeated states...
-						}
-					}
-				}//End if, check "Pushed right from left"
-				
-				//check "Pushed left from right"	
-				if(curCol>1){ //if in next to last column it can never be pushed left (must be walls on last column).
-					lBoxFromRow = curRow;
-					lBoxFromCol = curCol+1;
-					lPlayerPushRow = curRow;
-					lPlayerPushCol = curCol+2;
-					
-					if(lVisitedCell[lBoxFromRow][lBoxFromCol]){
-						//if been here do nothing
-					}	
-					else if(!walls[lBoxFromRow][lBoxFromCol]){
-						if(!walls[lPlayerPushRow][lPlayerPushCol]){
-							goalGrad[lGoalIndex][lBoxFromRow][lBoxFromCol] = lMovesFromGoal;
-							qe.add(new Cell(lBoxFromRow, lBoxFromCol, lMovesFromGoal));
-							lVisitedCell[lBoxFromRow][lBoxFromCol] = true; //save to repeated states...
-						}
-					}
-				}//End if, check "Pushed left from right"
-			}
-		}//End for goal in goalsList
-
-
-        for(int row = 0; row < nbRows; row++){
-            for(int col = 0; col < nbCols; col++){
-                boolean allDeadT1 = true;
-                for(int goalIndex = 0; goalIndex < nbGoals; goalIndex++){
-                    if (goalGrad[goalIndex][row][col] != -1){
-                        allDeadT1 = false;
-                        break;
-                    }
-                }
-                if (allDeadT1){
-                    deadLocksT0[row][col]=true;
-                }
-            }
-        }
-	}
-
-    /**
-     * Summed goalGrad
-     */
-    private void setGoalGradSum() {
-        // for every goal
-        for (int i = 0; i < nbBoxes; i++) {
-            for (int row = 0; row < nbRows; row++) {
-                for (int col = 0; col < nbCols; col++) {
-                    goalGradSum[row][col] = goalGradSum[row][col] + goalGrad[i][row][col];
-                }
-            }
-        }
-    }
-
+			// Examine walls connected to lower right corners.	
+			if(cornerCell.lowerRightCorner && cornerCell.isGoal == false){
 	
-	public static State getInitialState(){
-		return initialState;
+				// Set corner cell to examine cell.
+				examine = cornerCell;
+				
+				// Reset isDeadlock boolean for each corner and direction.
+				isDeadlock = false;
+				
+				// Check all cells to the left of corner until either a goal is found,
+				// a wall is reached or another corner is reached.
+				while(examine != null){
+					examine = Factory.getCellLeft(examine);
+					if(examine.isGoal) break;
+					if(examine.lowerLeftCorner){ isDeadlock = true; break;}
+				}
+				
+				// If another corner was reached without finding a goal it
+				// means we found a deadlock and we will not allow boxes in there.
+				if(isDeadlock){
+					examine = cornerCell;
+					while(examine != null){
+						examine = Factory.getCellLeft(examine);
+						if(examine.lowerLeftCorner){break;}
+						examine.boxAllowed = false;
+					}
+				}
+				
+				// Reset isDeadlock boolean for each corner and direction.
+				isDeadlock = false;
+				
+				// Check all cells below corner until either a goal is found,
+				// a wall is reached or another corner is reached.
+				while(examine != null){
+					examine = Factory.getCellUp(examine);
+					if(examine.isGoal) break;
+					if(examine.upperRightCorner){ isDeadlock = true; break;}
+				}
+				
+				// If another corner was reached without finding a goal it
+				// means we found a deadlock and we will not allow boxes in there.
+				if(isDeadlock){
+					examine = cornerCell;
+					while(examine != null){
+						examine = Factory.getCellUp(examine);
+						if(examine.upperRightCorner){break;}
+						examine.boxAllowed = false;
+					}
+				}
+			} // End if lower right corner.
+		}
 	}
-
-	public static boolean isWall(int pRow, int pCol){
-		return walls[pRow][pCol]; 
-	}
-
-	public static boolean isGoal(int pRow, int pCol){
-		return goals[pRow][pCol];
-	}
-
-	public static int getGoalIndexAt(int pRow, int pCol){
-		return goalsIndexAtPos[pRow][pCol] - 1; 
-	}
-
-
-	public static boolean isDeadLockT0(int pRow, int pCol){
-		return deadLocksT0[pRow][pCol];
-	}
-
-
-
+	
+	
+	
 	/**
-	 * Checks if position is not wall and not box.
-	 * @param pState
-	 * @param pRow
-	 * @param pCol
-	 * @return
+	 * Method that processes input from Reader object and returns vector 
+	 * containing string representations of map.
 	 */
-	public static boolean isFree(State pState,int pRow,int pCol){
-		return (!isWall(pRow,pCol)&&!pState.isBox(pRow,pCol));
+	public Vector<String> getMapFromReader(Reader r) throws IOException{
+		
+		// Create a vector to contain strings from reader.
+		Vector<String> map = new Vector<String>();
+		
+		// Process file.
+		BufferedReader fileBr = new BufferedReader(r);
+		
+		// Initialize string.
+		String line;
+		
+		// Loop over file.
+		while((line = fileBr.readLine()) != null) {
+			map.add(line);
+		} // End while
+		fileBr.close();
+		
+		// Return vector containing string representation of map.
+		return map;
 	}
-
-	/*
-	 * Should not be needed?
+	
+	/**
+	 * Looking for corners and corridors in board.
 	 */
-	public static Vector<Goal> getListOFGoals(){
-		return goalsList;
+	public void locateCornersAndCorridors(){
+		// Loop over all cells in board.
+		for(Cell cell : mapCells){
+			
+			// Check if cell is upper left corner.
+			if(Factory.getCellUp(cell) == null && 
+			   Factory.getCellDown(cell) != null && 
+			   Factory.getCellLeft(cell) == null &&
+			   Factory.getCellRight(cell) != null){
+				   cell.upperLeftCorner = true;
+				   if(cell.isGoal == false) cell.boxAllowed = false;
+			   	}
+			
+			// Check if cell is upper right corner.
+			else if(Factory.getCellUp(cell) == null && 
+				    Factory.getCellDown(cell) != null && 
+				    Factory.getCellLeft(cell) != null &&
+				    Factory.getCellRight(cell) == null){
+					   cell.upperRightCorner = true;
+					   if(cell.isGoal == false) cell.boxAllowed = false;
+			   	}
+			
+			// Check if cell is lower left corner.
+			else if(Factory.getCellUp(cell) == null && 
+					Factory.getCellDown(cell) != null && 
+					Factory.getCellLeft(cell) != null &&
+					Factory.getCellRight(cell) == null){
+					   cell.lowerLeftCorner = true;
+					   if(cell.isGoal == false) cell.boxAllowed = false;
+			   	}
+			
+			// Check if cell is lower right corner.
+			else if(Factory.getCellUp(cell) == null && 
+					Factory.getCellDown(cell) != null && 
+					Factory.getCellLeft(cell) == null &&
+					Factory.getCellRight(cell) != null){
+				   		cell.lowerRightCorner = true;
+				   		if(cell.isGoal == false) cell.boxAllowed = false;
+				}
+			
+			// Check if cell is horizontal corridor.
+			else if(Factory.getCellUp(cell) == null && 
+					Factory.getCellDown(cell) == null && 
+					Factory.getCellLeft(cell) != null &&
+					Factory.getCellRight(cell) != null){
+						cell.horizontalCorridor = true;
+				}
+			
+			// Check if cell is vertical corridor.
+			else if(Factory.getCellUp(cell) != null && 
+					Factory.getCellDown(cell) != null && 
+					Factory.getCellLeft(cell) == null &&
+					Factory.getCellRight(cell) == null){
+						cell.verticalCorridor = true;
+				}
+		}
 	}
 	
-	public static Vector<String> getStringRepr(){
-		return stringRepr;
+	/**
+	 * Method that creates board from Vector<string> representation of map. 
+	 */
+	public void buildBoard(Vector<String> map){
+		// Initializing some prerequisites for building board from map.
+		char c;
+		int xMax;
+		int y = 0;
+		
+		//Some booleans for map logic.
+		boolean firstWall = false;
+		
+		// Loop over string representation of map.
+		// For each row in map.
+		for(String mapRow: map){
+			
+			// Set firstWall to false for each row.
+			firstWall = false;
+			
+			// Checking length of string.
+			xMax = mapRow.length();
+			
+			//For each column in map.
+			for(int x = 0; x < xMax; x++){
+				
+				//if(Sokoban.debug) System.out.println(Integer.toString(x) + ", " + Integer.toString(y));
+				
+				// Check character at x, y position of map.
+				c = map.get(y).charAt(x);
+				
+				// If char at x, y is white space.
+				if(c == ' '){
+					
+					// Check if first wall of map has been encountered and
+					// that the x value is not the last value of string.
+					// If false we are outside of map, if true create cell.
+					if(firstWall && x != xMax - 1){
+						Factory.createCell(x, y);
+					}
+				}
+				
+				// If char at x, y is wall create nothing.
+				else if( c == '#'){
+					firstWall = true;
+				}
+				// If char at x, y is box create map cell and box.
+				else if( c == '$'){
+					mapCells.add(Factory.createCell(x, y));
+					initialBoxes.add(Factory.createBox(x, y));
+				}
+				// If char at x, y is box on goal create map cell, box and goal.
+				else if( c == '*'){
+					mapCells.add(Factory.createCell(x, y));
+					initialBoxes.add(Factory.createBox(x, y));
+					allGoals.add(Factory.getCell(x,y));
+					Factory.getCell(x,y).isGoal = true;
+				}
+				// If char at x, y is player create map cell and player.
+				else if( c == '@'){
+					mapCells.add(Factory.createCell(x, y));
+					player = Factory.createPlayer(x,y);
+				}
+				// If char at x, y is player on goal create map cell, goal and player.
+				else if( c == '+'){
+					mapCells.add(Factory.createCell(x, y));
+					allGoals.add(Factory.getCell(x,y));
+					Factory.getCell(x,y).isGoal = true;
+					player = Factory.createPlayer(x,y);
+				}
+				// If char at x, y is goal create map cell and goal.
+				else if( c == '.'){
+					mapCells.add(Factory.createCell(x, y));
+					allGoals.add(Factory.getCell(x,y));
+					Factory.getCell(x,y).isGoal = true;
+				}
+			} // End for each column loop.
+			y = y + 1;
+		} // End for each row loop.
 	}
-	
-	public static int getNbRows(){
-		return nbRows;
-	}
-	
-	public static int getNbCols(){
-		return nbCols;
-	}
-	
-	public static int getGoalGrad(int pGoalIndex, int pRow, int pCol){
-		return goalGrad[pGoalIndex][pRow][pCol];
-	}
-
-    public static int getSummedGoalGrad(int pRow, int pCol) {
-        return goalGradSum[pRow][pCol];
-    }
-
-	public static int getNbOfBoxes(){
-		return nbBoxes;
-	}
-	public static int getNbOfGoals(){
-		return nbBoxes; //should be boxes it is the same!
-	}
-} // End Class Board
+}
