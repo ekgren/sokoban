@@ -16,7 +16,7 @@ public class SolutionEvaluator {
 
     // Insert Level number (0 = TestTrack)
 
-    private int levelNo = 0;
+    private int levelNo = 3767;
     private MapReader map;
 
 	public SolutionEvaluator() throws IOException{
@@ -28,7 +28,7 @@ public class SolutionEvaluator {
         
         long startTime = System.currentTimeMillis();
         // Try to solve
-		path = new Sokoban(new StringReader(map.getMap()), false);
+		path = new Sokoban(new StringReader(map.getMap()), true);
 		System.out.println("\nTime to execute: " + Double.toString((System.currentTimeMillis() - startTime)/1000.0) + " seconds.\n");
         // Animate solution
 		animateSolution();

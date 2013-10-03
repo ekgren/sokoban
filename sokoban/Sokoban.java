@@ -31,6 +31,10 @@ public class Sokoban {
 		/** "Fun" debug message to signal start of program. */
 		if(debug) System.out.println("NEO-SOKOBAN IS ONLINE.");
 		
+		Factory.initializeBoxes();
+		Factory.initializePlayers();
+		Factory.initializeStates();
+		
 		// Create board.
 		final Board board = new Board(r);
 		

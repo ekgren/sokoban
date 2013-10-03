@@ -15,7 +15,6 @@ import java.util.Vector;
  * 
  * Current idea is to store the complete board as a set of cells.
  * 
- * @author Ariel
  *
  */
 public class Board {
@@ -23,7 +22,7 @@ public class Board {
 	// Cells, boxes, goals and player in map.
 	private HashSet<Cell> mapCells = new HashSet<Cell>();
 	private HashSet<Box> initialBoxes = new HashSet<Box>();
-	private HashSet<Cell> goals = new HashSet<Cell>();
+	public static HashSet<Cell> goals = new HashSet<Cell>();
 	private Player player;
 	
 	/**

@@ -10,7 +10,7 @@ import java.awt.Point;
 public class Factory {
 	
 	// Parameters.
-	private static int estimatedMaxNumberOfStates = 200000;
+	private static int estimatedMaxNumberOfStates = 20000;
 	
 	// Containers of all cells, goals, boxes, states and players.
 	private static Cell[][] boardCells = new Cell[100][100];
@@ -35,11 +35,41 @@ public class Factory {
 	 */
 	public static State createState(){
 		// This can be removed if we choose to create all at start instead.
-		states[totalStateCount] = new State();
+		//states[totalStateCount] = new State();
 		
 		// Return.
 		addStateCount();
+		
+		if(Sokoban.debug) if( totalStateCount % 10000 == 0) 
+			System.out.println(totalStateCount);
+		
 		return states[totalStateCount-1];
+	}
+	
+	/**
+	 * Method that "creates" player from x, y coordinates.
+	 */
+	public static Player createPlayer(int x, int y){
+		// This can be removed if we choose to create all at start instead.
+		//players[totalPlayerCount] = new Player();
+		
+		// Set x and y then return.
+		players[totalPlayerCount].setLocation(x, y);
+		addPlayerCount();
+		return players[totalPlayerCount-1];
+	}
+	
+	/**
+	 * Method that "creates" player from Point object.
+	 */
+	public static Player createPlayer(Point p){
+		// This can be removed if we choose to create all at start instead.
+		//players[totalPlayerCount] = new Player();
+		
+		// Set x and y then return.
+		players[totalPlayerCount].setLocation(p.x, p.y);
+		addPlayerCount();
+		return players[totalPlayerCount-1];
 	}
 	
 	/**
@@ -47,7 +77,7 @@ public class Factory {
 	 */
 	public static Box createBox(Point p){
 		// This can be removed if we choose to create all at start instead.
-		boxes[totalBoxCount] = new Box();
+		//boxes[totalBoxCount] = new Box();
 		
 		// Set x and y then return.
 		boxes[totalBoxCount].setLocation(p.x, p.y);
@@ -60,7 +90,7 @@ public class Factory {
 	 */
 	public static Box createBox(int x, int y){
 		// This can be removed if we choose to create all at start instead.
-		boxes[totalBoxCount] = new Box();
+		//boxes[totalBoxCount] = new Box();
 		
 		// Set x and y then return.
 		boxes[totalBoxCount].setLocation(x, y);
@@ -190,32 +220,6 @@ public class Factory {
 		goals[totalGoalCount].setLocation(x, y);
 		addGoalCount();
 		return goals[totalGoalCount-1];
-	}
-	
-	/**
-	 * Method that "creates" player from x, y coordinates.
-	 */
-	public static Player createPlayer(int x, int y){
-		// This can be removed if we choose to create all at start instead.
-		players[totalPlayerCount] = new Player();
-		
-		// Set x and y then return.
-		players[totalPlayerCount].setLocation(x, y);
-		addPlayerCount();
-		return players[totalPlayerCount-1];
-	}
-	
-	/**
-	 * Method that "creates" player from Point object.
-	 */
-	public static Player createPlayer(Point p){
-		// This can be removed if we choose to create all at start instead.
-		players[totalPlayerCount] = new Player();
-		
-		// Set x and y then return.
-		players[totalPlayerCount].setLocation(p.x, p.y);
-		addPlayerCount();
-		return players[totalPlayerCount-1];
 	}
 	
 	/** Method that creates goals in all places in goals array. */

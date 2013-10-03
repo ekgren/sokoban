@@ -17,6 +17,8 @@ public class Solver {
 
 		@Override
 		public int compare(State state1, State state2) {
+			if(state1.getH() < state2.getH()) return -1;
+			if(state1.getH() > state2.getH()) return 1;
 			return 0;
 		}
 	}
@@ -42,7 +44,7 @@ public class Solver {
 		// Create solved state.
 		solvedState = Factory.createState();
 		for(Cell goal : board.getGoals()) solvedState.addBoxAt(goal);
-		solvedState.addPlayerAt(-666, -666);
+		solvedState.isSolved = true;
 		
 		// Create first children.
 		initState.createChildren(open, closed);
@@ -57,6 +59,13 @@ public class Solver {
 			
 		}
 		
-		System.out.println("wtf?");
+		processState = open.remove();
+		if(Sokoban.debug) System.out.println("wtf?");
+		int parentCounter = 0;
+		while(processState.getParent() != null){
+			parentCounter = parentCounter + 1;
+			processState = processState.getParent();
+		}
+		System.out.println(parentCounter);
 	}
 }

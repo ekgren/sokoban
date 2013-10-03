@@ -13,6 +13,12 @@ import java.util.PriorityQueue;
 
 public class State implements Cloneable{
 	
+	// MAGIC.
+	public boolean isSolved = false;
+	
+	// Heuristic.
+	private int h;
+	
 	// Parent state
 	private State parentState;
 	
@@ -54,7 +60,7 @@ public class State implements Cloneable{
    		Box examine = (Box) box;
    		State stateHolder;
    		
-   		if(Sokoban.debug)System.out.println(box.toString());
+   		//if(Sokoban.debug)System.out.println(box.toString());
    		
    		// We examine if we can move the box UP on the map. 
    		// To move the box up both the cell above and below it need to be free.
@@ -70,25 +76,30 @@ public class State implements Cloneable{
    				// If we can move the box in this direction we also have to check if the player
 	   			// can move to the cell to push the box.
 	   			if(Search.Astar(this, player, Factory.getCellDown(examine), true)){
-	   				
-	   				// Now we have determined that it is a valid move, time to act on it.
-	   				if(Sokoban.debug) System.out.println("UP MOTHERFUCKER!");
-	   				
+	   				   				
 	   				// Create new state and put it in stateHolder until finished.
 	   				stateHolder = Factory.createState();
+	   				stateHolder.setParent(this);
 	   				// Add new player to state.
 	   				stateHolder.player = Factory.createPlayer(examine);
 	   				// Create copies of boxes in this state.
 	   		   		for(Point p : boxes){
-	   		   			stateHolder.boxes.add(Factory.createBox(p));
+	   		   			Box b = Factory.createBox(p);
+	   		   			if(Board.goals.contains(p)) b.onGoal = true;
+	   		   			stateHolder.boxes.add(b);
 	   		   		}
 	   		   		// Remove the box we moved.
 	   		   		stateHolder.boxes.remove(examine);
 	   		   		// Add new moved box.
-	   		   		stateHolder.boxes.add(Factory.createBox(Factory.getCellUp(examine)));
+	   		   		Box b = Factory.createBox(Factory.getCellUp(examine));
+	   		   		if(Board.goals.contains(Factory.getCellUp(examine))) b.onGoal = true;
+	   		   		stateHolder.boxes.add(b);
 	   		   		// Add state to PriorityQueue.
 	   		   		if(open.contains(stateHolder) == false && 
-	   		   				closed.contains(stateHolder) == false) open.add(stateHolder);
+	   		   				closed.contains(stateHolder) == false){
+	   		   			//stateHolder.heuristic();
+	   		   			open.add(stateHolder);
+	   		   		}
 	   			}
    			}
    		}
@@ -107,25 +118,30 @@ public class State implements Cloneable{
    				// If we can move the box in this direction we also have to check if the player
 	   			// can move to the cell to push the box.
 	   			if(Search.Astar(this, player, Factory.getCellUp(examine), true)){
-	   				
-	   				// Now we have determined that it is a valid move, time to act on it.
-	   				if(Sokoban.debug) System.out.println("DOWN MOTHERFUCKER!");
 	   			
 	   				// Create new state and put it in stateHolder until finished.
 	   				stateHolder = Factory.createState();
+	   				stateHolder.setParent(this);
 	   				// Add new player to state.
 	   				stateHolder.player = Factory.createPlayer(examine);
 	   				// Create copies of boxes in this state.
-	   		   		for(Point p : boxes){
-	   		   			stateHolder.boxes.add(Factory.createBox(p));
+	   				for(Point p : boxes){
+	   		   			Box b = Factory.createBox(p);
+	   		   			if(Board.goals.contains(p)) b.onGoal = true;
+	   		   			stateHolder.boxes.add(b);
 	   		   		}
 	   		   		// Remove the box we moved.
 	   		   		stateHolder.boxes.remove(examine);
 	   		   		// Add new moved box.
-	   		   		stateHolder.boxes.add(Factory.createBox(Factory.getCellDown(examine)));
+	   		   		Box b = Factory.createBox(Factory.getCellDown(examine));
+	   		   		if(Board.goals.contains(Factory.getCellDown(examine))) b.onGoal = true;
+	   		   		stateHolder.boxes.add(b);
 	   		   		// Add state to PriorityQueue.
 	   		   		if(open.contains(stateHolder) == false && 
-	   		   				closed.contains(stateHolder) == false) open.add(stateHolder);
+	   		   				closed.contains(stateHolder) == false){
+	   		   			//stateHolder.heuristic();
+	   		   			open.add(stateHolder);
+	   		   		}
 	   			}
    			}
    		}	
@@ -145,24 +161,29 @@ public class State implements Cloneable{
 	   			// can move to the cell to push the box.
 	   			if(Search.Astar(this, player, Factory.getCellRight(examine), true)){
 	   				
-	   				// Now we have determined that it is a valid move, time to act on it.
-	   				if(Sokoban.debug) System.out.println("LEFT MOTHERFUCKER!");
-	   				
 	   				// Create new state and put it in stateHolder until finished.
 	   				stateHolder = Factory.createState();
+	   				stateHolder.setParent(this);
 	   				// Add new player to state.
 	   				stateHolder.player = Factory.createPlayer(examine);
 	   				// Create copies of boxes in this state.
-	   		   		for(Point p : boxes){
-	   		   			stateHolder.boxes.add(Factory.createBox(p));
+	   				for(Point p : boxes){
+	   		   			Box b = Factory.createBox(p);
+	   		   			if(Board.goals.contains(p)) b.onGoal = true;
+	   		   			stateHolder.boxes.add(b);
 	   		   		}
 	   		   		// Remove the box we moved.
 	   		   		stateHolder.boxes.remove(examine);
 	   		   		// Add new moved box.
-	   		   		stateHolder.boxes.add(Factory.createBox(Factory.getCellLeft(examine)));
+	   		   		Box b = Factory.createBox(Factory.getCellLeft(examine));
+	   		   		if(Board.goals.contains(Factory.getCellLeft(examine))) b.onGoal = true;
+	   		   		stateHolder.boxes.add(b);
 	   		   		// Add state to PriorityQueue.
 	   		   		if(open.contains(stateHolder) == false && 
-	   		   				closed.contains(stateHolder) == false) open.add(stateHolder);
+	   		   				closed.contains(stateHolder) == false){
+	   		   			//stateHolder.heuristic();
+	   		   			open.add(stateHolder);
+	   		   		}
 	   			}
    			}
    		}
@@ -182,24 +203,29 @@ public class State implements Cloneable{
 	   			// can move to the cell to push the box.
 	   			if(Search.Astar(this, player, Factory.getCellLeft(examine), true)){
 	   				
-	   				// Now we have determined that it is a valid move, time to act on it.
-	   				if(Sokoban.debug) System.out.println("RIGHT MOTHERFUCKER!");
-	   				
 	   				// Create new state and put it in stateHolder until finished.
 	   				stateHolder = Factory.createState();
+	   				stateHolder.setParent(this);
 	   				// Add new player to state.
 	   				stateHolder.player = Factory.createPlayer(examine);
 	   				// Create copies of boxes in this state.
-	   		   		for(Point p : boxes){
-	   		   			stateHolder.boxes.add(Factory.createBox(p));
+	   				for(Point p : boxes){
+	   		   			Box b = Factory.createBox(p);
+	   		   			if(Board.goals.contains(p)) b.onGoal = true;
+	   		   			stateHolder.boxes.add(b);
 	   		   		}
 	   		   		// Remove the box we moved.
 	   		   		stateHolder.boxes.remove(examine);
 	   		   		// Add new moved box.
-	   		   		stateHolder.boxes.add(Factory.createBox(Factory.getCellRight(examine)));
+	   		   		Box b = Factory.createBox(Factory.getCellRight(examine));
+	   		   		if(Board.goals.contains(Factory.getCellRight(examine))) b.onGoal = true;
+	   		   		stateHolder.boxes.add(b);
 	   		   		// Add state to PriorityQueue.
 	   		   		if(open.contains(stateHolder) == false &&
-	   		   			closed.contains(stateHolder) == false) open.add(stateHolder);
+	   		   			closed.contains(stateHolder) == false){
+	   		   			//stateHolder.heuristic();
+	   		   			open.add(stateHolder);
+	   		   		}
 	   			}
    			}
    		}
@@ -208,6 +234,16 @@ public class State implements Cloneable{
    	/** Returns true if box at point p. */
    	public boolean gotBoxAt(Point p){
    		return boxes.contains(p);
+   	}
+   	
+   	/** Returns parent state. */
+   	public void setParent(State parentState){
+   		this.parentState = parentState;
+   	}
+   	
+   	/** Returns parent state. */
+   	public State getParent(){
+   		return parentState;
    	}
    	
    	/** Adds box at point p. */
@@ -225,7 +261,7 @@ public class State implements Cloneable{
 	public int hashCode() {
    		int multiHash = 1;
    		for(Point box : boxes){
-   			multiHash = multiHash*box.hashCode() + box.hashCode();
+   			multiHash = multiHash + box.hashCode();
    		}
 		return multiHash;
 	}
@@ -248,13 +284,32 @@ public class State implements Cloneable{
 	    	if(boxes.contains(box) == false) return false;
 	    }
 	    
-	    // This should only react to solved state.
-	    if(otherState.player.x == -666 && otherState.player.y == -666 ) return true;
+	    if(otherState.isSolved){
+	    	if(Sokoban.debug)System.out.println("WIN");
+	    	return true;
+	    }
 	    
 	    // Returns true if players can walk to each other.
 	    if(Search.Astar(this, player, otherState.player, true)) return true;
-	    
+
 	    return false;
+   	}
+   	
+   	/** Heuristic function that sums over all distance from boxes to goals. */
+   	public void heuristic(){
+   		for(Point box : boxes){
+   			Box boxHolder = (Box) box;
+   			if(boxHolder.onGoal==false){
+	   			for(Point goal : Board.goals){
+	   				h = h + Math.abs(box.x-goal.x) + Math.abs(box.y-goal.y);
+	   			}
+   			}
+   		}
+   	}
+   	
+   	/** Returns value of heuristic. */
+   	public int getH(){
+   		return h;
    	}
 
 }
