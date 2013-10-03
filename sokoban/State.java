@@ -136,6 +136,10 @@ public class State implements Cloneable{
    		}
    	}
    	
+   	public boolean gotBoxAt(Point p){
+   		return boxes.contains(p);
+   	}
+   	
    	@Override
 	public int hashCode() {
 		return 0;

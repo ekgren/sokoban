@@ -89,6 +89,13 @@ public class Factory {
 	}
 	
 	/**
+	 * Method that returns cell at x, y position.
+	 */
+	public static Cell getCell(Point p){
+		return boardCells[p.x][p.y];
+	}
+	
+	/**
 	 * Method that returns cell at x, y - 1 position.
 	 */
 	public static Cell getCellUp(int x, int y){
