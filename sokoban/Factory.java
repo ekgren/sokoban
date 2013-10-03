@@ -1,8 +1,9 @@
 package sokoban;
+
+import java.awt.Point;
+
 /**
  * NEO-SOKOBAN FACTORY CLASS
- * 
- * @author Ariel
  *
  */
 
@@ -75,6 +76,13 @@ public class Factory {
 	}
 	
 	/**
+	 * Method that returns cell at x, y - 1 position.
+	 */
+	public static Cell getCellUp(Point point){
+		return boardCells[point.x][point.y - 1];
+	}
+	
+	/**
 	 * Method that returns cell at x, y + 1 position.
 	 */
 	public static Cell getCellDown(int x, int y){
@@ -86,6 +94,13 @@ public class Factory {
 	 */
 	public static Cell getCellDown(Cell cell){
 		return boardCells[cell.x][cell.y + 1];
+	}
+	
+	/**
+	 * Method that returns cell at x, y + 1 position.
+	 */
+	public static Cell getCellDown(Point point){
+		return boardCells[point.x][point.y + 1];
 	}
 	
 	/**
@@ -103,6 +118,13 @@ public class Factory {
 	}
 	
 	/**
+	 * Method that returns cell at x - 1, y position.
+	 */
+	public static Cell getCellLeft(Point point){
+		return boardCells[point.x - 1][point.y];
+	}
+	
+	/**
 	 * Method that returns cell at x + 1, y position.
 	 */
 	public static Cell getCellRight(int x, int y){
@@ -114,6 +136,13 @@ public class Factory {
 	 */
 	public static Cell getCellRight(Cell cell){
 		return boardCells[cell.x + 1][cell.y];
+	}
+	
+	/**
+	 * Method that returns cell at x + 1, y position.
+	 */
+	public static Cell getCellRight(Point point){
+		return boardCells[point.x + 1][point.y];
 	}
 	
 	/**
