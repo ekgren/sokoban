@@ -33,6 +33,7 @@ public class Board {
 	private static int nbRows;
 	private static int nbCols;
 	private static int nbBoxes; // same as number of goals 
+	private static int nbGoals;
 
 	private static Vector<String> stringRepr; //string Representation of Map
 	private static Vector<String> cleanMapStringRepr = new Vector<String>(); //string Representation of Map
@@ -46,12 +47,14 @@ public class Board {
 
 	private static boolean[][] walls; //all "fixed" parts of map i.e. walls are true [row][col].
 	private static boolean[][] goals; //all goals are true [row][col].
+	private static int[][] goalsIndexAtPos; //all goals are true [row][col].
+
 	private static Vector<Goal> goalsList = new Vector<Goal>(); //might sometimes or always be more efficient can have both...
 
 	private static boolean [][] deadLocksT0; //marks Type0 deadlocks = corners (independet of goals) [row][col].
-	private static boolean[][][] deadLocksT1; //marks Type1 deadlocks [goal][row][col].
 	private static int[][][] goalGrad; //Gradient to each goal considering only walls [goal][row][col].
-
+    //Includes the information about deadlocksT1 marked by -1 in goalGrad!
+    private static int[][] goalGradSum; // Summed GoalGrad
 
 	/**
 	 * Constructs the internal representation of the Map
@@ -79,12 +82,16 @@ public class Board {
 		//Set dimensions
 		walls = new boolean[nbRows][nbCols];
 		goals = new boolean[nbRows][nbCols];	
-
-
+		goalsIndexAtPos = new int[nbRows][nbCols]; //all zero initially
+		
 		int lPlayerStartRow = 0; //can never be zero since there must be wall here...
 		int lPlayerStartCol = 0; //can never be zero since there must be wall here...
 		Vector<Box> lBoxesList = new Vector<Box>();
 
+		int lBoxesOnGoalCounter = 0;
+		int lGoalIndexCounter = 1;
+
+		
 		for(int row=0; row<nbRows; row++){
 			if (stringRepr.get(row).length() > lMaxNbOfCol) {
 				lMaxNbOfCol = stringRepr.get(row).length();
@@ -102,12 +109,19 @@ public class Board {
 				}
 				else if(stringRepr.get(row).charAt(col) == '.'){ //Goal
 					goals[row][col]=true; //All automatically false initially
+					goalsIndexAtPos[row][col] = lGoalIndexCounter; //all zero initially
 					goalsList.add(new Goal(row, col, false));
+					lGoalIndexCounter++; //should start at 1 to be able to tell diff. from zero where ter is no goal.
+
 				}
 				else if(stringRepr.get(row).charAt(col) == '*'){ //Box on goal
+					
 					goals[row][col]=true; //All automatically false initially
+					goalsIndexAtPos[row][col] = lGoalIndexCounter;
 					goalsList.add(new Goal(row, col, true)); //true means is occupied.
 					lBoxesList.add(new Box(row, col, true)); //true means is on goal
+					lBoxesOnGoalCounter++;
+					lGoalIndexCounter++;
 				}
 				else if(stringRepr.get(row).charAt(col) == '@'){ //Sokoban Player
 					lPlayerStartRow = row;
@@ -117,7 +131,9 @@ public class Board {
 					lPlayerStartRow = row;
 					lPlayerStartCol = col;
 					goals[row][col]=true; //All automatically false initially
+					goalsIndexAtPos[row][col] = lGoalIndexCounter;
 					goalsList.add(new Goal(row, col, false));
+					lGoalIndexCounter++;
 				}
 				else{
 					if(Sokoban.debugMode){
@@ -130,21 +146,33 @@ public class Board {
 
 
 		//Check and set number of boxes/goals
-		if (goalsList.size() == lBoxesList.size()){
-			nbBoxes = lBoxesList.size();
-		}
-		else{
-			if(Sokoban.debugMode){
-				System.out.println("MapError: There is not an equal amout of boxes and goals!");
+		
+		nbBoxes = lBoxesList.size();
+		nbGoals = nbBoxes;
+		
+		if(Sokoban.debugMode){
+			if (goalsList.size() != lBoxesList.size()){
+				System.out.println("MapError: There is not an equal amout of boxes and goals!!");
+				System.out.println("#goals: " + goalsList.size());
+				System.out.println("#boxes: " + lBoxesList.size());
 			}
 		}
 
-		initialState = new State(lBoxesList, lPlayerStartRow, lPlayerStartCol);
+		//Pass on info about which goals are initially occupied to initial state, later updated by state itself.
+		boolean[] lGoalsOccupied = new boolean[nbGoals];
+		for (int goalIndex = 0; goalIndex < nbGoals; goalIndex++){
+			if (goalsList.get(goalIndex).isOccupied()){
+				lGoalsOccupied[goalIndex] = true;
+			}
+		}
+		
+		initialState = new State(lBoxesList, lPlayerStartRow, lPlayerStartCol, lGoalsOccupied, lBoxesOnGoalCounter);
+
 
 		//Set dimension
 		deadLocksT0 = new boolean[nbRows][nbCols];
-		deadLocksT1 = new boolean[nbBoxes][nbRows][nbCols];
 		goalGrad = new int[nbBoxes][nbRows][nbCols];
+        goalGradSum = new int[nbRows][nbCols];
 
 		
 		//Fix the cleanMapString:		
@@ -161,6 +189,8 @@ public class Board {
 		
 		//mark DealLocks and Gradient to respective Goal:
 		markDeadlocksAndGrad();
+        // sum the gradients
+        setGoalGradSum();
 
 	} // End constructor Map
 
@@ -292,60 +322,61 @@ public class Board {
 				}//End if, check "Pushed left from right"
 			}
 		}//End for goal in goalsList
+
+
+        for(int row = 0; row < nbRows; row++){
+            for(int col = 0; col < nbCols; col++){
+                boolean allDeadT1 = true;
+                for(int goalIndex = 0; goalIndex < nbGoals; goalIndex++){
+                    if (goalGrad[goalIndex][row][col] != -1){
+                        allDeadT1 = false;
+                        break;
+                    }
+                }
+                if (allDeadT1){
+                    deadLocksT0[row][col]=true;
+                }
+            }
+        }
 	}
 
-	
-	/**
-	 * ONLY VERIFICATION METHOD FOR PLOTTING GOAL-GRADIENTS
-	 * @param pReferensGoalIndex
-	 */
-	public static void printGoalGrad(int pReferensGoalIndex){
-		System.out.println("Original String representation:");
-		for (String row : stringRepr){
-			System.out.println(row);
-		}
-		
-		System.out.println("");
-		System.out.println("Clean Map String representation:");
-		for (String row : cleanMapStringRepr){
-			System.out.println(row);
-		}
-		
-		System.out.println("");
-		System.out.println("Goal gradient:");
-		for (int row = 0; row<nbRows; row++){
-			for (int col = 0; col<nbCols; col++){				
-				if (goalGrad[pReferensGoalIndex][row][col] != -1){
-					System.out.print(goalGrad[pReferensGoalIndex][row][col]);
-				}
-				else if(col<cleanMapStringRepr.get(row).length()){ //might be shorter than nbCols!
-					System.out.print(cleanMapStringRepr.get(row).charAt(col));
-				}
-			}//End for columns	
-			System.out.println(" ");
-		}//End for rows
-	}
+    /**
+     * Summed goalGrad
+     */
+    private void setGoalGradSum() {
+        // for every goal
+        for (int i = 0; i < nbBoxes; i++) {
+            for (int row = 0; row < nbRows; row++) {
+                for (int col = 0; col < nbCols; col++) {
+                    goalGradSum[row][col] = goalGradSum[row][col] + goalGrad[i][row][col];
+                }
+            }
+        }
+    }
+
 	
 	public static State getInitialState(){
 		return initialState;
 	}
 
 	public static boolean isWall(int pRow, int pCol){
-		return walls[pRow][pCol]; //this must be developed further to check for dead states etc.
+		return walls[pRow][pCol]; 
 	}
 
 	public static boolean isGoal(int pRow, int pCol){
-
-		return goals[pRow][pCol]; //this must be developed further to check for dead states etc.
+		return goals[pRow][pCol];
 	}
+
+	public static int getGoalIndexAt(int pRow, int pCol){
+		return goalsIndexAtPos[pRow][pCol] - 1; 
+	}
+
 
 	public static boolean isDeadLockT0(int pRow, int pCol){
 		return deadLocksT0[pRow][pCol];
 	}
 
-	public static boolean isDeadLockT1(int pGoal, int pRow, int pCol){
-		return deadLocksT1[pGoal][pRow][pCol];
-	}
+
 
 	/**
 	 * Checks if position is not wall and not box.
@@ -358,6 +389,9 @@ public class Board {
 		return (!isWall(pRow,pCol)&&!pState.isBox(pRow,pCol));
 	}
 
+	/*
+	 * Should not be needed?
+	 */
 	public static Vector<Goal> getListOFGoals(){
 		return goalsList;
 	}
@@ -377,6 +411,10 @@ public class Board {
 	public static int getGoalGrad(int pGoalIndex, int pRow, int pCol){
 		return goalGrad[pGoalIndex][pRow][pCol];
 	}
+
+    public static int getSummedGoalGrad(int pRow, int pCol) {
+        return goalGradSum[pRow][pCol];
+    }
 
 	public static int getNbOfBoxes(){
 		return nbBoxes;

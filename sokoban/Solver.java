@@ -11,11 +11,11 @@ package sokoban;
 
 import java.util.*;
 
-
-
-
 public class Solver {
 	private State processState;
+
+    // Time field
+    private long startTime;
 	
 	/*
 	 * The key-String represents the box configuration only.
@@ -26,9 +26,8 @@ public class Solver {
 	 */
 	HashSet<State> visitedStates = new HashSet<State>();
 	Comparator comparator = new StatePriorityComparator();
-	PriorityQueue<State> simpleQueue = new PriorityQueue<State>(1000, comparator);
+	PriorityQueue<State> simpleQueue = new PriorityQueue<State>(10000, comparator);
 
-	
 	public Solver(){
 		
 		/*
@@ -45,7 +44,7 @@ public class Solver {
 		return  String.valueOf(row) + String.valueOf(col);
 	}
 
-	// Tried to improve old getFinalState() with a* implementation (did not work(because of longer time)). 
+	// Tried to improve old getFinalState() with a* implementation (did not work(because of longer constructorTime)).
 	public State aStar(){
 		
 		simpleQueue.offer(Board.getInitialState());
@@ -76,49 +75,73 @@ public class Solver {
 
 
 	public State greedyBFS(){
-		
-        int lIterations = 0;
+
+        int lExpandedNodes = 0;
+        int lCreatedNodes = 0;
 		
         simpleQueue.add(Board.getInitialState());
         visitedStates.add(Board.getInitialState());
-		
-        boolean lfoundFinalState = false;
+        // First state created
+        lCreatedNodes++;
 
-        while(!lfoundFinalState && lIterations<500000 && !simpleQueue.isEmpty() ){
-            // Iteration counter
-            lIterations++;
+        // Start constructorTime iterating through nodes
+        if (Sokoban.profilingMode) startTime = System.currentTimeMillis();
+
+        // Expand nodes until the queue is empty or until max iterations
+        while(lExpandedNodes<100000 && !simpleQueue.isEmpty() ){
 
             // Get state first in line
             State lCurState = simpleQueue.poll();
+            // Add one - new expanded node
+            lExpandedNodes++;
 
-            //Visualizer.printState(lCurState, "--- State explored in iteration: #" + lIterations + " ---");
+            //Visualizer.printStateDelux(lCurState, "--- State explored in iteration: #" + lIterations + " ---");
 
             // Get children of current state
             Vector<State> childrenOfCurState = new Vector<State>();
             lCurState.allSuccessors(childrenOfCurState); //fills with all children
+            // Add the number of new states
+            lCreatedNodes = lCreatedNodes + childrenOfCurState.size();
 
             // Iterate through the children and add them to the queue and in Closed
             for (State child : childrenOfCurState){
                 // If the child is final state, then return it!
                 if (child.isFinalState()) {
-                    if (Sokoban.debugMode) Visualizer.printState(lCurState, "THE FINAL STATE IS FOUND! See below:");
+
+                    // End constructorTime searching for solution
+                    if (Sokoban.profilingMode) {
+                        long endTime = System.currentTimeMillis() - startTime;
+                        double seconds = (double) endTime / 1000;
+                        System.err.println("\n--- Greedy BFS ---");
+                        System.err.println("Expanded nodes for: " + endTime + " ms");
+                        System.err.println("Number of Expanded nodes/second: " + lExpandedNodes / seconds);
+                        System.err.println("Number of Created nodes/second: " + lCreatedNodes / seconds);
+                    }
+
+                    if (Sokoban.debugMode) Visualizer.printState(child, "THE FINAL STATE IS FOUND! See below:");
                     return child;
-                }
 
                 // If child is NOT in closed (Visited states), add it!
-                if(!visitedStates.contains(child)){
+                } else if(!visitedStates.contains(child)){
                     visitedStates.add(child);
                     simpleQueue.add(child);
-                    //Visualizer.printState(child, "accepted child in iteration: #" + lIterations);
-                }
-                else{
-                    //Visualizer.printState(child, "Rejected child in iteration: #" + lIterations);
+
+                } else {
+                    // Add the state to the reusable container
+                    State.addReusableState(child);
                 }
             }
         }
-			
-        //System.out.println("States in queue: " + simpleQueue.size());
 
+        // End time
+        if (Sokoban.profilingMode) {
+            long endTime = System.currentTimeMillis() - startTime;
+            double seconds = (double) endTime / 1000;
+            System.err.println("\n--- Greedy BFS ---");
+            System.err.println("Expanded nodes for: " + endTime + " ms");
+            System.err.println("Number of Expanded nodes/second: " + lExpandedNodes / seconds);
+            System.err.println("Number of Created nodes/second: " + lCreatedNodes / seconds);
+        }
 
         if(Sokoban.debugMode)
             System.out.println("Solver line 77: No final sate was found, returned initial state.");
@@ -129,7 +152,7 @@ public class Solver {
 	
 	/**
 	 * Returns move necessary from cell to first parent cell.
-	 * @param aCell
+	 * @param pCell
 	 * @return
 	 */
 	public static String strChecker(Cell pCell){
@@ -335,11 +358,11 @@ public class Solver {
 	}
 	/**
 	 * Returns linked cell with position next to some position.
-	 * @param state
+	 * @param pState
 	 * @param pRow
 	 * @param pCol
-	 * @param pRowBox
-	 * @param pColBox
+	 * @param pRowPath
+	 * @param pColPath
 	 * @return
 	 */
 	public static Cell cellLinkedNeighborToPath(State pState,
