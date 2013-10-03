@@ -16,7 +16,7 @@ public class SolutionEvaluator {
 
     // Insert Level number (0 = TestTrack)
 
-    private int levelNo = 1;
+    private int levelNo = 2;
     private MapReader map;
 
 	public SolutionEvaluator() throws IOException{

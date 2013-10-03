@@ -67,7 +67,7 @@ public class State implements Cloneable{
 	   			
    				// If we can move the box in this direction we also have to check if the player
 	   			// can move to the cell to push the box.
-	   			if(Search.aStar(this, player, Factory.getCellDown(examine)) != 0){
+	   			if(Search.Astar(this, player, Factory.getCellDown(examine), true)){
 	   				
 	   				// Now we have determined that it is a valid move, time to act on it.
 	   				if(Sokoban.debug) System.out.println("UP MOTHERFUCKER!");
@@ -87,7 +87,7 @@ public class State implements Cloneable{
    				
    				// If we can move the box in this direction we also have to check if the player
 	   			// can move to the cell to push the box.
-	   			if(Search.aStar(this, player, Factory.getCellUp(examine)) != 0){
+	   			if(Search.Astar(this, player, Factory.getCellUp(examine), true)){
 	   				
 	   				// Now we have determined that it is a valid move, time to act on it.
 	   				if(Sokoban.debug) System.out.println("DOWN MOTHERFUCKER!");
@@ -107,7 +107,7 @@ public class State implements Cloneable{
 	   			
 	   			// If we can move the box in this direction we also have to check if the player
 	   			// can move to the cell to push the box.
-	   			if(Search.aStar(this, player, Factory.getCellRight(examine)) != 0){
+	   			if(Search.Astar(this, player, Factory.getCellRight(examine), true)){
 	   				
 	   				// Now we have determined that it is a valid move, time to act on it.
 	   				if(Sokoban.debug) System.out.println("LEFT MOTHERFUCKER!");
@@ -127,7 +127,7 @@ public class State implements Cloneable{
 	   			
 	   			// If we can move the box in this direction we also have to check if the player
 	   			// can move to the cell to push the box.
-	   			if(Search.aStar(this, player, Factory.getCellLeft(examine)) != 0){
+	   			if(Search.Astar(this, player, Factory.getCellLeft(examine), true)){
 	   				
 	   				// Now we have determined that it is a valid move, time to act on it.
 	   				if(Sokoban.debug) System.out.println("RIGHT MOTHERFUCKER!");

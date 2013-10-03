@@ -72,7 +72,7 @@ public class Search {
 			//neighborCells.clear();
 	        
 	        // Initialising search.
-	        open.offer(startPoint);
+	        open.offer(startCell);
 	        try{
 		        while(open.peek().equals(goalPoint)==false){
 		        	
@@ -151,8 +151,4 @@ public class Search {
 	        if(searchState==true) return true;
 			else return false;  	
 		}
-	
-	public static int aStar(State state, Point start, Point goal){
-		return 1;
-	}
 }
