@@ -12,6 +12,6 @@ import java.awt.Point;
 public class Search {
 	
 	public static int aStar(State state, Point start, Point goal){
-		return 0;
+		return 1;
 	}
 }

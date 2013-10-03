@@ -35,9 +35,10 @@ public class Sokoban {
 		final Board board = new Board(r);
 		
 		// Initialize solver.
+		Solver solver = new Solver(board);
 		
 		// Set the solution string to desired answer.
-		solution = "ul";
+		solution = "";
 		
 		/** "Fun" debug message to signal end of program. */
 		if(debug) System.out.println("NEO-SOKOBAN HAS TERMINATED.");

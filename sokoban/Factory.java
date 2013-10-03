@@ -28,6 +28,7 @@ public class Factory {
 	private static int totalBoxCount = 0;
 	private static int totalStateCount = 0;
 	private static int totalPlayerCount = 0;
+
 	
 	/**
 	 * Method that "creates" state.
@@ -39,6 +40,32 @@ public class Factory {
 		// Return.
 		addStateCount();
 		return states[totalStateCount-1];
+	}
+	
+	/**
+	 * Method that "creates" box.
+	 */
+	public static Box createBox(Point p){
+		// This can be removed if we choose to create all at start instead.
+		boxes[totalBoxCount] = new Box();
+		
+		// Set x and y then return.
+		boxes[totalBoxCount].setLocation(p.x, p.y);
+		addBoxCount();
+		return boxes[totalBoxCount-1];
+	}
+	
+	/**
+	 * Method that "creates" box.
+	 */
+	public static Box createBox(int x, int y){
+		// This can be removed if we choose to create all at start instead.
+		boxes[totalBoxCount] = new Box();
+		
+		// Set x and y then return.
+		boxes[totalBoxCount].setLocation(x, y);
+		addBoxCount();
+		return boxes[totalBoxCount-1];
 	}
 	
 	/**
@@ -159,20 +186,7 @@ public class Factory {
 	}
 	
 	/**
-	 * Method that "creates" box.
-	 */
-	public static Box createBox(int x, int y){
-		// This can be removed if we choose to create all at start instead.
-		boxes[totalBoxCount] = new Box();
-		
-		// Set x and y then return.
-		boxes[totalBoxCount].setLocation(x, y);
-		addBoxCount();
-		return boxes[totalBoxCount-1];
-	}
-	
-	/**
-	 * Method that "creates" player.
+	 * Method that "creates" player from x, y coordinates.
 	 */
 	public static Player createPlayer(int x, int y){
 		// This can be removed if we choose to create all at start instead.
@@ -180,6 +194,19 @@ public class Factory {
 		
 		// Set x and y then return.
 		players[totalPlayerCount].setLocation(x, y);
+		addPlayerCount();
+		return players[totalPlayerCount-1];
+	}
+	
+	/**
+	 * Method that "creates" player from Point object.
+	 */
+	public static Player createPlayer(Point p){
+		// This can be removed if we choose to create all at start instead.
+		players[totalPlayerCount] = new Player();
+		
+		// Set x and y then return.
+		players[totalPlayerCount].setLocation(p.x, p.y);
 		addPlayerCount();
 		return players[totalPlayerCount-1];
 	}

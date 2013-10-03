@@ -1,5 +1,6 @@
 package sokoban;
 
+import java.awt.Point;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.PriorityQueue;
@@ -19,7 +20,11 @@ public class Solver {
 	HashSet<State> visitedStates = new HashSet<State>();
 	//PriorityQueue<State> simpleQueue = new PriorityQueue<State>(10000, comparator);
 	
-	public Solver(){
+	public Solver(Board board){
+		
+		if(Sokoban.debug) System.out.println("IN THE SOLVE!");
 		initState = Factory.createState();
+		initState.initialState(board);
+		initState.createChildren();
 	}
 }

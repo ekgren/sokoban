@@ -21,10 +21,10 @@ import java.util.Vector;
 public class Board {
 	
 	// Cells, boxes, goals and player in map.
-	HashSet<Cell> mapCells = new HashSet<Cell>();
-	HashSet<Box> initialBoxes = new HashSet<Box>();
-	HashSet<Cell> allGoals = new HashSet<Cell>();
-	Player player;
+	private HashSet<Cell> mapCells = new HashSet<Cell>();
+	private HashSet<Box> initialBoxes = new HashSet<Box>();
+	private HashSet<Cell> allGoals = new HashSet<Cell>();
+	private Player player;
 	
 	/**
 	 * Constructor takes Reader object.
@@ -324,5 +324,13 @@ public class Board {
 			} // End for each column loop.
 			y = y + 1;
 		} // End for each row loop.
+	}
+	
+	public HashSet<Box> getBoxes(){
+		return initialBoxes;
+	}
+	
+	public Player getPlayer(){
+		return player;
 	}
 }

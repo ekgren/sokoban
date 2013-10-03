@@ -1,5 +1,6 @@
 package sokoban;
 
+import java.awt.Point;
 import java.util.HashSet;
 
 /**
@@ -11,57 +12,117 @@ import java.util.HashSet;
 
 public class State implements Cloneable{
 	
+	// Parent state
 	private State parentState;
 	
-	private Box boxes[];
+	// Boxes and player
+	private HashSet<Point> boxes = new HashSet<Point>();;
 	private Player player;
 
     /** Empty constructor. */
-   	public State() {}
+   	public State() {
+   	}
    	
    	/** Not so empty constructor. */
    	public State(State parentState){
    		this.parentState = parentState;
    	}
    	
+   	/** USE ONLY FOR INITIAL STATE. */
+   	public void initialState(Board board){
+   		this.player = Factory.createPlayer(board.getPlayer());
+   		for(Point p : board.getBoxes()){
+   			this.boxes.add(Factory.createBox(p));
+   		}
+   	}
+   	
    	/** Create children. */
    	public void createChildren(){
    		
    		// For each box in the box array we call the method boxMoves().
-   		for(int i = 0 ;  i < boxes.length ; i++){
-   			boxMoves(i);
+   		for(Point box : boxes){
+   			boxMoves(box);
    		}
    	}
    	
    	/** Examine how a specific box can be moved. */
-   	public void boxMoves(int boxIndex){
+   	public void boxMoves(Point box){
+   		
    		// We start by retrieving the box we want to examine 
-   		// from the box array in current state.
-   		Box examine = boxes[boxIndex];
+   		// from the boxes in current state.
+   		Box examine = (Box) box;
    		
-   		// We examine if we can move the box up. To move the box up both
-   		// the cell above and below it need to be free.
-   		if(Factory.getCellUp(examine) != null && //Check above
-   		   Factory.getCellDown(examine) != null && //Check below
+   		if(Sokoban.debug)System.out.println(box.toString());
+   		
+   		// We examine if we can move the box UP on the map. 
+   		// To move the box up both the cell above and below it need to be free.
+   		if(Factory.getCellUp(examine) != null &&
+   		   Factory.getCellDown(examine) != null &&
    		   Factory.getCellUp(examine).boxAllowed){
-   			// If we can move the box in this direction we also have to check if the player
-   			// can move to the cell to push the box.
-   			if(Search.aStar(this, player, Factory.getCellDown(examine)) != 0);
+   			
+   			// We then have to make sure that there is no box in the desired direction of push
+   			// or where the player needs to be to do the push.
+   			if(boxes.contains(Factory.getCellUp(examine)) == false &&
+   				boxes.contains(Factory.getCellDown(examine))== false){
+	   			// If we can move the box in this direction we also have to check if the player
+	   			// can move to the cell to push the box.
+	   			if(Search.aStar(this, player, Factory.getCellDown(examine)) != 0){
+	   				if(Sokoban.debug) System.out.println("UP MOTHERFUCKER!");
+	   			}
+   			}
    		}
    		
-   		// We examine if we can move the box down.
-   		if(Factory.getCellDown(examine) != null && Factory.getCellDown(examine).boxAllowed){
+   		// We examine if we can move the box DOWN on the map.
+   		if(Factory.getCellDown(examine) != null &&
+   		   Factory.getCellUp(examine) != null &&
+   		   Factory.getCellDown(examine).boxAllowed){
+
+   			// We then have to make sure that there is no box in the desired direction of push
+   			// or where the player needs to be to do the push.
+   			if(boxes.contains(Factory.getCellDown(examine)) == false &&
+   	   				boxes.contains(Factory.getCellUp(examine))== false){
+   				// If we can move the box in this direction we also have to check if the player
+	   			// can move to the cell to push the box.
+	   			if(Search.aStar(this, player, Factory.getCellUp(examine)) != 0){
+	   				if(Sokoban.debug) System.out.println("DOWN MOTHERFUCKER!");
+	   			}
+   			}
+   		}	
+   		
+   		// We examine if we can move the box to the LEFT on the map.
+   		if(Factory.getCellLeft(examine) != null &&
+   		   Factory.getCellRight(examine) != null &&
+   		   Factory.getCellLeft(examine).boxAllowed){
    			
+   			// We then have to make sure that there is no box in the desired direction of push
+   			// or where the player needs to be to do the push.
+   			if(boxes.contains(Factory.getCellLeft(examine)) == false &&
+   	   				boxes.contains(Factory.getCellRight(examine))== false){
+	   			
+	   			// If we can move the box in this direction we also have to check if the player
+	   			// can move to the cell to push the box.
+	   			if(Search.aStar(this, player, Factory.getCellRight(examine)) != 0){
+	   				if(Sokoban.debug) System.out.println("LEFT MOTHERFUCKER!");
+	   			}
+   			}
    		}
    		
-   		// We examine if we can move the box to the left.
-   		if(Factory.getCellLeft(examine) != null && Factory.getCellLeft(examine).boxAllowed){
+   		// We examine if we can move the box to the RIGHT on the map.
+   		if(Factory.getCellRight(examine) != null &&
+   		   Factory.getCellLeft(examine) != null &&
+   		   Factory.getCellRight(examine).boxAllowed){
    			
-   		}
-   		
-   		// We examine if we can move the box to the right.
-   		if(Factory.getCellRight(examine) != null && Factory.getCellRight(examine).boxAllowed){
-   			
+   			// We then have to make sure that there is no box in the desired direction of push
+   			// or where the player needs to be to do the push.
+   			if(boxes.contains(Factory.getCellRight(examine)) == false &&
+   	   				boxes.contains(Factory.getCellLeft(examine))== false){
+	   			
+	   			// If we can move the box in this direction we also have to check if the player
+	   			// can move to the cell to push the box.
+	   			if(Search.aStar(this, player, Factory.getCellLeft(examine)) != 0){
+	   				if(Sokoban.debug) System.out.println("RIGHT MOTHERFUCKER!");
+	   			}
+   			}
    		}
    	}
    	

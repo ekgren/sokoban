@@ -6,10 +6,7 @@ import java.io.*;
 import java.util.Vector;
 
 /**
- * 
  * Class to simulate Kattis and evaluate our sokoban solver.
- * 
- * @author Ariel Ekgren
  *
  */
 
@@ -33,7 +30,7 @@ public class SolutionEvaluator {
 		path = new Sokoban(new StringReader(map.getMap()), true);
 
         // Animate solution
-		//animateSolution();
+		animateSolution();
 	}
 	
 	public void animateSolution() throws FileNotFoundException, IOException{
