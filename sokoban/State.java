@@ -64,9 +64,12 @@ public class State implements Cloneable{
    			// or where the player needs to be to do the push.
    			if(boxes.contains(Factory.getCellUp(examine)) == false &&
    				boxes.contains(Factory.getCellDown(examine))== false){
-	   			// If we can move the box in this direction we also have to check if the player
+	   			
+   				// If we can move the box in this direction we also have to check if the player
 	   			// can move to the cell to push the box.
 	   			if(Search.aStar(this, player, Factory.getCellDown(examine)) != 0){
+	   				
+	   				// Now we have determined that it is a valid move, time to act on it.
 	   				if(Sokoban.debug) System.out.println("UP MOTHERFUCKER!");
 	   			}
    			}
@@ -80,10 +83,13 @@ public class State implements Cloneable{
    			// We then have to make sure that there is no box in the desired direction of push
    			// or where the player needs to be to do the push.
    			if(boxes.contains(Factory.getCellDown(examine)) == false &&
-   	   				boxes.contains(Factory.getCellUp(examine))== false){
+   	   			boxes.contains(Factory.getCellUp(examine))== false){
+   				
    				// If we can move the box in this direction we also have to check if the player
 	   			// can move to the cell to push the box.
 	   			if(Search.aStar(this, player, Factory.getCellUp(examine)) != 0){
+	   				
+	   				// Now we have determined that it is a valid move, time to act on it.
 	   				if(Sokoban.debug) System.out.println("DOWN MOTHERFUCKER!");
 	   			}
    			}
@@ -102,6 +108,8 @@ public class State implements Cloneable{
 	   			// If we can move the box in this direction we also have to check if the player
 	   			// can move to the cell to push the box.
 	   			if(Search.aStar(this, player, Factory.getCellRight(examine)) != 0){
+	   				
+	   				// Now we have determined that it is a valid move, time to act on it.
 	   				if(Sokoban.debug) System.out.println("LEFT MOTHERFUCKER!");
 	   			}
    			}
@@ -120,6 +128,8 @@ public class State implements Cloneable{
 	   			// If we can move the box in this direction we also have to check if the player
 	   			// can move to the cell to push the box.
 	   			if(Search.aStar(this, player, Factory.getCellLeft(examine)) != 0){
+	   				
+	   				// Now we have determined that it is a valid move, time to act on it.
 	   				if(Sokoban.debug) System.out.println("RIGHT MOTHERFUCKER!");
 	   			}
    			}
