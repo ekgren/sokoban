@@ -10,7 +10,7 @@ import java.awt.Point;
 public class Factory {
 	
 	// Parameters.
-	private static int estimatedMaxNumberOfStates = 200000;
+	private static int estimatedMaxNumberOfStates = 50000;
 	
 	// Containers of all cells, goals, boxes, states and players.
 	private static Cell[][] boardCells = new Cell[100][100];

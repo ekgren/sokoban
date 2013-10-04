@@ -49,7 +49,7 @@ public class Search {
 	
 	/** Method that takes two points, a board state and a boolean and checks if 
 	 * it is possible to walk between the two points. */
-	public static boolean Astar(State state, Point startPoint, Point goalPoint, boolean returnPath) {
+	public static String Astar(State state, Point startPoint, Point goalPoint, boolean returnPath) {
 			
 			boolean searchState = true;
 			Point processCell = null;
@@ -148,8 +148,31 @@ public class Search {
 	        	// If we run out of cells to search we can't find a way.
 	        	searchState = false;
 	        }
-	        if(searchState==true) return true;
-			else return false;  	
+	        if(searchState==true){
+	        	if(returnPath){
+	        		String walkingPath = "";
+	        		Cell child = (Cell) open.remove();
+	        		Cell parent;
+	        		while(child.getParent() != null){
+	        			parent = child.getParent();
+	        			if(parent.x-child.x == 0 && parent.y-child.y > 0){
+	        				walkingPath = 'u' + walkingPath;
+	        			}
+	        			if(parent.x-child.x == 0 && parent.y-child.y < 0){
+	        				walkingPath = 'd' + walkingPath;
+	        			}
+	        			if(parent.x-child.x > 0 && parent.y-child.y == 0){
+	        				walkingPath = 'l' + walkingPath;
+	        			}
+	        			if(parent.x-child.x < 0 && parent.y-child.y == 0){
+	        				walkingPath = 'r' + walkingPath;
+	        			}
+	        			child = parent;
+	        		}
+	        		return walkingPath;
+	        		} else return "";
+	        }
+			else return null;
 		}
 	
 	/** Search that return string. */

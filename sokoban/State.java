@@ -79,7 +79,7 @@ public class State implements Cloneable{
 	   			
    				// If we can move the box in this direction we also have to check if the player
 	   			// can move to the cell to push the box.
-	   			if(Search.Astar(this, player, Factory.getCellDown(examine), true)){
+	   			if(Search.Astar(this, player, Factory.getCellDown(examine), false) != null){
 	   				   				
 	   				// Create new state and put it in stateHolder until finished.
 	   				stateHolder = Factory.createState();
@@ -126,7 +126,7 @@ public class State implements Cloneable{
    				
    				// If we can move the box in this direction we also have to check if the player
 	   			// can move to the cell to push the box.
-	   			if(Search.Astar(this, player, Factory.getCellUp(examine), true)){
+	   			if(Search.Astar(this, player, Factory.getCellUp(examine), false) != null){
 	   			
 	   				// Create new state and put it in stateHolder until finished.
 	   				stateHolder = Factory.createState();
@@ -173,7 +173,7 @@ public class State implements Cloneable{
 	   			
 	   			// If we can move the box in this direction we also have to check if the player
 	   			// can move to the cell to push the box.
-	   			if(Search.Astar(this, player, Factory.getCellRight(examine), true)){
+	   			if(Search.Astar(this, player, Factory.getCellRight(examine), false) != null){
 	   				
 	   				// Create new state and put it in stateHolder until finished.
 	   				stateHolder = Factory.createState();
@@ -220,7 +220,7 @@ public class State implements Cloneable{
 	   			
 	   			// If we can move the box in this direction we also have to check if the player
 	   			// can move to the cell to push the box.
-	   			if(Search.Astar(this, player, Factory.getCellLeft(examine), true)){
+	   			if(Search.Astar(this, player, Factory.getCellLeft(examine), false) != null){
 	   				
 	   				// Create new state and put it in stateHolder until finished.
 	   				stateHolder = Factory.createState();
@@ -319,7 +319,7 @@ public class State implements Cloneable{
 	    }
 	    
 	    // Returns true if players can walk to each other.
-	    if(Search.Astar(this, player, otherState.player, true)) return true;
+	    if(Search.Astar(this, player, otherState.player, false) != null) return true;
 
 	    return false;
    	}

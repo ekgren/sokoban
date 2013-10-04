@@ -78,7 +78,7 @@ public class Solver {
 		// While not initial state.
 		while(currentState.getParent() != null){
 			
-			solution = fromIntToString(currentState.getPreviousMove()) + solvedState;
+			solution = fromIntToString(currentState.getPreviousMove()) + solution;
 			
 			if(currentState.getPreviousMove() == 0) goalCell = Factory.getCellDown(currentState.getPlayer());
 			else if(currentState.getPreviousMove() == 1) goalCell = Factory.getCellUp(currentState.getPlayer());
@@ -89,7 +89,7 @@ public class Solver {
 			
 			startCell = Factory.getCell(currentState.getPlayer());
 			
-			solution = Search.AstarString(currentState, startCell, goalCell);
+			solution = Search.Astar(currentState, startCell, goalCell, true) + solution;
 		}
 		
 		return solution;
