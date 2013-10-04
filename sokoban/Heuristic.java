@@ -88,8 +88,23 @@ public class Heuristic {
         return lStateScore / lBoxes.size();
     }
 
-    public static int arielHeuristic(State pState) {
-        return 0;
+    public static int arielHeuristic(State pState){
+    	
+    	int lPOINTS = 0;
+    	
+        for (Box box : pState.getBoxes()) {
+        	Vector<Goal> goalCopy = Board.getListOFGoals();
+        	int minDist = Integer.MAX_VALUE;
+        	int cityBlockDistance;
+
+        	for (Goal goal : goalCopy) {
+            	cityBlockDistance = Math.abs(box.getRow() - goal.getRow()) + Math.abs(box.getCol() - goal.getCol());
+            	lPOINTS = lPOINTS + cityBlockDistance;
+            }
+    	}
+        //lPOINTS = lPOINTS + pState.getG();
+        
+    	return lPOINTS;
     }
 
     /**

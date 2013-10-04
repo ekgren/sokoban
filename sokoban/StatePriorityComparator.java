@@ -7,8 +7,8 @@ public class StatePriorityComparator implements Comparator<State>{
 	@Override
 	public int compare(State pState1, State pState2) {
 
-		double h1 = pState1.getH();
-		double h2 = pState2.getH();
+		int h1 = pState1.getH();
+		int h2 = pState2.getH();
 		
 		if (h1 < h2){
 			return -1; //move forward?!

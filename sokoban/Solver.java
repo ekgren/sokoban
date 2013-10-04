@@ -11,9 +11,12 @@ package sokoban;
 
 import java.util.*;
 
-public class Solver {
-	private State processState;
+//import sokoban.Cell.NormComparator;
 
+public class Solver {
+	
+
+	private State processState;
     // Time field
     private long startTime;
 	
@@ -24,12 +27,30 @@ public class Solver {
 	 * containing the DIFFERNT states visited whith this config. (but whith
 	 * player in different subspaces...)
 	 */
+    
+    //Static 
+	//Static fields for saving creations of Cells,Queues.. when calling isPathToBox.
+	public static Cell [][] matrixCells;
+    private static Cell.NormComparator comparatorCell = new Cell.NormComparator();
+	private static HashSet<String> mapPrPathsCell = new HashSet<String>();
+    private static PriorityQueue<Cell> queueCellChildren = new PriorityQueue<Cell>(10000,
+    		comparatorCell);
+    private static Cell STATIC_CELL = new Cell(0,0);
+    
 	HashSet<State> visitedStates = new HashSet<State>();
 	Comparator comparator = new StatePriorityComparator();
 	PriorityQueue<State> simpleQueue = new PriorityQueue<State>(10000, comparator);
     PriorityQueue<State> newQueue = new PriorityQueue<State>(10000, comparator);
 
 	public Solver(){
+		//Instancing matrix with cells for saving garbageCollecting time, maybe it is better
+		//to instance this matrix when we are making board, (for only non wall positions).
+		matrixCells = new Cell[Board.getNbRows()][Board.getNbCols()];		
+		for(int rowIndex = 0 ; rowIndex < Board.getNbRows() ; rowIndex++){
+			for(int colIndex = 0 ; colIndex < Board.getNbCols() ; colIndex++){
+				matrixCells[rowIndex][colIndex] = new Cell(rowIndex,colIndex);
+			}
+		}
 		
 		/*
 		 *TODO
@@ -169,8 +190,10 @@ public class Solver {
 	 * @return
 	 */
 	public static String strChecker(Cell pCell){
-		
+	
 		if(pCell.getRow() == pCell.getParent().getRow()){
+			// If rows are equal we are moving left or right, since we are going backwards,
+			// so the condition are reversed.
 			if(pCell.getCol() > pCell.getParent().getCol()){
 				return "l";
 			}
@@ -194,258 +217,19 @@ public class Solver {
 	 * @return
 	 */
 	public static String strPath(Cell pCell){
-		
+		//Print out all necessary moves from linked cells.
 		String strMoves = "";
 		while(pCell.getParent() != null){
-			strMoves += strChecker(pCell); //+ strMoves;
+			strMoves += strChecker(pCell);
 			pCell = pCell.getParent();
 		}
-		//strMoves += strChecker(pCell);
 		return strMoves;
 	}
-	
+
+		
 	/**
-	 * Returns cell with position next to box.
-	 * @param state
-	 * @param pRow
-	 * @param pCol
-	 * @param pRowBox
-	 * @param pColBox
-	 * @return
-	 */
-	public static Cell cellNeighborToBox(State state,
-                                         int pRow, int pCol, int pRowBox, int pColBox) {
-		
-		Cell pStartCell = new Cell(pRow,pCol);
-		Cell pEndCell = new Cell(pRowBox,pColBox);
-		
-		boolean bolFinished = false;
-		Cell lCellNeighbor = null;
-		
-        Comparator<Cell> comparator = new Cell.NormComparator(
-        		pEndCell.getRow(),
-        		pEndCell.getCol());
-		HashSet<String> lSetPrPaths = new HashSet<String>();
-        PriorityQueue<Cell> lQueChildren = new PriorityQueue<Cell>(10,comparator);
-        
-        lQueChildren.add(pStartCell);
-		lSetPrPaths.add(getHashString(pStartCell.getRow(),pStartCell.getCol()));
-		
-		while(!lQueChildren.isEmpty() &! bolFinished){
-			Cell lCellChild = lQueChildren.remove();
-			int lRow = lCellChild.getRow();
-			int lCol = lCellChild.getCol();
-			int incInt = -1;
-
-			while(incInt <= 1){
-				//Make row child (path).
-				int lRowChild = lRow + incInt;
-				String hashIndex1 = getHashString(lRowChild,lCol);
-				
-				if(!lSetPrPaths.contains(hashIndex1)){
-					//Add child to previous paths.
-					lSetPrPaths.add(hashIndex1);
-			
-					if(!Board.isWall(lRowChild, lCol)){
-						
-						if(!state.isBox(lRowChild,lCol)){
-							//If we are not finished add child to queue.
-							lQueChildren.add(new Cell(lRowChild,lCol));
-						}
-						else if(lRowChild == pEndCell.getRow() &&
-								lCol == pEndCell.getCol()){
-							//If we have found path return cell which is next to searched position.
-							lCellNeighbor = lCellChild;
-							bolFinished = true;
-							break;
-						}
-					}
-				}
-				
-				//Repeat for column child (paths).
-				int lColChild = lCol + incInt;
-				String hashIndex2 = getHashString(lRow,lColChild);
-				
-				if(!lSetPrPaths.contains(hashIndex2)){
-					lSetPrPaths.add(hashIndex2);	
-					
-					if(!Board.isWall(lRow, lColChild)){
-						
-						if(!state.isBox(lRow,lColChild)){
-							lQueChildren.add(new Cell(lRow,lColChild));
-						}
-						else if(lRow == pEndCell.getRow() &&
-								lColChild == pEndCell.getCol()){
-							lCellNeighbor = lCellChild;
-							bolFinished = true;
-							break;
-						}
-					}
-				}
-			incInt = incInt + 2;	
-			}
-		}
-		return lCellNeighbor;
-	}
-	
-	/**
-	 * Returns linked cell with position next to box.
-	 * @param state
-	 * @param pRow
-	 * @param pCol
-	 * @param pRowBox
-	 * @param pColBox
-	 * @return
-	 */
-	public static Cell cellLinkedNeighborToBox(State state,
-                                               int pRow, int pCol, int pRowBox, int pColBox) {
-
-		Cell pStartCell = new Cell(pRow,pCol);
-		Cell pEndCell = new Cell(pRowBox,pColBox);
-		boolean bolFinished = false;
-		Cell lCellNeighbor = null;
-		
-        Comparator<Cell> comparator = new Cell.NormComparator(
-        		pEndCell.getRow(),
-        		pEndCell.getCol());
-		HashSet<String> lSetPrPaths = new HashSet<String>();
-        PriorityQueue<Cell> lQueChildren = new PriorityQueue<Cell>(10,comparator);
-        
-        lQueChildren.add(pStartCell);
-		lSetPrPaths.add(getHashString(pStartCell.getRow(),pStartCell.getCol()));
-		
-		while(!lQueChildren.isEmpty() &! bolFinished){
-			Cell lCellChild = lQueChildren.remove();
-			int lRow = lCellChild.getRow();
-			int lCol = lCellChild.getCol();
-			int incInt = -1;
-
-			while(incInt <= 1){
-				int lRowChild = lRow + incInt;
-				String hashIndex1 = getHashString(lRowChild,lCol);
-				
-				if(!lSetPrPaths.contains(hashIndex1)){
-					lSetPrPaths.add(hashIndex1);
-			
-					if(!Board.isWall(lRowChild, lCol)){
-						
-						if(!state.isBox(lRowChild,lCol)){
-							lQueChildren.add(new Cell(lCellChild,lRowChild,lCol));
-						}
-						else if(lRowChild == pEndCell.getRow() &&
-								lCol == pEndCell.getCol()){
-							lCellNeighbor = new Cell(lCellChild,lRowChild,lCol);
-							bolFinished = true;
-							break;
-						}
-					}
-				}
-				int lColChild = lCol + incInt;
-				String hashIndex2 = getHashString(lRow,lColChild);
-				
-				if(!lSetPrPaths.contains(hashIndex2)){
-					lSetPrPaths.add(hashIndex2);	
-					
-					if(!Board.isWall(lRow, lColChild)){
-						
-						if(!state.isBox(lRow,lColChild)){
-							lQueChildren.add(new Cell(lCellChild,lRow,lColChild));
-						}
-						else if(lRow == pEndCell.getRow() &&
-								lColChild == pEndCell.getCol()){
-							lCellNeighbor = new Cell(lCellChild,lRow,lColChild);
-							bolFinished = true;
-							break;
-						}
-					}
-				}
-			incInt = incInt + 2;	
-			}
-		}
-		if(lCellNeighbor != null){
-			return lCellNeighbor.getParent();
-		}
-		else{
-			return lCellNeighbor;
-		}
-	}
-	/**
-	 * Returns linked cell with position next to some position.
-	 * @param pState
-	 * @param pRow
-	 * @param pCol
-	 * @param pRowPath
-	 * @param pColPath
-	 * @return
-	 */
-	public static Cell cellLinkedNeighborToPath(State pState,
-                                                int pRow, int pCol, int pRowPath, int pColPath) {
-
-		Cell pStartCell = new Cell(pRow,pCol);
-		Cell pEndCell = new Cell(pRowPath,pColPath);
-		boolean bolFinished = false;
-		Cell lCellNeighbor = null;
-		
-        Comparator<Cell> comparator = new Cell.NormComparator(
-        		pEndCell.getRow(),
-        		pEndCell.getCol());
-		HashSet<String> lSetPrPaths = new HashSet<String>();
-        PriorityQueue<Cell> lQueChildren = new PriorityQueue<Cell>(10,comparator);
-        
-        lQueChildren.add(pStartCell);
-		lSetPrPaths.add(getHashString(pStartCell.getRow(),pStartCell.getCol()));
-		
-		while(!lQueChildren.isEmpty() &! bolFinished){
-			Cell lCellChild = lQueChildren.remove();
-			int lRow = lCellChild.getRow();
-			int lCol = lCellChild.getCol();
-			int incInt = -1;
-
-			while(incInt <= 1){
-				int lRowChild = lRow + incInt;
-				String hashIndex1 = getHashString(lRowChild,lCol);
-				
-				if(!lSetPrPaths.contains(hashIndex1)){
-					lSetPrPaths.add(hashIndex1);
-			
-					if(!Board.isFree(pState,lRowChild, lCol)){
-						
-						if(lRowChild == pEndCell.getRow() &&
-								lCol == pEndCell.getCol()){
-							lCellNeighbor = lCellChild;
-							bolFinished = true;
-						}
-						else{
-							lQueChildren.add(new Cell(lCellChild,lRowChild,lCol));
-						}	
-					}
-				}
-				int lColChild = lCol + incInt;
-				String hashIndex2 = getHashString(lRow,lColChild);
-				
-				if(!lSetPrPaths.contains(hashIndex2)){
-					lSetPrPaths.add(hashIndex2);
-			
-					if(!Board.isFree(pState,lRow, lColChild)){
-						
-						if(lRow == pEndCell.getRow() &&
-								lColChild == pEndCell.getCol()){
-							lCellNeighbor = lCellChild;
-							bolFinished = true;
-						}
-						else{
-							lQueChildren.add(new Cell(lCellChild,lRow,lColChild));
-						}	
-					}
-				}
-			incInt = incInt + 2;	
-			}
-		}
-		return lCellNeighbor;
-	}
-	
-	/**
-	 * Returns linked cell from some position to another position.
+	 * Returns linked cell from some position to another position (only used when printing
+	 * solution path).
 	 * @param pState
 	 * @param pRow
 	 * @param pCol
@@ -456,6 +240,8 @@ public class Solver {
 	public static Cell cellLinkedToPath(State pState,
                                         int pRow, int pCol, int pRowPath, int pColPath) {
 
+		//See documentation for method below cellToPath, this is method is only used for printing 
+		//out solution path.
 		Cell pStartCell = new Cell(pRow,pCol);
 		Cell pEndCell = new Cell(pRowPath,pColPath);
 		boolean bolFinished = false;
@@ -469,9 +255,7 @@ public class Solver {
         
         lQueChildren.add(pStartCell);
 		lSetPrPaths.add(getHashString(pStartCell.getRow(),pStartCell.getCol()));
-//		if(pRow == pRowPath && pCol == pColPath){
-	//		lCellNeighbor = new Cell()
-		//}
+
 		
 		while(!lQueChildren.isEmpty() &! bolFinished){
 			Cell lCellChild = lQueChildren.remove();
@@ -522,9 +306,6 @@ public class Solver {
 		return lCellNeighbor;
 	}
 	
-	public Cell cellNeighborToPath2(State pState, int pRow, int pCol, int pRowPath, int pColPath){
-		return null;
-	}
 	
 	/**
 	 * Returns cell next to some position.
@@ -538,83 +319,81 @@ public class Solver {
 	public static Cell cellNeighborToPath(State pState,
                                           int pRow, int pCol, int pRowPath, int pColPath) {
 
-		Cell pStartCell = new Cell(pRow,pCol);
-		Cell pEndCell = new Cell(pRowPath,pColPath);
-		boolean bolFinished = false;
-		Cell lCellNeighbor = null;
-		
-        Comparator<Cell> comparator = new Cell.NormComparator(
-        		pEndCell.getRow(),
-        		pEndCell.getCol());
-        
-		HashSet<String> lSetPrPaths = new HashSet<String>();
-        PriorityQueue<Cell> lQueChildren = new PriorityQueue<Cell>(10,comparator);
-        
-        lQueChildren.add(pStartCell);
-		lSetPrPaths.add(getHashString(pStartCell.getRow(),pStartCell.getCol()));
-		
-		while(!lQueChildren.isEmpty() &! bolFinished){
-			Cell lCellChild = lQueChildren.remove();
-			int lRow = lCellChild.getRow();
-			int lCol = lCellChild.getCol();
+		//Get start and end positions from matrix with cells (save garbagecollection)
+		Cell pStartCell = matrixCells[pRow][pCol];
+		Cell pEndCell = matrixCells[pRowPath][pColPath];
+
+		//Set comparator to look for path we are searching for.
+		comparatorCell.setGoal(pRowPath, pColPath);
+		//Child queue for search
+		//First child is starting node.
+        queueCellChildren.add(pStartCell);
+        //Map for visited positions.
+        mapPrPathsCell.add(getHashString(pStartCell.getRow(),pStartCell.getCol()));
+
+        while(!queueCellChildren.isEmpty()){
+        	Cell lCellChild = queueCellChildren.remove();
+        	//increment for making children (L,R,U and D)
 			int incInt = -1;
 
 			while(incInt <= 1){
-				int lRowChild = lRow + incInt;
-				String hashIndex1 = getHashString(lRowChild,lCol);
+				String hashIndex1 = getHashString(lCellChild.getRow() + incInt,lCellChild.getCol());
 				
-				if(!lSetPrPaths.contains(hashIndex1)){
-					lSetPrPaths.add(hashIndex1);
-			
-					if(Board.isFree(pState,lRowChild, lCol)){
+				//If not position visited before.
+				if(!mapPrPathsCell.contains(hashIndex1)){
+					mapPrPathsCell.add(hashIndex1);
+					//Make row child first. (lCellChild.getRow() + incInt)
+					//No walls
+					if(Board.isFree(pState,lCellChild.getRow() + incInt, lCellChild.getCol())){
 						
-						if(lRowChild == pEndCell.getRow() &&
-								lCol == pEndCell.getCol()){
-							lCellNeighbor = lCellChild;
-							bolFinished = true;
+						if(lCellChild.getRow() + incInt == pEndCell.getRow() &&
+								lCellChild.getCol() == pEndCell.getCol()){
+							STATIC_CELL.setRow(pEndCell.getRow());
+							STATIC_CELL.setCol(pEndCell.getCol());
+							mapPrPathsCell.clear();
+					       	queueCellChildren.clear();
+							return STATIC_CELL;
 						}
 						else{
-							lQueChildren.add(new Cell(lRowChild,lCol));
+							//If we have not found path we add children to queue and continue
+							queueCellChildren.add(matrixCells[lCellChild.getRow() + incInt][lCellChild.getCol()]);
 						}	
 					}
 				}
-				int lColChild = lCol + incInt;
-				String hashIndex2 = getHashString(lRow,lColChild);
+				// Repeat for column children.
+				String hashIndex2 = getHashString(lCellChild.getRow(),lCellChild.getCol() + incInt);
 				
-				if(!lSetPrPaths.contains(hashIndex2)){
-					lSetPrPaths.add(hashIndex2);
+				if(!mapPrPathsCell.contains(hashIndex2)){
+					mapPrPathsCell.add(hashIndex2);
 			
-					if(Board.isFree(pState,lRow, lColChild)){
+					if(Board.isFree(pState,lCellChild.getRow(), lCellChild.getCol() + incInt)){
 						
-						if(lRow == pEndCell.getRow() &&
-								lColChild == pEndCell.getCol()){
-							lCellNeighbor = lCellChild;
-							bolFinished = true;
+						//If our position child is searched position we are done.
+						if(lCellChild.getRow() == pEndCell.getRow() &&
+								lCellChild.getCol() + incInt == pEndCell.getCol()){
+							//Clear map,and queue return cell for searched position.
+							STATIC_CELL.setRow(pEndCell.getRow());
+							STATIC_CELL.setCol(pEndCell.getCol());
+							mapPrPathsCell.clear();
+					       	queueCellChildren.clear();
+							return STATIC_CELL;
 						}
 						else{
-							lQueChildren.add(new Cell(lRow,lColChild));
+							queueCellChildren.add(new Cell(lCellChild.getRow(),lCellChild.getCol() + incInt));
 						}	
 					}
 				}
+			//Set increment for children to 1.
 			incInt = incInt + 2;	
 			}
 		}
-		return lCellNeighbor;
+        //No path clear map,queue and return null for no path.
+        mapPrPathsCell.clear();
+       	queueCellChildren.clear();
+        return null;
+        
 	}
 
-	
-	/**
-	 * Returns true if there it is possible to move next to box.
-	 * @param state
-	 * @param pStartCell
-	 * @param pEndCell
-	 * @return
-	 */
-	public static boolean isPathToBox(State pState ,int pRow,int pCol,int pRowBox,
-			int pColBox){
-		Cell lCell = cellNeighborToBox(pState, pRow, pCol, pRowBox, pColBox);
-		return (lCell != null);
-	}
 	
 	/**
 	 * Returns true if there is path to some position.
@@ -627,7 +406,7 @@ public class Solver {
 	 */
 	public static boolean isPathToPath(State pState,int pRow,int pCol,int pRowPath,
 			int pColPath){
-		if(pRow==pRowPath && pCol==pColPath) //for some reason the function otherwise return false...
+		if(pRow==pRowPath && pCol==pColPath)
 			return true;
 		
 		Cell lCell = cellNeighborToPath(pState, pRow, pCol, pRowPath, pColPath);
@@ -645,6 +424,8 @@ public class Solver {
 		Cell lCellNeededPlayerPos = null;
 		
 		if(lMove == 'U'){
+			//if last move was U we need cell with position playerRow + 1 since 
+			//row 0, col 0 is at upper left corner.
 			lCellNeededPlayerPos = new Cell(pState.getPlayerRow()+1,pState.getPlayerCol());
 		}
 		else if(lMove == 'D'){
@@ -665,39 +446,47 @@ public class Solver {
 	 * @return
 	 */
 	public static String getStrToGoal(State pEndState){
-
+		
 		String goalString = "";
 		
+		//Two steps from initial-state we can always add getCharsLastMove and
+		//use while (when we are one step from initialstate we have to to different)
 		while(pEndState.getParent().getParent()!=null){
-			//goalString += pEndState.getCharLastMove();
+			//Add charLastMove (L,R,U or D)
 			goalString = pEndState.getCharLastMove() + goalString;
 
-			//If not same box is moving we have to player path between the successive states.			
+			//If we for example, have added string U. We have player position-row is U-1			
 			Cell currentPos = cellLinkedToState(pEndState);
+			//Cell nextPos = cellLinkedToState(pEndState.getParent());
+			//Next position is at parent-state player position.
+			//We link these positions with cells.
 			Cell nextPos = cellLinkedToPath(pEndState.getParent(), currentPos.getRow(),
                     currentPos.getCol(), pEndState.getParent().getPlayerRow(),
                     pEndState.getParent().getPlayerCol());
 			
-			/*if(currentPos.getRow()!=pEndState.getParent().getPlayerRow() &&
-					currentPos.getCol()!=pEndState.getParent().getPlayerCol()){*/
+			//if next position is null we have that parent state player position is also
+			// U-1 (easier to see with figure).
             if (nextPos != null) {
+            	//Else print path between the player positions.
 				goalString = strPath(nextPos) + goalString;
 			}
-				
+
 			pEndState = pEndState.getParent();
 			}
 		
 
 		//If we are two steps from parent == null, we have that state.parent is 
-		//initial state where player pos is start pos.
-		//goalString += pEndState.getCharLastMove();
+		//initial state where player position is equal to start position.
 		goalString = pEndState.getCharLastMove() + goalString;
+		//CurrentPos is needed player position to perform this state.
 		Cell currentPos = cellLinkedToState(pEndState);
 		if(currentPos.getRow()==pEndState.getParent().getPlayerRow() &&
 				currentPos.getCol()==pEndState.getParent().getPlayerCol()){
+			//If currentPos is equal to start position we are done.
 			return goalString;
 		}
 		else{
+			//Else we have to link and add string between the two different player positions.
 			Cell nextPos = cellLinkedToPath(pEndState.getParent(),currentPos.getRow(),currentPos.getCol(),
 					pEndState.getParent().getPlayerRow(),
 					pEndState.getParent().getPlayerCol());
@@ -706,3 +495,4 @@ public class Solver {
 		return goalString;
 	}
 }
+
