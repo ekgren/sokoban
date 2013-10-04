@@ -22,8 +22,12 @@ public class State implements Cloneable{
 	// Parent state
 	private State parentState;
 	
+	// Move to get to this state here.
+	// Where 0 = up, 1 = down, 2 = left and 3 = right.
+	private int previousMove;
+	
 	// Boxes and player
-	private HashSet<Point> boxes = new HashSet<Point>();;
+	private HashSet<Point> boxes = new HashSet<Point>();
 	private Player player;
 
     /** Empty constructor. */
@@ -97,8 +101,13 @@ public class State implements Cloneable{
 	   		   		// Add state to PriorityQueue.
 	   		   		if(open.contains(stateHolder) == false && 
 	   		   				closed.contains(stateHolder) == false){
+	   		   			
 	   		   			//stateHolder.heuristic();
+	   		   			stateHolder.setPreviousMove(0);
 	   		   			open.add(stateHolder);
+	   		   			
+	   		   		} else {
+	   		   			// Here we should add the state to a queue for reuse.
 	   		   		}
 	   			}
    			}
@@ -139,8 +148,13 @@ public class State implements Cloneable{
 	   		   		// Add state to PriorityQueue.
 	   		   		if(open.contains(stateHolder) == false && 
 	   		   				closed.contains(stateHolder) == false){
+	   		   			
 	   		   			//stateHolder.heuristic();
+	   		   			stateHolder.setPreviousMove(1);
 	   		   			open.add(stateHolder);
+	   		   			
+	   		   		} else {
+	   		   			// Here we should add the state to a queue for reuse.
 	   		   		}
 	   			}
    			}
@@ -181,8 +195,13 @@ public class State implements Cloneable{
 	   		   		// Add state to PriorityQueue.
 	   		   		if(open.contains(stateHolder) == false && 
 	   		   				closed.contains(stateHolder) == false){
+	   		   			
 	   		   			//stateHolder.heuristic();
+	   		   			stateHolder.setPreviousMove(2);
 	   		   			open.add(stateHolder);
+	   		   			
+	   		   		} else {
+	   		   			// Here we should add the state to a queue for reuse.
 	   		   		}
 	   			}
    			}
@@ -223,8 +242,13 @@ public class State implements Cloneable{
 	   		   		// Add state to PriorityQueue.
 	   		   		if(open.contains(stateHolder) == false &&
 	   		   			closed.contains(stateHolder) == false){
+	   		   			
 	   		   			//stateHolder.heuristic();
+	   		   			stateHolder.setPreviousMove(3);
 	   		   			open.add(stateHolder);
+	   		   			
+	   		   		} else {
+	   		   			// Here we should add the state to a queue for reuse.
 	   		   		}
 	   			}
    			}
@@ -254,6 +278,11 @@ public class State implements Cloneable{
    	/** Adds player at point p. */
    	public void addPlayerAt(int x, int y){
    		player = Factory.createPlayer(x, y);
+   	}
+   	
+   	/** Adds player at point p. */
+   	public Player getPlayer(){
+   		return player;
    	}
    	
    	/** State hashCode method. Returns the product of all the boxes hashcodes. */
@@ -310,6 +339,18 @@ public class State implements Cloneable{
    	/** Returns value of heuristic. */
    	public int getH(){
    		return h;
+   	}
+   	
+   	/** Method to set previous move. 
+   	 * Where 0 = up, 1 = down, 2 = left and 3 = right. */
+   	public void setPreviousMove(int previousMove){
+   		this.previousMove = previousMove;
+   	}
+   	
+   	/** Method to get previous move. 
+   	 * Where 0 = up, 1 = down, 2 = left and 3 = right. */
+   	public int getPreviousMove(){
+   		return previousMove;
    	}
 
 }

@@ -23,9 +23,9 @@ public class Solver {
 		}
 	}
 	
-	State initState;
-	State solvedState;
-	State processState;
+	private static State initState;
+	private static State solvedState;
+	private static State processState;
 	
 	// Time field
     private long startTime;
@@ -59,13 +59,47 @@ public class Solver {
 			
 		}
 		
-		processState = open.remove();
-		if(Sokoban.debug) System.out.println("wtf?");
-		int parentCounter = 0;
-		while(processState.getParent() != null){
-			parentCounter = parentCounter + 1;
-			processState = processState.getParent();
+		// Set the last state as solvedState.
+		solvedState = open.remove();
+	}
+	
+	/**  */
+	public static String getSolution(){
+		// Solution String.
+		String solution = "";
+		
+		// Cells.
+		Cell goalCell = null;
+		Cell startCell;
+		
+		// Current state.
+		State currentState = solvedState;
+		
+		// While not initial state.
+		while(currentState.getParent() != null){
+			
+			solution = fromIntToString(currentState.getPreviousMove()) + solvedState;
+			
+			if(currentState.getPreviousMove() == 0) goalCell = Factory.getCellDown(currentState.getPlayer());
+			else if(currentState.getPreviousMove() == 1) goalCell = Factory.getCellUp(currentState.getPlayer());
+			else if(currentState.getPreviousMove() == 2) goalCell = Factory.getCellRight(currentState.getPlayer());
+			else if(currentState.getPreviousMove() == 3) goalCell = Factory.getCellLeft(currentState.getPlayer());
+			
+			currentState = currentState.getParent();
+			
+			startCell = Factory.getCell(currentState.getPlayer());
+			
+			solution = Search.AstarString(currentState, startCell, goalCell);
 		}
-		System.out.println(parentCounter);
+		
+		return solution;
+	}
+	
+	public static String fromIntToString(int previousMove){
+		if(previousMove == 0) return "U";
+		if(previousMove == 1) return "D";
+		if(previousMove == 2) return "L";
+		if(previousMove == 3) return "R";
+		return "";
 	}
 }

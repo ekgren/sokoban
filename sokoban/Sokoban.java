@@ -42,7 +42,7 @@ public class Sokoban {
 		Solver solver = new Solver(board);
 		
 		// Set the solution string to desired answer.
-		solution = "";
+		solution = Solver.getSolution();
 		
 		/** "Fun" debug message to signal end of program. */
 		if(debug) System.out.println("NEO-SOKOBAN HAS TERMINATED.");

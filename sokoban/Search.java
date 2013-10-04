@@ -151,4 +151,9 @@ public class Search {
 	        if(searchState==true) return true;
 			else return false;  	
 		}
+	
+	/** Search that return string. */
+	public static String AstarString(State state, Point startPoint, Point goalPoint) {
+		return "";
+	}
 }
