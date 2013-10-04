@@ -27,6 +27,7 @@ public class Solver {
 	HashSet<State> visitedStates = new HashSet<State>();
 	Comparator comparator = new StatePriorityComparator();
 	PriorityQueue<State> simpleQueue = new PriorityQueue<State>(10000, comparator);
+    PriorityQueue<State> newQueue = new PriorityQueue<State>(10000, comparator);
 
 	public Solver(){
 		
@@ -87,19 +88,31 @@ public class Solver {
         // Start constructorTime iterating through nodes
         if (Sokoban.profilingMode) startTime = System.currentTimeMillis();
 
+        // The current state var.
+        State lCurState;
+        Vector<State> childrenOfCurState = new Vector<State>();
+
         // Expand nodes until the queue is empty or until max iterations
-        while(lExpandedNodes<100000 && !simpleQueue.isEmpty() ){
+        while (lExpandedNodes<10000 && !simpleQueue.isEmpty()) {
 
             // Get state first in line
-            State lCurState = simpleQueue.poll();
-            // Add one - new expanded node
+            lCurState = simpleQueue.poll();
+            // Add one; new expanded node
             lExpandedNodes++;
 
             //Visualizer.printStateDelux(lCurState, "--- State explored in iteration: #" + lIterations + " ---");
 
-            // Get children of current state
-            Vector<State> childrenOfCurState = new Vector<State>();
-            lCurState.allSuccessors(childrenOfCurState); //fills with all children
+            if (lCurState.nbOfBoxesOnGoal / Board.getNbOfGoals() < 1) {
+                // Clear and get new children of current state
+                childrenOfCurState.clear();
+                lCurState.allSuccessors(childrenOfCurState); //fills with all children
+            } else {
+                childrenOfCurState.clear();
+                lCurState.gradientDecentSuccessor(childrenOfCurState, lCurState.getLastBoxMovedIndex());
+                //lCurState.selectiveSuccessors(childrenOfCurState, lCurState.getLastBoxMovedIndex());
+                simpleQueue.add(lCurState);
+            }
+
             // Add the number of new states
             lCreatedNodes = lCreatedNodes + childrenOfCurState.size();
 

@@ -98,15 +98,14 @@ public class Heuristic {
      * @param pState input state
      * @return int
      */
-    public static int getDavidDistanceHeuristic(State pState) {
+    public static double getDavidDistanceHeuristic(State pState) {
 
         Vector<Box> lBoxes = pState.getBoxes();
-        int lBoxScore = Integer.MAX_VALUE;
+        double lBoxScore = 0;
         for (Box box : lBoxes) {
-            if (box.isOnGoal()) continue;
-            lBoxScore = Math.min(lBoxScore / (pState.nbOfBoxesOnGoal + 1), Board.getSummedGoalGrad(box.getRow(), box.getCol()));
+            lBoxScore = 100 * lBoxScore + Board.getGoalGradMerged(box.getRow(), box.getCol());
         }
-        return lBoxScore;
+        return lBoxScore / lBoxes.size();
     }
 
     /**

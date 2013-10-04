@@ -18,7 +18,7 @@ public class SolutionEvaluator {
 	private Vector<StringBuilder> board = new Vector<StringBuilder>();
 
     // Insert Level number (0 = TestTrack)
-    private int levelNo = 1;
+    private int levelNo = 0;
     private MapReader map;
 
 	public SolutionEvaluator() throws IOException{
@@ -40,8 +40,8 @@ public class SolutionEvaluator {
 		// Method to animate solution to see if it's correct!
 		
 		BufferedReader fileBr = new BufferedReader(new StringReader(map.getMap()));
-		
-		String line;
+
+        String line;
 		boolean STATE = false;
 		
 		int[] xy = new int[2];

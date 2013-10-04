@@ -54,7 +54,7 @@ public class Board {
 	private static boolean [][] deadLocksT0; //marks Type0 deadlocks = corners (independet of goals) [row][col].
 	private static int[][][] goalGrad; //Gradient to each goal considering only walls [goal][row][col].
     //Includes the information about deadlocksT1 marked by -1 in goalGrad!
-    private static int[][] goalGradSum; // Summed GoalGrad
+    private static int[][] goalGradMerged; // Summed GoalGrad
 
 	/**
 	 * Constructs the internal representation of the Map
@@ -172,7 +172,7 @@ public class Board {
 		//Set dimension
 		deadLocksT0 = new boolean[nbRows][nbCols];
 		goalGrad = new int[nbBoxes][nbRows][nbCols];
-        goalGradSum = new int[nbRows][nbCols];
+        goalGradMerged = new int[nbRows][nbCols];
 
 		
 		//Fix the cleanMapString:		
@@ -190,7 +190,7 @@ public class Board {
 		//mark DealLocks and Gradient to respective Goal:
 		markDeadlocksAndGrad();
         // sum the gradients
-        setGoalGradSum();
+        setGoalGradMerged();
 
 	} // End constructor Map
 
@@ -343,15 +343,38 @@ public class Board {
     /**
      * Summed goalGrad
      */
-    private void setGoalGradSum() {
+    private void setGoalGradMerged() {
+        // set high values
+        for (int row = 0; row < nbRows; row++) {
+            // for each col
+            for (int col = 0; col < nbCols; col++) {
+                goalGradMerged[row][col] = 999;
+            }
+        }
+
         // for every goal
         for (int i = 0; i < nbBoxes; i++) {
+            // for each row
             for (int row = 0; row < nbRows; row++) {
+                // for each col
                 for (int col = 0; col < nbCols; col++) {
-                    goalGradSum[row][col] = goalGradSum[row][col] + goalGrad[i][row][col];
+                    // Choose the min value
+                    if (goalGradMerged[row][col] > goalGrad[i][row][col] && goalGrad[i][row][col] != -1)
+                        goalGradMerged[row][col] = goalGrad[i][row][col];
                 }
             }
         }
+
+        /* Print the board
+        for (int row = 0; row < nbRows; row++) {
+            // for each col
+            System.out.println();
+            for (int col = 0; col < nbCols; col++) {
+                System.out.print(goalGradMerged[row][col]);
+
+            }
+        }
+        */
     }
 
 	
@@ -412,8 +435,8 @@ public class Board {
 		return goalGrad[pGoalIndex][pRow][pCol];
 	}
 
-    public static int getSummedGoalGrad(int pRow, int pCol) {
-        return goalGradSum[pRow][pCol];
+    public static int getGoalGradMerged(int pRow, int pCol) {
+        return goalGradMerged[pRow][pCol];
     }
 
 	public static int getNbOfBoxes(){
