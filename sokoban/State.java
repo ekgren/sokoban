@@ -32,7 +32,7 @@ public class State implements Cloneable {
 	private int parentKey; //reference to make it possible to find parent state - for final path building.
 	
 	private int g = 0; // Cost of moving to this position.
-	private int h = 0; // Heuristic cost.
+	private double h = 0; // Heuristic cost.
 
 	boolean[] goalsOccupied; //Vector which indicates if a goal(index) is occupied.
 	int nbOfBoxesOnGoal;
@@ -368,6 +368,27 @@ public class State implements Cloneable {
         } else return false;
 	}
 
+
+    /* This Method returns the gradient value */
+    public int getGradValue(Box pBox, char pDir){
+
+        switch (pDir) {
+            // C = center = current box position
+            case 'C':
+                return Board.getGoalGradMerged(pBox.getRow(), pBox.getCol());
+            case 'U':
+                return Board.getGoalGradMerged(pBox.getRow() - 1, pBox.getCol());
+            case 'D':
+                return Board.getGoalGradMerged(pBox.getRow() + 1, pBox.getCol());
+            case 'R':
+                return Board.getGoalGradMerged(pBox.getRow(), pBox.getCol() + 1);
+            case 'L':
+                return Board.getGoalGradMerged(pBox.getRow(), pBox.getCol() - 1);
+        }
+        // if wrong input, return -1.
+        return -1;
+    }
+
 	public boolean isBox( int pRow, int pCol){
 		/*
 		 * TODO
@@ -481,24 +502,109 @@ public class State implements Cloneable {
 	 *
 	 * @param pStates
 	 */
-	public void selectiveSuccessors(Vector<State> pStates, int[] pBoxIndexes) {
+	public void selectiveSuccessors(Vector<State> pStates, int pBoxIndex) {
 
 		pStates.clear();
+        /* If a move is possible, then add the new state in the pStates vector */
+        if (tryMove(boxes.get(pBoxIndex), 'U'))
+            if (!reusableStates.isEmpty()) {
+                pStates.add(reusableStates.pop());
+                pStates.lastElement().changeBoxConfig(this, pBoxIndex, 'U');
+            } else {
+                pStates.add(new State(this, pBoxIndex, 'U'));
+            }
+        if (tryMove(boxes.get(pBoxIndex), 'D'))
+            if (!reusableStates.isEmpty()) {
+                pStates.add(reusableStates.pop());
+                pStates.lastElement().changeBoxConfig(this, pBoxIndex, 'D');
+            } else {
+                pStates.add(new State(this, pBoxIndex, 'D'));
+            }
+        if (tryMove(boxes.get(pBoxIndex), 'R'))
+            if (!reusableStates.isEmpty()) {
+                pStates.add(reusableStates.pop());
+                pStates.lastElement().changeBoxConfig(this, pBoxIndex, 'R');
+            } else {
+                pStates.add(new State(this, pBoxIndex, 'R'));
+            }
+        if (tryMove(boxes.get(pBoxIndex), 'L'))
+            if (!reusableStates.isEmpty()) {
+                pStates.add(reusableStates.pop());
+                pStates.lastElement().changeBoxConfig(this, pBoxIndex, 'L');
+            } else {
+                pStates.add(new State(this, pBoxIndex, 'L'));
+            }
 
-		for (int index : pBoxIndexes) {
-			/* If a move is possible, then add the new state in the pStates vector */
-			if (tryMove(boxes.get(index), 'U'))
-				pStates.add(new State(this, index, 'U'));
-			if (tryMove(boxes.get(index), 'D'))
-				pStates.add(new State(this, index, 'D'));
-			if (tryMove(boxes.get(index), 'R'))
-				pStates.add(new State(this, index, 'R'));
-			if (tryMove(boxes.get(index), 'L'))
-				pStates.add(new State(this, index, 'L'));
-		} // End for boxes
-	} // End allSuccessors
+    } // End allSuccessors
 
-	
+    /**
+     * Not working....
+     */
+    public void gradientDecentSuccessor(Vector<State> pStates, int pBoxIndex) {
+
+            // Set initial null char
+            char moveDir = '\0';
+            // Get gradient value at current position
+            int gradValue = getGradValue(boxes.get(pBoxIndex), 'C');
+
+            /* If a move is possible, then add the new state in the pStates vector */
+            if (tryMove(boxes.get(pBoxIndex), 'U')) {
+                if (gradValue > getGradValue(boxes.get(pBoxIndex), 'U')) {
+                    moveDir = 'U';
+                    gradValue = getGradValue(boxes.get(pBoxIndex), 'U');
+                }
+            }
+
+            if (tryMove(boxes.get(pBoxIndex), 'D')) {
+                if (gradValue > getGradValue(boxes.get(pBoxIndex), 'D')) {
+                    moveDir = 'D';
+                    gradValue = getGradValue(boxes.get(pBoxIndex), 'D');
+                }
+            }
+
+            if (tryMove(boxes.get(pBoxIndex), 'R')) {
+                if (gradValue > getGradValue(boxes.get(pBoxIndex), 'R')) {
+                    moveDir = 'R';
+                    gradValue = getGradValue(boxes.get(pBoxIndex), 'R');
+                }
+            }
+
+            if (tryMove(boxes.get(pBoxIndex), 'L')) {
+                if (gradValue > getGradValue(boxes.get(pBoxIndex), 'L'))
+                    moveDir = 'L';
+            }
+
+            if (moveDir != '\0') {
+                if (!reusableStates.isEmpty()) {
+                    pStates.add(reusableStates.pop());
+                    pStates.lastElement().changeBoxConfig(this, pBoxIndex, moveDir);
+                } else {
+                    pStates.add(new State(this, pBoxIndex, moveDir));
+                }
+            } else {
+                // If it didn't work, call selective...
+                System.out.println("IT DINT WORK");
+                //selectiveSuccessors(pStates, pBoxIndex);
+                // allSuccessors(pStates);
+            }
+
+    } // End allSuccessors
+
+    public void boxJudge(Vector<State> pStates) {
+
+        for (int boxIndex = 0; boxIndex < boxes.size() ; boxIndex++) {
+            // If gradient value is grater than some value then use gradientDec
+            if (boxes.get(boxIndex).isOnGoal()){
+                selectiveSuccessors(pStates, boxIndex);
+            }else if (getGradValue(boxes.get(boxIndex), 'C') < 3) {
+                gradientDecentSuccessor(pStates, boxIndex);
+            } else {
+                selectiveSuccessors(pStates, boxIndex);
+            }
+        }
+    }
+
+
 
     public boolean isFinalState() {
         return nbOfBoxesOnGoal == Board.getNbOfGoals();
@@ -510,7 +616,7 @@ public class State implements Cloneable {
    }
    
    // Return heuristic value.
-   public int getH() {
+   public double getH() {
 	   return this.h;
    }
 
