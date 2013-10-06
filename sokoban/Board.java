@@ -45,7 +45,7 @@ public class Board {
 	 * e.g. ArrayList<Wall> walls; or HashMap...
 	 */
 
-	public static Cell [][] matrixCells; //Cells for saving garbage collection time.
+	//public static Cell [][] matrixCells; //Cells for saving garbage collection time.
 	private static boolean[][] walls; //all "fixed" parts of map i.e. walls are true [row][col].
 	private static boolean[][] goals; //all goals are true [row][col].
 	private static int[][] goalsIndexAtPos; //all goals are true [row][col].
@@ -81,7 +81,7 @@ public class Board {
 		nbCols = lMaxNbOfCol;
 
 		//Set dimensions
-		matrixCells = new Cell[nbRows][nbCols];
+		//matrixCells = new Cell[nbRows][nbCols];
 		walls = new boolean[nbRows][nbCols];
 		goals = new boolean[nbRows][nbCols];	
 		goalsIndexAtPos = new int[nbRows][nbCols]; //all zero initially
@@ -102,15 +102,17 @@ public class Board {
 
 				if(stringRepr.get(row).charAt(col) == ' '){ //Free space
 					//Do nothing, this comes first since most common.
-					matrixCells[row][col] = new Cell(row,col); //So don't make new cells at every srch.
+					//matrixCells[row][col] = new Cell(row,col); //So don't make new cells at every srch.
 				}
 				else if(stringRepr.get(row).charAt(col) == '#'){ //Wall
 					walls[row][col]=true; //All automatically false initially
 				}
 				else if(stringRepr.get(row).charAt(col) == '$'){ //Box
+					//matrixCells[row][col] = new Cell(row,col); //So don't make new cells at every srch.
 					lBoxesList.add(new Box(row, col, false));
 				}
 				else if(stringRepr.get(row).charAt(col) == '.'){ //Goal
+					//matrixCells[row][col] = new Cell(row,col); //So don't make new cells at every srch.
 					goals[row][col]=true; //All automatically false initially
 					goalsIndexAtPos[row][col] = lGoalIndexCounter; //all zero initially
 					goalsList.add(new Goal(row, col, false));
@@ -118,7 +120,7 @@ public class Board {
 
 				}
 				else if(stringRepr.get(row).charAt(col) == '*'){ //Box on goal
-					
+					//matrixCells[row][col] = new Cell(row,col); //So don't make new cells at every srch.
 					goals[row][col]=true; //All automatically false initially
 					goalsIndexAtPos[row][col] = lGoalIndexCounter;
 					goalsList.add(new Goal(row, col, true)); //true means is occupied.
@@ -127,10 +129,12 @@ public class Board {
 					lGoalIndexCounter++;
 				}
 				else if(stringRepr.get(row).charAt(col) == '@'){ //Sokoban Player
+					//matrixCells[row][col] = new Cell(row,col); //So don't make new cells at every srch.
 					lPlayerStartRow = row;
 					lPlayerStartCol = col;
 				}
 				else if(stringRepr.get(row).charAt(col) == '+'){ //Sokoban PLayer on Goal
+					//matrixCells[row][col] = new Cell(row,col); //So don't make new cells at every srch.
 					lPlayerStartRow = row;
 					lPlayerStartCol = col;
 					goals[row][col]=true; //All automatically false initially
