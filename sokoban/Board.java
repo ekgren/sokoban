@@ -45,6 +45,7 @@ public class Board {
 	 * e.g. ArrayList<Wall> walls; or HashMap...
 	 */
 
+	public static Cell [][] matrixCells; //Cells for saving garbage collection time.
 	private static boolean[][] walls; //all "fixed" parts of map i.e. walls are true [row][col].
 	private static boolean[][] goals; //all goals are true [row][col].
 	private static int[][] goalsIndexAtPos; //all goals are true [row][col].
@@ -80,6 +81,7 @@ public class Board {
 		nbCols = lMaxNbOfCol;
 
 		//Set dimensions
+		matrixCells = new Cell[nbRows][nbCols];
 		walls = new boolean[nbRows][nbCols];
 		goals = new boolean[nbRows][nbCols];	
 		goalsIndexAtPos = new int[nbRows][nbCols]; //all zero initially
@@ -100,6 +102,7 @@ public class Board {
 
 				if(stringRepr.get(row).charAt(col) == ' '){ //Free space
 					//Do nothing, this comes first since most common.
+					matrixCells[row][col] = new Cell(row,col); //So don't make new cells at every srch.
 				}
 				else if(stringRepr.get(row).charAt(col) == '#'){ //Wall
 					walls[row][col]=true; //All automatically false initially

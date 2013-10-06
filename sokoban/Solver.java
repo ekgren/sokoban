@@ -29,8 +29,7 @@ public class Solver {
 	 */
     
     //Static 
-	//Static fields for saving creations of Cells,Queues.. when calling isPathToBox.
-	public static Cell [][] matrixCells;
+	//Static fields for saving creations of Map,Queues, when calling isPathToBox.
     private static Cell.NormComparator comparatorCell = new Cell.NormComparator();
 	private static HashSet<String> mapPrPathsCell = new HashSet<String>();
     private static PriorityQueue<Cell> queueCellChildren = new PriorityQueue<Cell>(10000,
@@ -42,14 +41,7 @@ public class Solver {
 	PriorityQueue<State> simpleQueue = new PriorityQueue<State>(10000, comparator);
 
 	public Solver(){
-		//Instancing matrix with cells for saving garbageCollecting time, maybe it is better
-		//to instance this matrix when we are making board, (for only non wall positions).
-		matrixCells = new Cell[Board.getNbRows()][Board.getNbCols()];		
-		for(int rowIndex = 0 ; rowIndex < Board.getNbRows() ; rowIndex++){
-			for(int colIndex = 0 ; colIndex < Board.getNbCols() ; colIndex++){
-				matrixCells[rowIndex][colIndex] = new Cell(rowIndex,colIndex);
-			}
-		}
+
 		
 		/*
 		 *TODO
@@ -109,7 +101,7 @@ public class Solver {
         if (Sokoban.profilingMode) startTime = System.currentTimeMillis();
 
         // Expand nodes until the queue is empty or until max iterations
-        while(lExpandedNodes<100000 && !simpleQueue.isEmpty() ){
+        while(lExpandedNodes<1000000 && !simpleQueue.isEmpty() ){
 
             // Get state first in line
             State lCurState = simpleQueue.poll();
@@ -306,9 +298,13 @@ public class Solver {
 	public static Cell cellNeighborToPath(State pState,
                                           int pRow, int pCol, int pRowPath, int pColPath) {
 
+		
+		if(pRow==pRowPath && pCol==pColPath)
+			return Board.matrixCells[pRow][pCol];
+		
 		//Get start and end positions from matrix with cells (save garbagecollection)
-		Cell pStartCell = matrixCells[pRow][pCol];
-		Cell pEndCell = matrixCells[pRowPath][pColPath];
+		Cell pStartCell = Board.matrixCells[pRow][pCol];
+		Cell pEndCell = Board.matrixCells[pRowPath][pColPath];
 
 		//Set comparator to look for path we are searching for.
 		comparatorCell.setGoal(pRowPath, pColPath);
@@ -343,7 +339,9 @@ public class Solver {
 						}
 						else{
 							//If we have not found path we add children to queue and continue
-							queueCellChildren.add(matrixCells[lCellChild.getRow() + incInt][lCellChild.getCol()]);
+							queueCellChildren.add(
+									Board.matrixCells[lCellChild.getRow() + 
+									                  incInt][lCellChild.getCol()]);
 						}	
 					}
 				}
@@ -393,8 +391,6 @@ public class Solver {
 	 */
 	public static boolean isPathToPath(State pState,int pRow,int pCol,int pRowPath,
 			int pColPath){
-		if(pRow==pRowPath && pCol==pColPath)
-			return true;
 		
 		Cell lCell = cellNeighborToPath(pState, pRow, pCol, pRowPath, pColPath);
 		return (lCell != null);
@@ -437,14 +433,13 @@ public class Solver {
 		String goalString = "";
 		
 		//Two steps from initial-state we can always add getCharsLastMove and
-		//use while (when we are one step from initialstate we have to to different)
+		//use while (when we are one step from initial state we have to to different)
 		while(pEndState.getParent().getParent()!=null){
 			//Add charLastMove (L,R,U or D)
 			goalString = pEndState.getCharLastMove() + goalString;
 
 			//If we for example, have added string U. We have player position-row is U-1			
 			Cell currentPos = cellLinkedToState(pEndState);
-			//Cell nextPos = cellLinkedToState(pEndState.getParent());
 			//Next position is at parent-state player position.
 			//We link these positions with cells.
 			Cell nextPos = cellLinkedToPath(pEndState.getParent(), currentPos.getRow(),
@@ -465,7 +460,7 @@ public class Solver {
 		//If we are two steps from parent == null, we have that state.parent is 
 		//initial state where player position is equal to start position.
 		goalString = pEndState.getCharLastMove() + goalString;
-		//CurrentPos is needed player position to perform this state.
+		//CurrentPos is player position necessary to perform this state.
 		Cell currentPos = cellLinkedToState(pEndState);
 		if(currentPos.getRow()==pEndState.getParent().getPlayerRow() &&
 				currentPos.getCol()==pEndState.getParent().getPlayerCol()){
