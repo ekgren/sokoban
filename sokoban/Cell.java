@@ -26,6 +26,12 @@ public class Cell extends Point{
 	// Board corridor information.
 	public boolean horizontalCorridor = false;
 	public boolean verticalCorridor = false;
+	
+	// Wall info
+	public boolean wallUp = false;
+	public boolean wallDown = false;
+	public boolean wallLeft = false;
+	public boolean wallRight = false;
 
 	// Parent cell. Will be changed when cell is used for search.
 	private Cell parent;

@@ -1,5 +1,6 @@
 package sokoban;
 
+import java.awt.Point;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
@@ -42,80 +43,30 @@ public class Board {
 		buildBoard(getMapFromReader(r));
 		locateCornersAndCorridors();
 		locateCornerWallDeadlocks();
-		//gradientField();
+		gradientField();
 		
 		// Debug message.
-		if(Sokoban.debug) System.out.println("Boardsize: " + Integer.toString(mapCells.size()) + " or " + 
+		if(Sokoban.debug){ System.out.println("Boardsize: " + Integer.toString(mapCells.size()) + " or " + 
 				Integer.toString(Factory.getCellCount()) + ", boxes: " + 
 				Integer.toString(initialBoxes.size()) + ", goals: " + 
 				Integer.toString(goals.size()));
 				printBoard();
 				printGradient();
+				}
 	}
 	
-	/** */
 	public void gradientField(){
-		for(Cell goal : goals){
-			int gradient = 0;
-			
-			open.clear();
-			closed.clear();
-			open.add(goal);
-			
-			goal.resetCost();
-			
-			Cell examine = null;
-			Cell next = null;
-			
-			while(open.isEmpty() == false){
-				examine = open.remove();
-				closed.add(examine);
-				
-				if(Factory.getCellUp(examine) != null && 
-						open.contains(Factory.getCellUp(examine)) == false && 
-						closed.contains(Factory.getCellUp(examine)) == false){
-					next = Factory.getCellUp(examine);
-					next.setCost(examine.getCost() + 1);
-					if(next.getCost() <	next.getGradient()){
-						next.setGradient(next.getCost());
-					}
-					open.add(next);
-				}
-				if(Factory.getCellDown(examine) != null && 
-						open.contains(Factory.getCellDown(examine)) == false && 
-						closed.contains(Factory.getCellDown(examine)) == false){
-					next = Factory.getCellDown(examine);
-					next.setCost(examine.getCost() + 1);
-					if(next.getCost() <	next.getGradient()){
-						next.setGradient(next.getCost());
-					}
-					open.add(next);
-				}
-				if(Factory.getCellLeft(examine) != null && 
-						open.contains(Factory.getCellLeft(examine)) == false && 
-						closed.contains(Factory.getCellLeft(examine)) == false){
-					next = Factory.getCellLeft(examine);
-					next.setCost(examine.getCost() + 1);
-					if(next.getCost() <	next.getGradient()){
-						next.setGradient(next.getCost());
-					}
-					open.add(next);
-				}
-				if(Factory.getCellRight(examine) != null && 
-						open.contains(Factory.getCellRight(examine)) == false && 
-						closed.contains(Factory.getCellRight(examine)) == false){
-					next = Factory.getCellRight(examine);
-					next.setCost(examine.getCost() + 1);
-					if(next.getCost() <	next.getGradient()){
-						next.setGradient(next.getCost());
-					}
-					open.add(next);
-				}
+		State state = Factory.createState();
+		for(Cell mapCell : mapCells){
+			int dist = Integer.MAX_VALUE;
+			String path = "";
+			for(Cell goal : goals){
+				path = Search.Astar(state, mapCell, goal, true);
+				if(path.length() < dist) dist = path.length();
 			}
+			mapCell.setGradient(dist);
 		}
-		
-	}
-	
+	}	
 	
 	/** Method that will examine walls between two corners to see if deadlock. */
 	public void locateCornerWallDeadlocks(){
@@ -224,7 +175,6 @@ public class Board {
 					if(examine.isGoal) break;
 					if(Factory.getCellRight(examine) != null) break;
 					if(examine.upperRightCorner){ 
-						System.out.println("CHECKKKKK!");
 						isDeadlock = true; break;}
 				}
 				
@@ -275,6 +225,11 @@ public class Board {
 	public void locateCornersAndCorridors(){
 		// Loop over all cells in board.
 		for(Cell cell : mapCells){
+			
+			if(Factory.getCellUp(cell) == null) cell.wallUp = true;
+			if(Factory.getCellDown(cell) == null) cell.wallDown = true;
+			if(Factory.getCellLeft(cell) == null) cell.wallLeft = true;
+			if(Factory.getCellRight(cell) == null) cell.wallRight = true;
 			
 			// Check if cell is upper left corner.
 			if(Factory.getCellUp(cell) == null && 
@@ -450,7 +405,25 @@ public class Board {
 	
 	public void printGradient(){
 		for(Cell mapCell : mapCells ){
+			if(mapCell.getGradient()<10)
 			map.elementAt((int)mapCell.getY()).setCharAt((int)mapCell.getX(),Character.forDigit(mapCell.getGradient(), 10));
+			else map.elementAt((int)mapCell.getY()).setCharAt((int)mapCell.getX(),'L');
+		}
+		for(StringBuilder s : map){
+            System.out.println(s);
+		}
+	}
+	
+	public void printState(State state){
+		for(Cell mapCell : mapCells ){
+			if(mapCell.isGoal)
+			map.elementAt((int)mapCell.getY()).setCharAt((int)mapCell.getX(),'.');
+			else map.elementAt((int)mapCell.getY()).setCharAt((int)mapCell.getX(),' ');
+		}
+		for(Point box : state.getBoxes()){
+			if(Factory.getCell(box).isGoal)
+			map.elementAt((int)box.getY()).setCharAt((int)box.getX(),'*');
+			else map.elementAt((int)box.getY()).setCharAt((int)box.getX(),'$');
 		}
 		for(StringBuilder s : map){
             System.out.println(s);

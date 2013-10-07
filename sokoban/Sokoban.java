@@ -16,6 +16,7 @@ public class Sokoban {
 	public static boolean debug = false;
 	public static boolean debugTime = true;
 	public String solution;
+	public static Board board;
 	
 	/**
 	 * You can say that the magic happens in this constructor.
@@ -36,7 +37,7 @@ public class Sokoban {
 		Factory.initializeStates();
 		
 		// Create board.
-		final Board board = new Board(r);
+		board = new Board(r);
 		
 		// Initialize solver.
 		Solver solver = new Solver(board);

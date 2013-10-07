@@ -1,6 +1,9 @@
 package sokoban;
 
 import java.awt.Point;
+import java.util.LinkedList;
+import java.util.NoSuchElementException;
+import java.util.Queue;
 
 /**
  * NEO-SOKOBAN FACTORY CLASS
@@ -12,7 +15,7 @@ public class Factory {
 	private static boolean createNew = false;
 	
 	// Parameters.
-	private static int estimatedMaxNumberOfStates = 10000;
+	private static int estimatedMaxNumberOfStates = 30000;
 	
 	// Containers of all cells, goals, boxes, states and players.
 	private static Cell[][] boardCells = new Cell[100][100];
@@ -24,11 +27,16 @@ public class Factory {
 	private static State[] states = new State[estimatedMaxNumberOfStates];
 	private static Player[] players = new Player[estimatedMaxNumberOfStates];
 	
+	public static Queue<State> usedStates = new LinkedList<State>();
+	public static Queue<Box> usedBoxes = new LinkedList<Box>();
+	public static Queue<Player> usedPlayers = new LinkedList<Player>();
+	
 	// Total counts of "created" cells, goals, boxes, states and players.
 	private static int totalCellCount = 0;
 	private static int totalGoalCount = 0;
 	private static int totalBoxCount = 0;
 	private static int totalStateCount = 0;
+	private static int totalExpandedStateCount = 0;
 	private static int totalPlayerCount = 0;
 
 	
@@ -40,12 +48,10 @@ public class Factory {
 		if(createNew) states[totalStateCount] = new State();
 		
 		// Return.
-		addStateCount();
-		
 		if(Sokoban.debug) if( totalStateCount % 10000 == 0) 
 			System.out.println(totalStateCount);
-		
-		return states[totalStateCount-1];
+		addStateCount();
+		return states[totalStateCount-1];	
 	}
 	
 	/**
@@ -55,7 +61,7 @@ public class Factory {
 		// This can be removed if we choose to create all at start instead.
 		if(createNew) players[totalPlayerCount] = new Player();
 		
-		// Set x and y then return.
+
 		players[totalPlayerCount].setLocation(x, y);
 		addPlayerCount();
 		return players[totalPlayerCount-1];
@@ -67,11 +73,11 @@ public class Factory {
 	public static Player createPlayer(Point p){
 		// This can be removed if we choose to create all at start instead.
 		if(createNew) players[totalPlayerCount] = new Player();
-		
-		// Set x and y then return.
+
 		players[totalPlayerCount].setLocation(p.x, p.y);
 		addPlayerCount();
 		return players[totalPlayerCount-1];
+
 	}
 	
 	/**
@@ -81,6 +87,7 @@ public class Factory {
 		// This can be removed if we choose to create all at start instead.
 		if(createNew) boxes[totalBoxCount] = new Box();
 		
+
 		// Set x and y then return.
 		boxes[totalBoxCount].setLocation(p.x, p.y);
 		addBoxCount();
@@ -93,7 +100,7 @@ public class Factory {
 	public static Box createBox(int x, int y){
 		// This can be removed if we choose to create all at start instead.
 		if(createNew) boxes[totalBoxCount] = new Box();
-		
+
 		// Set x and y then return.
 		boxes[totalBoxCount].setLocation(x, y);
 		addBoxCount();
@@ -287,9 +294,19 @@ public class Factory {
 		totalStateCount = totalStateCount + 1;
 	}
 	
+	/** Method that adds one to the total state count. */
+	public static void addExpandedStateCount(){
+		totalExpandedStateCount = totalExpandedStateCount + 1;
+	}
+	
 	/** Method that returns total state count */
 	public static int getStateCount(){
 		return totalStateCount;
+	}
+	
+	/** Method that returns total state count */
+	public static int getExpandedStateCount(){
+		return totalExpandedStateCount;
 	}
 	
 	/** Method that returns total bananas. */

@@ -100,14 +100,16 @@ public class State implements Cloneable{
 	   		   		stateHolder.boxes.add(b);
 	   		   		// Add state to PriorityQueue.
 	   		   		if(open.contains(stateHolder) == false && 
-	   		   				closed.contains(stateHolder) == false){
+	   		   			closed.contains(stateHolder) == false && 
+	   		   			Deadlocks.checkWallDeadlock(stateHolder) == false &&
+	   		   			Deadlocks.checkFourBoxesDeadlock(stateHolder) == false){
 	   		   			
 	   		   			stateHolder.heuristic();
 	   		   			stateHolder.setPreviousMove(0);
 	   		   			open.add(stateHolder);
 	   		   			
 	   		   		} else {
-	   		   			// Here we should add the state to a queue for reuse.
+	   		   			//
 	   		   		}
 	   			}
    			}
@@ -147,14 +149,16 @@ public class State implements Cloneable{
 	   		   		stateHolder.boxes.add(b);
 	   		   		// Add state to PriorityQueue.
 	   		   		if(open.contains(stateHolder) == false && 
-	   		   				closed.contains(stateHolder) == false){
+	   		   			closed.contains(stateHolder) == false &&
+	   		   			Deadlocks.checkWallDeadlock(stateHolder) == false &&
+	   		   			Deadlocks.checkFourBoxesDeadlock(stateHolder) == false){
 	   		   			
 	   		   			stateHolder.heuristic();
 	   		   			stateHolder.setPreviousMove(1);
 	   		   			open.add(stateHolder);
 	   		   			
 	   		   		} else {
-	   		   			// Here we should add the state to a queue for reuse.
+		   		   		//
 	   		   		}
 	   			}
    			}
@@ -194,14 +198,16 @@ public class State implements Cloneable{
 	   		   		stateHolder.boxes.add(b);
 	   		   		// Add state to PriorityQueue.
 	   		   		if(open.contains(stateHolder) == false && 
-	   		   				closed.contains(stateHolder) == false){
+	   		   			closed.contains(stateHolder) == false &&
+	   		   			Deadlocks.checkWallDeadlock(stateHolder) == false &&
+	   		   			Deadlocks.checkFourBoxesDeadlock(stateHolder) == false){
 	   		   			
 	   		   			stateHolder.heuristic();
 	   		   			stateHolder.setPreviousMove(2);
 	   		   			open.add(stateHolder);
 	   		   			
 	   		   		} else {
-	   		   			// Here we should add the state to a queue for reuse.
+		   		   		//
 	   		   		}
 	   			}
    			}
@@ -241,14 +247,16 @@ public class State implements Cloneable{
 	   		   		stateHolder.boxes.add(b);
 	   		   		// Add state to PriorityQueue.
 	   		   		if(open.contains(stateHolder) == false &&
-	   		   			closed.contains(stateHolder) == false){
+	   		   			closed.contains(stateHolder) == false &&
+	   		   			Deadlocks.checkWallDeadlock(stateHolder) == false &&
+	   		   			Deadlocks.checkFourBoxesDeadlock(stateHolder) == false){
 	   		   			
 	   		   			stateHolder.heuristic();
 	   		   			stateHolder.setPreviousMove(3);
 	   		   			open.add(stateHolder);
 	   		   			
 	   		   		} else {
-	   		   			// Here we should add the state to a queue for reuse.
+		   		   		//
 	   		   		}
 	   			}
    			}
@@ -288,7 +296,7 @@ public class State implements Cloneable{
    	/** State hashCode method. Returns the product of all the boxes hashcodes. */
    	@Override
 	public int hashCode() {
-   		int multiHash = 1;
+   		int multiHash = 0;
    		for(Point box : boxes){
    			multiHash = multiHash + box.hashCode();
    		}
@@ -326,11 +334,9 @@ public class State implements Cloneable{
    	
    	/** Heuristic function that sums over all distance from boxes to goals. */
    	public void heuristic(){
-        int lBoxScore = 0;
         for (Point box : boxes) {
-            lBoxScore = lBoxScore + Factory.getCell(box).getGradient();
+            	h =  h + Factory.getCell(box).getGradient();
         }
-        h =  lBoxScore;
         //if(Sokoban.debug) System.out.println(h);
    	}
    	
@@ -349,6 +355,10 @@ public class State implements Cloneable{
    	 * Where 0 = up, 1 = down, 2 = left and 3 = right. */
    	public int getPreviousMove(){
    		return previousMove;
+   	}
+   	
+   	public HashSet<Point> getBoxes(){
+   		return boxes;
    	}
 
 }
