@@ -16,8 +16,9 @@ public class State implements Cloneable{
 	// MAGIC.
 	public boolean isSolved = false;
 	
-	// Heuristic.
+	// Heuristic & hashCode.
 	private int h = 0;
+	private int hashCode;
 	
 	// Parent state
 	private State parentState;
@@ -98,6 +99,7 @@ public class State implements Cloneable{
 	   		   		Box b = Factory.createBox(Factory.getCellUp(examine));
 	   		   		if(Board.goals.contains(Factory.getCellUp(examine))) b.onGoal = true;
 	   		   		stateHolder.boxes.add(b);
+   		   			stateHolder.calculateHashCode();
 	   		   		// Add state to PriorityQueue.
 	   		   		if(open.contains(stateHolder) == false && 
 	   		   			closed.contains(stateHolder) == false && 
@@ -147,6 +149,7 @@ public class State implements Cloneable{
 	   		   		Box b = Factory.createBox(Factory.getCellDown(examine));
 	   		   		if(Board.goals.contains(Factory.getCellDown(examine))) b.onGoal = true;
 	   		   		stateHolder.boxes.add(b);
+   		   			stateHolder.calculateHashCode();
 	   		   		// Add state to PriorityQueue.
 	   		   		if(open.contains(stateHolder) == false && 
 	   		   			closed.contains(stateHolder) == false &&
@@ -196,6 +199,7 @@ public class State implements Cloneable{
 	   		   		Box b = Factory.createBox(Factory.getCellLeft(examine));
 	   		   		if(Board.goals.contains(Factory.getCellLeft(examine))) b.onGoal = true;
 	   		   		stateHolder.boxes.add(b);
+   		   			stateHolder.calculateHashCode();
 	   		   		// Add state to PriorityQueue.
 	   		   		if(open.contains(stateHolder) == false && 
 	   		   			closed.contains(stateHolder) == false &&
@@ -245,6 +249,7 @@ public class State implements Cloneable{
 	   		   		Box b = Factory.createBox(Factory.getCellRight(examine));
 	   		   		if(Board.goals.contains(Factory.getCellRight(examine))) b.onGoal = true;
 	   		   		stateHolder.boxes.add(b);
+   		   			stateHolder.calculateHashCode();
 	   		   		// Add state to PriorityQueue.
 	   		   		if(open.contains(stateHolder) == false &&
 	   		   			closed.contains(stateHolder) == false &&
@@ -293,14 +298,17 @@ public class State implements Cloneable{
    		return player;
    	}
    	
+   	public void calculateHashCode(){
+   		//StringBuilder test = new StringBuilder();
+   		for(Point box : boxes){
+   			hashCode = hashCode + box.hashCode();
+   		}
+   	}
+   	
    	/** State hashCode method. Returns the product of all the boxes hashcodes. */
    	@Override
 	public int hashCode() {
-   		int multiHash = 0;
-   		for(Point box : boxes){
-   			multiHash = multiHash + box.hashCode();
-   		}
-		return multiHash;
+		return hashCode;
 	}
    	
    	/** State equals method. */
@@ -316,12 +324,16 @@ public class State implements Cloneable{
 		// Cast object as State object.
 		State otherState = (State) obj;
 	    
+		
 	    // If the states have boxes at different positions return false.
 	    for(Point box : otherState.boxes){
 	    	if(boxes.contains(box) == false) return false;
 	    }
 	    
 	    if(otherState.isSolved){
+	    	/*for(Point box : otherState.boxes){
+	 	    	if(boxes.contains(box) == false) return false;
+	 	    }*/
 	    	if(Sokoban.debug)System.out.println("WIN");
 	    	return true;
 	    }
@@ -335,9 +347,8 @@ public class State implements Cloneable{
    	/** Heuristic function that sums over all distance from boxes to goals. */
    	public void heuristic(){
         for (Point box : boxes) {
-            	h =  h + Factory.getCell(box).getGradient();
+        		h  = h + Factory.getCell(box).getGradient();
         }
-        //if(Sokoban.debug) System.out.println(h);
    	}
    	
    	/** Returns value of heuristic. */

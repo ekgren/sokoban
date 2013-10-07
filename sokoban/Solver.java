@@ -37,7 +37,8 @@ public class Solver {
     private long startTime;
 
 	private Comparator<State> comparator = new StatePriorityComparator();
-	private PriorityQueue<State> open = new PriorityQueue<State>(10000, comparator);
+	private PriorityQueue<State> open = new PriorityQueue<State>(5000, comparator);
+	private PriorityQueue<State> open2 = new PriorityQueue<State>(5000, comparator);
 	private HashSet<State> closed = new HashSet<State>();
 	
 	public Solver(Board board){
@@ -63,7 +64,7 @@ public class Solver {
 			// Get first element from open.
         	processState = open.remove();
         	//if(Sokoban.debug) System.out.println(processState.getH()); 
-        	processState.createChildren(open, closed);
+        	processState.createChildren(open, open2, closed);
         	closed.add(processState);
 			
 		}

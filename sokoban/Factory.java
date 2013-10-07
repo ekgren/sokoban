@@ -15,10 +15,11 @@ public class Factory {
 	private static boolean createNew = false;
 	
 	// Parameters.
-	private static int estimatedMaxNumberOfStates = 30000;
+	private static int estimatedMaxNumberOfStates = 100000;
+	private static int startStates = 10000;
 	
 	// Containers of all cells, goals, boxes, states and players.
-	private static Cell[][] boardCells = new Cell[100][100];
+	private static Cell[][] boardCells = new Cell[50][50];
 	
 	// Probably remove Goals since cells already contain same info.
 	private static Goal[] goals; 
@@ -45,7 +46,7 @@ public class Factory {
 	 */
 	public static State createState(){
 		// This can be removed if we choose to create all at start instead.
-		if(createNew) states[totalStateCount] = new State();
+		if(totalStateCount >= startStates) states[totalStateCount] = new State();
 		
 		// Return.
 		if(Sokoban.debug) if( totalStateCount % 10000 == 0) 
@@ -59,7 +60,7 @@ public class Factory {
 	 */
 	public static Player createPlayer(int x, int y){
 		// This can be removed if we choose to create all at start instead.
-		if(createNew) players[totalPlayerCount] = new Player();
+		if(totalPlayerCount >= startStates) players[totalPlayerCount] = new Player();
 		
 
 		players[totalPlayerCount].setLocation(x, y);
@@ -72,7 +73,7 @@ public class Factory {
 	 */
 	public static Player createPlayer(Point p){
 		// This can be removed if we choose to create all at start instead.
-		if(createNew) players[totalPlayerCount] = new Player();
+		if(totalPlayerCount >= startStates) players[totalPlayerCount] = new Player();
 
 		players[totalPlayerCount].setLocation(p.x, p.y);
 		addPlayerCount();
@@ -85,7 +86,7 @@ public class Factory {
 	 */
 	public static Box createBox(Point p){
 		// This can be removed if we choose to create all at start instead.
-		if(createNew) boxes[totalBoxCount] = new Box();
+		if(totalBoxCount >= startStates*3) boxes[totalBoxCount] = new Box();
 		
 
 		// Set x and y then return.
@@ -99,7 +100,7 @@ public class Factory {
 	 */
 	public static Box createBox(int x, int y){
 		// This can be removed if we choose to create all at start instead.
-		if(createNew) boxes[totalBoxCount] = new Box();
+		if(totalBoxCount >= startStates*3) boxes[totalBoxCount] = new Box();
 
 		// Set x and y then return.
 		boxes[totalBoxCount].setLocation(x, y);
@@ -240,21 +241,21 @@ public class Factory {
 	
 	/** Method that creates boxes in all places in boxes array. */
 	public static void initializeBoxes(){
-		for (int i = 0; i < boxes.length; i++) {
+		for (int i = 0; i < startStates*3; i++) {
 			boxes[i] = new Box();
 			}
 	}
 	
 	/** Method that creates states in all places in states array. */
 	public static void initializeStates(){
-		for (int i = 0; i < states.length; i++) {
+		for (int i = 0; i < startStates; i++) {
 			states[i] = new State();
 			}
 	}
 	
 	/** Method that creates players in all places in players array. */
 	public static void initializePlayers(){
-		for (int i = 0; i < players.length; i++) {
+		for (int i = 0; i < startStates; i++) {
 			players[i] = new Player();
 			}
 	}

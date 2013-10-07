@@ -62,7 +62,9 @@ public class Board {
 			String path = "";
 			for(Cell goal : goals){
 				path = Search.Astar(state, mapCell, goal, true);
-				if(path.length() < dist) dist = path.length();
+				try{
+					if(path.length() < dist) dist = path.length();
+				} catch(NullPointerException e) {}
 			}
 			mapCell.setGradient(dist);
 		}
@@ -111,6 +113,7 @@ public class Board {
 				
 				// Reset isDeadlock boolean for each corner and direction.
 				isDeadlock = false;
+				examine = cornerCell;
 				
 				// Check all cells below corner until either a goal is found,
 				// a wall is reached or another corner is reached.
@@ -166,6 +169,7 @@ public class Board {
 				
 				// Reset isDeadlock boolean for each corner and direction.
 				isDeadlock = false;
+				examine = cornerCell;
 				
 				// Check all cells below corner until either a goal is found,
 				// a wall is reached or another corner is reached.
