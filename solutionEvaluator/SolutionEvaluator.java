@@ -31,7 +31,7 @@ public class SolutionEvaluator {
 		path = new Sokoban(new StringReader(map.getMap()), true);
 		System.out.println("\nTime to execute: " + Double.toString((System.currentTimeMillis() - startTime)/1000.0) + " seconds.\n");
         // Animate solution
-		animateSolution();
+		//animateSolution();
 	}
 	
 	public void animateSolution() throws FileNotFoundException, IOException{

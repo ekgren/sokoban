@@ -9,8 +9,10 @@ import java.awt.Point;
 
 public class Factory {
 	
+	private static boolean createNew = false;
+	
 	// Parameters.
-	private static int estimatedMaxNumberOfStates = 50000;
+	private static int estimatedMaxNumberOfStates = 10000;
 	
 	// Containers of all cells, goals, boxes, states and players.
 	private static Cell[][] boardCells = new Cell[100][100];
@@ -35,7 +37,7 @@ public class Factory {
 	 */
 	public static State createState(){
 		// This can be removed if we choose to create all at start instead.
-		//states[totalStateCount] = new State();
+		if(createNew) states[totalStateCount] = new State();
 		
 		// Return.
 		addStateCount();
@@ -51,7 +53,7 @@ public class Factory {
 	 */
 	public static Player createPlayer(int x, int y){
 		// This can be removed if we choose to create all at start instead.
-		//players[totalPlayerCount] = new Player();
+		if(createNew) players[totalPlayerCount] = new Player();
 		
 		// Set x and y then return.
 		players[totalPlayerCount].setLocation(x, y);
@@ -64,7 +66,7 @@ public class Factory {
 	 */
 	public static Player createPlayer(Point p){
 		// This can be removed if we choose to create all at start instead.
-		//players[totalPlayerCount] = new Player();
+		if(createNew) players[totalPlayerCount] = new Player();
 		
 		// Set x and y then return.
 		players[totalPlayerCount].setLocation(p.x, p.y);
@@ -77,7 +79,7 @@ public class Factory {
 	 */
 	public static Box createBox(Point p){
 		// This can be removed if we choose to create all at start instead.
-		//boxes[totalBoxCount] = new Box();
+		if(createNew) boxes[totalBoxCount] = new Box();
 		
 		// Set x and y then return.
 		boxes[totalBoxCount].setLocation(p.x, p.y);
@@ -90,7 +92,7 @@ public class Factory {
 	 */
 	public static Box createBox(int x, int y){
 		// This can be removed if we choose to create all at start instead.
-		//boxes[totalBoxCount] = new Box();
+		if(createNew) boxes[totalBoxCount] = new Box();
 		
 		// Set x and y then return.
 		boxes[totalBoxCount].setLocation(x, y);
@@ -288,6 +290,11 @@ public class Factory {
 	/** Method that returns total state count */
 	public static int getStateCount(){
 		return totalStateCount;
+	}
+	
+	/** Method that returns total bananas. */
+	public static int getCreatedStates(){
+		return estimatedMaxNumberOfStates;
 	}
 	
 	/** Method that adds one to the total player count. */

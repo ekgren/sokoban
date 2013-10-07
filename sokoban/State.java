@@ -17,7 +17,7 @@ public class State implements Cloneable{
 	public boolean isSolved = false;
 	
 	// Heuristic.
-	private int h;
+	private int h = 0;
 	
 	// Parent state
 	private State parentState;
@@ -102,7 +102,7 @@ public class State implements Cloneable{
 	   		   		if(open.contains(stateHolder) == false && 
 	   		   				closed.contains(stateHolder) == false){
 	   		   			
-	   		   			//stateHolder.heuristic();
+	   		   			stateHolder.heuristic();
 	   		   			stateHolder.setPreviousMove(0);
 	   		   			open.add(stateHolder);
 	   		   			
@@ -149,7 +149,7 @@ public class State implements Cloneable{
 	   		   		if(open.contains(stateHolder) == false && 
 	   		   				closed.contains(stateHolder) == false){
 	   		   			
-	   		   			//stateHolder.heuristic();
+	   		   			stateHolder.heuristic();
 	   		   			stateHolder.setPreviousMove(1);
 	   		   			open.add(stateHolder);
 	   		   			
@@ -196,7 +196,7 @@ public class State implements Cloneable{
 	   		   		if(open.contains(stateHolder) == false && 
 	   		   				closed.contains(stateHolder) == false){
 	   		   			
-	   		   			//stateHolder.heuristic();
+	   		   			stateHolder.heuristic();
 	   		   			stateHolder.setPreviousMove(2);
 	   		   			open.add(stateHolder);
 	   		   			
@@ -243,7 +243,7 @@ public class State implements Cloneable{
 	   		   		if(open.contains(stateHolder) == false &&
 	   		   			closed.contains(stateHolder) == false){
 	   		   			
-	   		   			//stateHolder.heuristic();
+	   		   			stateHolder.heuristic();
 	   		   			stateHolder.setPreviousMove(3);
 	   		   			open.add(stateHolder);
 	   		   			
@@ -326,14 +326,12 @@ public class State implements Cloneable{
    	
    	/** Heuristic function that sums over all distance from boxes to goals. */
    	public void heuristic(){
-   		for(Point box : boxes){
-   			Box boxHolder = (Box) box;
-   			if(boxHolder.onGoal==false){
-	   			for(Point goal : Board.goals){
-	   				h = h + Math.abs(box.x-goal.x) + Math.abs(box.y-goal.y);
-	   			}
-   			}
-   		}
+        int lBoxScore = 0;
+        for (Point box : boxes) {
+            lBoxScore = lBoxScore + Factory.getCell(box).getGradient();
+        }
+        h =  lBoxScore;
+        //if(Sokoban.debug) System.out.println(h);
    	}
    	
    	/** Returns value of heuristic. */

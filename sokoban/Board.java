@@ -5,7 +5,9 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Vector;
 
 /**
@@ -25,21 +27,93 @@ public class Board {
 	public static HashSet<Cell> goals = new HashSet<Cell>();
 	private Player player;
 	
+	// Original map, saved for printing.
+	private Vector<StringBuilder> map = new Vector<StringBuilder>();
+	
+	// Gradient field stuff.
+	private Queue<Cell> open = new LinkedList<Cell>();
+	private HashSet<Cell> closed = new HashSet<Cell>();
+	
 	/**
 	 * Constructor takes Reader object.
 	 */
 	public Board(Reader r) throws IOException{
-		
 		// Build our board representation from map.
 		buildBoard(getMapFromReader(r));
 		locateCornersAndCorridors();
 		locateCornerWallDeadlocks();
+		//gradientField();
 		
 		// Debug message.
-		if(Sokoban.debug) System.out.println("Boardsize: " + 
+		if(Sokoban.debug) System.out.println("Boardsize: " + Integer.toString(mapCells.size()) + " or " + 
 				Integer.toString(Factory.getCellCount()) + ", boxes: " + 
 				Integer.toString(initialBoxes.size()) + ", goals: " + 
 				Integer.toString(goals.size()));
+				printBoard();
+				printGradient();
+	}
+	
+	/** */
+	public void gradientField(){
+		for(Cell goal : goals){
+			int gradient = 0;
+			
+			open.clear();
+			closed.clear();
+			open.add(goal);
+			
+			goal.resetCost();
+			
+			Cell examine = null;
+			Cell next = null;
+			
+			while(open.isEmpty() == false){
+				examine = open.remove();
+				closed.add(examine);
+				
+				if(Factory.getCellUp(examine) != null && 
+						open.contains(Factory.getCellUp(examine)) == false && 
+						closed.contains(Factory.getCellUp(examine)) == false){
+					next = Factory.getCellUp(examine);
+					next.setCost(examine.getCost() + 1);
+					if(next.getCost() <	next.getGradient()){
+						next.setGradient(next.getCost());
+					}
+					open.add(next);
+				}
+				if(Factory.getCellDown(examine) != null && 
+						open.contains(Factory.getCellDown(examine)) == false && 
+						closed.contains(Factory.getCellDown(examine)) == false){
+					next = Factory.getCellDown(examine);
+					next.setCost(examine.getCost() + 1);
+					if(next.getCost() <	next.getGradient()){
+						next.setGradient(next.getCost());
+					}
+					open.add(next);
+				}
+				if(Factory.getCellLeft(examine) != null && 
+						open.contains(Factory.getCellLeft(examine)) == false && 
+						closed.contains(Factory.getCellLeft(examine)) == false){
+					next = Factory.getCellLeft(examine);
+					next.setCost(examine.getCost() + 1);
+					if(next.getCost() <	next.getGradient()){
+						next.setGradient(next.getCost());
+					}
+					open.add(next);
+				}
+				if(Factory.getCellRight(examine) != null && 
+						open.contains(Factory.getCellRight(examine)) == false && 
+						closed.contains(Factory.getCellRight(examine)) == false){
+					next = Factory.getCellRight(examine);
+					next.setCost(examine.getCost() + 1);
+					if(next.getCost() <	next.getGradient()){
+						next.setGradient(next.getCost());
+					}
+					open.add(next);
+				}
+			}
+		}
+		
 	}
 	
 	
@@ -66,7 +140,10 @@ public class Board {
 				// a wall is reached or another corner is reached.
 				while(examine != null){
 					examine = Factory.getCellRight(examine);
+					//System.out.println(examine.toString());
+					if(examine == null) break;
 					if(examine.isGoal) break;
+					if(Factory.getCellUp(examine) != null) break;
 					if(examine.upperRightCorner){ isDeadlock = true; break;}
 				}
 				
@@ -88,7 +165,9 @@ public class Board {
 				// a wall is reached or another corner is reached.
 				while(examine != null){
 					examine = Factory.getCellDown(examine);
+					if(examine == null) break;
 					if(examine.isGoal) break;
+					if(Factory.getCellLeft(examine) != null) break;
 					if(examine.lowerLeftCorner){ isDeadlock = true; break;}
 				}
 				
@@ -117,7 +196,9 @@ public class Board {
 				// a wall is reached or another corner is reached.
 				while(examine != null){
 					examine = Factory.getCellLeft(examine);
+					if(examine == null) break;
 					if(examine.isGoal) break;
+					if(Factory.getCellDown(examine) != null) break;
 					if(examine.lowerLeftCorner){ isDeadlock = true; break;}
 				}
 				
@@ -139,8 +220,12 @@ public class Board {
 				// a wall is reached or another corner is reached.
 				while(examine != null){
 					examine = Factory.getCellUp(examine);
+					if(examine == null) break;
 					if(examine.isGoal) break;
-					if(examine.upperRightCorner){ isDeadlock = true; break;}
+					if(Factory.getCellRight(examine) != null) break;
+					if(examine.upperRightCorner){ 
+						System.out.println("CHECKKKKK!");
+						isDeadlock = true; break;}
 				}
 				
 				// If another corner was reached without finding a goal it
@@ -193,11 +278,13 @@ public class Board {
 			
 			// Check if cell is upper left corner.
 			if(Factory.getCellUp(cell) == null && 
-			   Factory.getCellDown(cell) != null && 
+			   Factory.getCellDown(cell) != null &&
 			   Factory.getCellLeft(cell) == null &&
 			   Factory.getCellRight(cell) != null){
 				   cell.upperLeftCorner = true;
-				   if(cell.isGoal == false) cell.boxAllowed = false;
+				   if(cell.isGoal == false){
+					   cell.boxAllowed = false;
+				   }
 			   	}
 			
 			// Check if cell is upper right corner.
@@ -206,25 +293,31 @@ public class Board {
 				    Factory.getCellLeft(cell) != null &&
 				    Factory.getCellRight(cell) == null){
 					   cell.upperRightCorner = true;
-					   if(cell.isGoal == false) cell.boxAllowed = false;
+					   if(cell.isGoal == false){
+						   cell.boxAllowed = false;
+					   }
 			   	}
 			
 			// Check if cell is lower left corner.
-			else if(Factory.getCellUp(cell) == null && 
-					Factory.getCellDown(cell) != null && 
-					Factory.getCellLeft(cell) != null &&
-					Factory.getCellRight(cell) == null){
+			else if(Factory.getCellUp(cell) != null && 
+					Factory.getCellDown(cell) == null && 
+					Factory.getCellLeft(cell) == null &&
+					Factory.getCellRight(cell) != null){
 					   cell.lowerLeftCorner = true;
-					   if(cell.isGoal == false) cell.boxAllowed = false;
+					   if(cell.isGoal == false){
+						   cell.boxAllowed = false;
+					   }
 			   	}
 			
 			// Check if cell is lower right corner.
-			else if(Factory.getCellUp(cell) == null && 
-					Factory.getCellDown(cell) != null && 
-					Factory.getCellLeft(cell) == null &&
-					Factory.getCellRight(cell) != null){
+			else if(Factory.getCellUp(cell) != null && 
+					Factory.getCellDown(cell) == null && 
+					Factory.getCellLeft(cell) != null &&
+					Factory.getCellRight(cell) == null){
 				   		cell.lowerRightCorner = true;
-				   		if(cell.isGoal == false) cell.boxAllowed = false;
+				   		if(cell.isGoal == false){
+				   			cell.boxAllowed = false;
+				   		}
 				}
 			
 			// Check if cell is horizontal corridor.
@@ -249,80 +342,119 @@ public class Board {
 	 * Method that creates board from Vector<string> representation of map. 
 	 */
 	public void buildBoard(Vector<String> map){
+		// Saving map for later printout.
+		
 		// Initializing some prerequisites for building board from map.
 		char c;
 		int xMax;
+		int yMax;
 		int y = 0;
 		
 		//Some booleans for map logic.
 		boolean firstWall = false;
 		
+		// Check height of map.
+		yMax = map.size();
+		
 		// Loop over string representation of map.
 		// For each row in map.
 		for(String mapRow: map){
+			// Save to string representation of board.
+			if(mapRow.length()!=0) this.map.add(new StringBuilder(mapRow));
 			
-			// Set firstWall to false for each row.
-			firstWall = false;
-			
-			// Checking length of string.
-			xMax = mapRow.length();
-			
-			//For each column in map.
-			for(int x = 0; x < xMax; x++){
+			if(y != 0 && y != yMax - 1){
+				// Set firstWall to false for each row.
+				firstWall = false;
 				
-				//if(Sokoban.debug) System.out.println(Integer.toString(x) + ", " + Integer.toString(y));
-				
-				// Check character at x, y position of map.
-				c = map.get(y).charAt(x);
-				
-				// If char at x, y is white space.
-				if(c == ' '){
+				// Checking length of string.
+				xMax = mapRow.length();
+				//For each column in map.
+				for(int x = 0; x < xMax; x++){
 					
-					// Check if first wall of map has been encountered and
-					// that the x value is not the last value of string.
-					// If false we are outside of map, if true create cell.
-					if(firstWall && x != xMax - 1){
-						Factory.createCell(x, y);
+					//if(Sokoban.debug) System.out.println(Integer.toString(x) + ", " + Integer.toString(y));
+					
+					// Check character at x, y position of map.
+					c = map.get(y).charAt(x);
+					
+					// If char at x, y is white space.
+					if(c == ' '){
+						
+						// Check if first wall of map has been encountered and
+						// that the x value is not the last value of string.
+						// If false we are outside of map, if true create cell.
+						if(firstWall && x != xMax - 1){
+							mapCells.add(Factory.createCell(x, y));
+						}
 					}
-				}
-				
-				// If char at x, y is wall create nothing.
-				else if( c == '#'){
-					firstWall = true;
-				}
-				// If char at x, y is box create map cell and box.
-				else if( c == '$'){
-					mapCells.add(Factory.createCell(x, y));
-					initialBoxes.add(Factory.createBox(x, y));
-				}
-				// If char at x, y is box on goal create map cell, box and goal.
-				else if( c == '*'){
-					mapCells.add(Factory.createCell(x, y));
-					initialBoxes.add(Factory.createBox(x, y));
-					goals.add(Factory.getCell(x,y));
-					Factory.getCell(x,y).isGoal = true;
-				}
-				// If char at x, y is player create map cell and player.
-				else if( c == '@'){
-					mapCells.add(Factory.createCell(x, y));
-					player = Factory.createPlayer(x,y);
-				}
-				// If char at x, y is player on goal create map cell, goal and player.
-				else if( c == '+'){
-					mapCells.add(Factory.createCell(x, y));
-					goals.add(Factory.getCell(x,y));
-					Factory.getCell(x,y).isGoal = true;
-					player = Factory.createPlayer(x,y);
-				}
-				// If char at x, y is goal create map cell and goal.
-				else if( c == '.'){
-					mapCells.add(Factory.createCell(x, y));
-					goals.add(Factory.getCell(x,y));
-					Factory.getCell(x,y).isGoal = true;
-				}
-			} // End for each column loop.
+					
+					// If char at x, y is wall create nothing.
+					else if( c == '#'){
+						firstWall = true;
+					}
+					// If char at x, y is box create map cell and box.
+					else if( c == '$'){
+						mapCells.add(Factory.createCell(x, y));
+						initialBoxes.add(Factory.createBox(x, y));
+					}
+					// If char at x, y is box on goal create map cell, box and goal.
+					else if( c == '*'){
+						mapCells.add(Factory.createCell(x, y));
+						initialBoxes.add(Factory.createBox(x, y));
+						goals.add(Factory.getCell(x,y));
+						Factory.getCell(x,y).isGoal = true;
+					}
+					// If char at x, y is player create map cell and player.
+					else if( c == '@'){
+						mapCells.add(Factory.createCell(x, y));
+						player = Factory.createPlayer(x,y);
+					}
+					// If char at x, y is player on goal create map cell, goal and player.
+					else if( c == '+'){
+						mapCells.add(Factory.createCell(x, y));
+						goals.add(Factory.getCell(x,y));
+						Factory.getCell(x,y).isGoal = true;
+						player = Factory.createPlayer(x,y);
+					}
+					// If char at x, y is goal create map cell and goal.
+					else if( c == '.'){
+						mapCells.add(Factory.createCell(x, y));
+						goals.add(Factory.getCell(x,y));
+						Factory.getCell(x,y).isGoal = true;
+					}
+				} // End for each column loop.
+			}
 			y = y + 1;
 		} // End for each row loop.
+	}
+	
+	public void printBoard(){
+		for(Cell mapCell : mapCells ){
+			//map.elementAt((int)mapCell.getY()).setCharAt((int)mapCell.getX(), '-');
+			if(mapCell.horizontalCorridor == true){
+				map.elementAt((int)mapCell.getY()).setCharAt((int)mapCell.getX(), 'h');
+			}
+			if(mapCell.verticalCorridor == true){
+				map.elementAt((int)mapCell.getY()).setCharAt((int)mapCell.getX(), 'v');
+			}
+			if(mapCell.boxAllowed == false){
+				map.elementAt((int)mapCell.getY()).setCharAt((int)mapCell.getX(), 'b');
+			}
+			if(mapCell.isGoal == true){
+				map.elementAt((int)mapCell.getY()).setCharAt((int)mapCell.getX(), '.');
+			}
+		}
+		for(StringBuilder s : map){
+            System.out.println(s);
+		}
+	}
+	
+	public void printGradient(){
+		for(Cell mapCell : mapCells ){
+			map.elementAt((int)mapCell.getY()).setCharAt((int)mapCell.getX(),Character.forDigit(mapCell.getGradient(), 10));
+		}
+		for(StringBuilder s : map){
+            System.out.println(s);
+		}
 	}
 	
 	public HashSet<Box> getBoxes(){

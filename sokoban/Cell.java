@@ -32,6 +32,8 @@ public class Cell extends Point{
 	
 	// Heuristic value for BFGS, maybe we wont use this.
 	private int heuristicValue;
+	private int cost;
+	private int gradient = 0;
 		
 	/** Get the parent cell of this cell. */
 	public Cell getParent(){
@@ -46,5 +48,30 @@ public class Cell extends Point{
 	/** Manhattan distance heuristic for search. */
 	public void heuristic(int goalX, int goalY){
 		this.heuristicValue = (int)(Math.abs(this.getX() - goalX) + Math.abs(this.getY() - goalY));
+	}
+	
+	/** Set cost. */
+	public void setCost(int cost){
+		this.cost = cost;
+	}
+	
+	/** Get cost. */
+	public int getCost(){
+		return cost;
+	}
+	
+	/** Reset cost. */
+	public void resetCost(){
+		cost = 0;
+	}
+	
+	/** Get gradient. */
+	public int getGradient(){
+		return gradient;
+	}
+	
+	/** Set gradient. */
+	public void setGradient(int gradient){
+		this.gradient = gradient;
 	}
 }

@@ -17,8 +17,14 @@ public class Solver {
 
 		@Override
 		public int compare(State state1, State state2) {
-			if(state1.getH() < state2.getH()) return -1;
-			if(state1.getH() > state2.getH()) return 1;
+			double h1 = state1.getH();
+			double h2 = state2.getH();
+			if (h1 < h2){
+				return -1; //move forward?!
+			}
+			else if (h2 < h1){
+				return 1;
+			}
 			return 0;
 		}
 	}
@@ -46,6 +52,8 @@ public class Solver {
 		for(Cell goal : board.getGoals()) solvedState.addBoxAt(goal);
 		solvedState.isSolved = true;
 		
+		if(Sokoban.debugTime) startTime = System.currentTimeMillis(); 
+		
 		// Create first children.
 		initState.createChildren(open, closed);
 
@@ -54,10 +62,21 @@ public class Solver {
 			
 			// Get first element from open.
         	processState = open.remove();
+        	//if(Sokoban.debug) System.out.println(processState.getH()); 
         	processState.createChildren(open, closed);
         	closed.add(processState);
 			
 		}
+		
+		// End time
+        if (Sokoban.debugTime) {
+        	long endTime = System.currentTimeMillis() - startTime;
+	        double seconds = (double) endTime / 1000;
+	        System.err.println("\n--- Greedy BFS ---");
+	        System.err.println("Expanded nodes for: " + endTime + " ms");
+	        System.err.println("Number of Expanded nodes/second: " + Factory.getStateCount() / seconds);
+	        System.err.println("Number of Created nodes/second: " + Factory.getCreatedStates() / seconds);
+    }
 		
 		// Set the last state as solvedState.
 		solvedState = open.remove();
