@@ -24,10 +24,11 @@ public class Sokoban {
 	 * @param debug
 	 * @throws IOException
 	 */
-	public Sokoban (Reader r, boolean debug) throws IOException{
+	public Sokoban (Reader r, boolean debug, boolean debugTime) throws IOException{
 		
 		//Apply debug setting.
 		this.debug = debug;
+		this.debugTime = debugTime;
 		
 		/** "Fun" debug message to signal start of program. */
 		if(debug) System.out.println("NEO-SOKOBAN IS ONLINE.");
@@ -46,12 +47,14 @@ public class Sokoban {
 		solution = Solver.getSolution();
 		
 		/** "Fun" debug message to signal end of program. */
+		if(debug) System.out.println(Factory.getStateCount());
 		if(debug) System.out.println("NEO-SOKOBAN HAS TERMINATED.");
+		if(debugTime) TimeIt.print();
 	}
 	
 	public static void main(String[] args) throws IOException {
 		// Initiate and run Sokoban solver.
-	    Sokoban soko = new Sokoban(new InputStreamReader(System.in), false);
+	    Sokoban soko = new Sokoban(new InputStreamReader(System.in), false, false);
         // Prints the solution to Kattis
         System.out.println(soko.solution.toUpperCase());
     } 

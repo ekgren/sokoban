@@ -15,7 +15,7 @@ public class Factory {
 	private static boolean createNew = false;
 	
 	// Parameters.
-	private static int estimatedMaxNumberOfStates = 100000;
+	private static int estimatedMaxNumberOfStates = 500000;
 	private static int startStates = 10000;
 	
 	// Containers of all cells, goals, boxes, states and players.
@@ -87,7 +87,6 @@ public class Factory {
 	public static Box createBox(Point p){
 		// This can be removed if we choose to create all at start instead.
 		if(totalBoxCount >= startStates*3) boxes[totalBoxCount] = new Box();
-		
 
 		// Set x and y then return.
 		boxes[totalBoxCount].setLocation(p.x, p.y);

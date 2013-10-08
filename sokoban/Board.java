@@ -41,6 +41,7 @@ public class Board {
 	public Board(Reader r) throws IOException{
 		// Build our board representation from map.
 		buildBoard(getMapFromReader(r));
+		if(mapCells.size()>200)System.out.println("In Board."); 
 		locateCornersAndCorridors();
 		locateCornerWallDeadlocks();
 		gradientField();

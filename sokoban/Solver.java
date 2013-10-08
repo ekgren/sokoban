@@ -32,13 +32,15 @@ public class Solver {
 	private static State initState;
 	private static State solvedState;
 	private static State processState;
+	public static boolean BFS = true;
 	
 	// Time field
     private long startTime;
 
 	private Comparator<State> comparator = new StatePriorityComparator();
 	private PriorityQueue<State> open = new PriorityQueue<State>(5000, comparator);
-	private PriorityQueue<State> open2 = new PriorityQueue<State>(5000, comparator);
+	private HashSet<State> semiOpen = new HashSet<State>();
+	private HashSet<State> openHash = new HashSet<State>();
 	private HashSet<State> closed = new HashSet<State>();
 	
 	public Solver(Board board){
@@ -56,15 +58,29 @@ public class Solver {
 		if(Sokoban.debugTime) startTime = System.currentTimeMillis(); 
 		
 		// Create first children.
-		initState.createChildren(open, closed);
+		initState.createChildren(open, semiOpen, closed, openHash);
 
 		// Start exploration.
 		while(open.peek().equals(solvedState) == false){
-			
 			// Get first element from open.
         	processState = open.remove();
-        	//if(Sokoban.debug) System.out.println(processState.getH()); 
-        	processState.createChildren(open, open2, closed);
+        	openHash.remove(processState);
+        	
+        	/*
+        	if(Factory.getBoxCount() % 1500 > 1494){
+				if (BFS == false){
+	        		open.addAll(semiOpen);
+	        		openHash.addAll(semiOpen);
+					semiOpen.clear();
+					BFS = true;
+				} else BFS = false;
+			
+				
+				if(Sokoban.debug) System.out.println("IN THE IFFFSSS MUFAKKA."); 
+			}
+			*/
+        	
+        	processState.createChildren(open, semiOpen, closed, openHash);
         	closed.add(processState);
 			
 		}
