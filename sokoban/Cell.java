@@ -39,7 +39,7 @@ public class Cell extends Point{
 	// Heuristic value for BFGS, maybe we wont use this.
 	private int heuristicValue;
 	private int cost;
-	private int gradient = 0;
+	private double gradient = 0;
 		
 	/** Get the parent cell of this cell. */
 	public Cell getParent(){
@@ -72,12 +72,12 @@ public class Cell extends Point{
 	}
 	
 	/** Get gradient. */
-	public int getGradient(){
+	public double getGradient(){
 		return gradient;
 	}
 	
 	/** Set gradient. */
-	public void setGradient(int gradient){
+	public void setGradient(double gradient){
 		this.gradient = gradient;
 	}
 }

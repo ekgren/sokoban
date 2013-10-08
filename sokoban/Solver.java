@@ -1,18 +1,20 @@
 package sokoban;
 
-import java.awt.Point;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.PriorityQueue;
+import java.util.Queue;
 
 /**
  * NEO-SOKOBAN SOLVER CLASS.
- *
  */
 
 public class Solver {
 	
-	/** Comparator for states. */
+	
+	/**
+	 * Comparator class.
+	 */
 	public class StatePriorityComparator implements Comparator<State>{
 
 		@Override
@@ -29,20 +31,26 @@ public class Solver {
 		}
 	}
 	
+	// States.
 	private static State initState;
 	private static State solvedState;
 	private static State processState;
 	public static boolean BFS = true;
 	
-	// Time field
+	// Time field.
     private long startTime;
 
+    // Queue stuff.
 	private Comparator<State> comparator = new StatePriorityComparator();
-	private PriorityQueue<State> open = new PriorityQueue<State>(5000, comparator);
-	private HashSet<State> semiOpen = new HashSet<State>();
-	private HashSet<State> openHash = new HashSet<State>();
+	private PriorityQueue<State> open = new PriorityQueue<State>(10000, comparator);
 	private HashSet<State> closed = new HashSet<State>();
+	private Queue<State> children;
 	
+	
+	/**
+	 * 
+	 * @param board
+	 */
 	public Solver(Board board){
 		if(Sokoban.debug) System.out.println("IN THE SOLVE!");
 		
@@ -58,32 +66,30 @@ public class Solver {
 		if(Sokoban.debugTime) startTime = System.currentTimeMillis(); 
 		
 		// Create first children.
-		initState.createChildren(open, semiOpen, closed, openHash);
-
+		open.add(initState);
+		
 		// Start exploration.
 		while(open.peek().equals(solvedState) == false){
 			// Get first element from open.
         	processState = open.remove();
-        	openHash.remove(processState);
-        	
-        	/*
-        	if(Factory.getBoxCount() % 1500 > 1494){
-				if (BFS == false){
-	        		open.addAll(semiOpen);
-	        		openHash.addAll(semiOpen);
-					semiOpen.clear();
-					BFS = true;
-				} else BFS = false;
-			
-				
-				if(Sokoban.debug) System.out.println("IN THE IFFFSSS MUFAKKA."); 
-			}
-			*/
-        	
-        	processState.createChildren(open, semiOpen, closed, openHash);
         	closed.add(processState);
-			
+        	
+        	children = processState.createAllChildren();
+        	
+        	while(children.isEmpty() == false){
+        		processState = children.remove();
+        		if(closed.contains(processState) == false &&
+    				Deadlocks.checkWallDeadlock(processState) == false &&
+    	   			Deadlocks.checkFourBoxesDeadlock(processState) == false &&
+    	   			Deadlocks.checkWallDeadlock(processState) == false){
+        			// Be careful might not want to add it 
+        			// to open and closed at the same time.
+        			open.add(processState); 
+        			closed.add(processState);
+        		}
+        	}
 		}
+		
 		
 		// End time
         if (Sokoban.debugTime) {
@@ -99,7 +105,12 @@ public class Solver {
 		solvedState = open.remove();
 	}
 	
-	/**  */
+	
+	/**
+	 * Method for retrieving the final solution.
+	 * 
+	 * @return
+	 */
 	public static String getSolution(){
 		// Solution String.
 		String solution = "";
@@ -131,6 +142,12 @@ public class Solver {
 		return solution;
 	}
 	
+	
+	/**
+	 * 
+	 * @param previousMove
+	 * @return
+	 */
 	public static String fromIntToString(int previousMove){
 		if(previousMove == 0) return "U";
 		if(previousMove == 1) return "D";

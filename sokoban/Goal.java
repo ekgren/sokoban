@@ -9,6 +9,7 @@ import java.awt.Point;
  *
  */
 
+@SuppressWarnings("serial")
 public class Goal extends Point{
 
 }

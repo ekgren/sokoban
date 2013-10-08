@@ -1,10 +1,8 @@
 package sokoban;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.util.Vector;
 
 /**
  * NEO-SOKOBAN SOKOBAN CLASS.
@@ -27,8 +25,8 @@ public class Sokoban {
 	public Sokoban (Reader r, boolean debug, boolean debugTime) throws IOException{
 		
 		//Apply debug setting.
-		this.debug = debug;
-		this.debugTime = debugTime;
+		Sokoban.debug = debug;
+		Sokoban.debugTime = debugTime;
 		
 		/** "Fun" debug message to signal start of program. */
 		if(debug) System.out.println("NEO-SOKOBAN IS ONLINE.");
@@ -41,6 +39,7 @@ public class Sokoban {
 		board = new Board(r);
 		
 		// Initialize solver.
+		@SuppressWarnings("unused")
 		Solver solver = new Solver(board);
 		
 		// Set the solution string to desired answer.

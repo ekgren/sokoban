@@ -2,7 +2,8 @@ package sokoban;
 
 import java.awt.Point;
 import java.util.HashSet;
-import java.util.PriorityQueue;
+import java.util.LinkedList;
+import java.util.Queue;
 
 /**
  * NEO-SOKOBAN STATE CLASS.
@@ -17,7 +18,7 @@ public class State implements Cloneable{
 	public boolean isSolved = false;
 	
 	// Heuristic & hashCode.
-	private int h = 0;
+	private double h = 0;
 	private int hashCode;
 	private State parentState; // Parent state
 	
@@ -28,6 +29,9 @@ public class State implements Cloneable{
 	// Boxes and player
 	private HashSet<Point> boxes = new HashSet<Point>();
 	private Player player;
+	
+	// List containing children.
+	private static Queue<State> childStates = new LinkedList<State>();
 
     
 	/** Empty constructor. */
@@ -53,180 +57,183 @@ public class State implements Cloneable{
    	
    	
    	/**
-   	 * Create children.
+   	 * Create child states from valid moves.
    	 * 
-   	 * @param open
-   	 * @param semiOpen
-   	 * @param closed
-   	 * @param openHash
+   	 * @return
    	 */
-   	public void createChildren(PriorityQueue<State> open, HashSet<State> semiOpen, HashSet<State> closed, HashSet<State> openHash){
+   	public Queue<State> createAllChildren(){
+   		// Start time for this method.
    		if(Sokoban.debugTime) TimeIt.createChildren = System.currentTimeMillis();
    		
-   		State bestState = null;
-   		// For each box in the box array we call the method boxMoves().
+   		// Clear old child states.
+   		childStates.clear();
+   		
+   		// For each box in the box array we call the method boxMoves.
    		for(Point box : boxes){
-   			boxMoves(box, open, semiOpen, closed, openHash, bestState);
+   			if(boxUp(box)) childStates.add(createNewState(box, Factory.getCellUp(box), 0));
+   			if(boxDown(box)) childStates.add(createNewState(box, Factory.getCellDown(box), 1));
+   			if(boxLeft(box)) childStates.add(createNewState(box, Factory.getCellLeft(box), 2));
+   			if(boxRight(box)) childStates.add(createNewState(box, Factory.getCellRight(box), 3));
    		}
    		
+   		// End time for this method.
    		if(Sokoban.debugTime) TimeIt.createChildrenTotal = TimeIt.createChildrenTotal + System.currentTimeMillis() - TimeIt.createChildren;
+   		
+   		// Return new child states.
+   		return childStates;
+   	}
+   	
+   	
+   	/** Create a new state. */
+   	public State createNewState(Point currentPosition, Point newPosition, int previousMove){
+   		
+   		// Create new state and put it in stateHolder until finished.
+   		State stateHolder = Factory.createState();
+		stateHolder.setParent(this);
+		stateHolder.setPreviousMove(previousMove);
+		
+		// Add new player to state.
+		stateHolder.player = Factory.createPlayer(currentPosition);
+		
+		// Create copies of boxes in this state.
+   		for(Point p : boxes){
+   			Box b = Factory.createBox(p);
+   			if(Board.goals.contains(p)) b.onGoal = true;
+   			stateHolder.boxes.add(b);
+   		}
+   		
+   		// Remove the box we moved.
+   		stateHolder.boxes.remove(currentPosition);
+   		
+   		// Add new moved box.
+   		Box b = Factory.createBox(newPosition);
+   		if(Board.goals.contains(newPosition)) b.onGoal = true;
+   		stateHolder.boxes.add(b);
+		
+   		// Calculate hash code and heuristic.
+   		stateHolder.calculateHashCode();
+   		stateHolder.heuristic();
+   		
+		return stateHolder;
    	}
    	
    	
    	/**
-   	 * Examine how a specific box can be moved.
+   	 * Check if box can be moved up.
    	 * 
    	 * @param box
-   	 * @param open
-   	 * @param open2
-   	 * @param closed
-   	 * @param openHash
-   	 * @param bestState
+   	 * @return
    	 */
-   	public void boxMoves(Point box, PriorityQueue<State> open, HashSet<State> open2, HashSet<State> closed, HashSet<State> openHash, State bestState){
-   		
-   		// We start by retrieving the box we want to examine 
-   		// from the boxes in current state.
-   		Box examine = (Box) box;
-   		State stateHolder = null;
-   		
+   	public boolean boxUp(Point box){   		
    		// We examine if we can move the box UP on the map. 
    		// To move the box up both the cell above and below it need to be free.
-   		if(Factory.getCellUp(examine) != null &&
-   		   Factory.getCellDown(examine) != null &&
-   		   Factory.getCellUp(examine).boxAllowed){
+   		if(Factory.getCellUp(box) != null &&
+   		   Factory.getCellDown(box) != null &&
+   		   Factory.getCellUp(box).boxAllowed){
    			
    			// We then have to make sure that there is no box in the desired direction of push
    			// or where the player needs to be to do the push.
-   			if(boxes.contains(Factory.getCellUp(examine)) == false &&
-   				boxes.contains(Factory.getCellDown(examine))== false){
+   			if(boxes.contains(Factory.getCellUp(box)) == false &&
+   				boxes.contains(Factory.getCellDown(box))== false){
 	   			
    				// If we can move the box in this direction we also have to check if the player
 	   			// can move to the cell to push the box.
-	   			if(Search.Astar(this, player, Factory.getCellDown(examine), false) != null){
-	   				createNewState(bestState, examine, Factory.getCellUp(examine), openHash, open2, closed, open);
-	   			}
-   			}
-   		}
-   		
+	   			if(Search.Astar(this, player, Factory.getCellDown(box), false) != null){
+	   				
+	   				return true;
+	   				
+	   			} else return false;
+   			} else return false;
+   		} else return false;
+   	}
+   	
+   	
+   	/**
+   	 * Check if box can be moved down.
+   	 * 
+   	 * @param box
+   	 * @return
+   	 */
+   	public boolean boxDown(Point box){
    		// We examine if we can move the box DOWN on the map.
    		// To move the box down both the cell above and below it need to be free.
-   		if(Factory.getCellDown(examine) != null &&
-   		   Factory.getCellUp(examine) != null &&
-   		   Factory.getCellDown(examine).boxAllowed){
+   		if(Factory.getCellDown(box) != null &&
+   		   Factory.getCellUp(box) != null &&
+   		   Factory.getCellDown(box).boxAllowed){
 
    			// We then have to make sure that there is no box in the desired direction of push
    			// or where the player needs to be to do the push.
-   			if(boxes.contains(Factory.getCellDown(examine)) == false &&
-   	   			boxes.contains(Factory.getCellUp(examine))== false){
+   			if(boxes.contains(Factory.getCellDown(box)) == false &&
+   	   			boxes.contains(Factory.getCellUp(box))== false){
    				
    				// If we can move the box in this direction we also have to check if the player
 	   			// can move to the cell to push the box.
-	   			if(Search.Astar(this, player, Factory.getCellUp(examine), false) != null){
-	   				createNewState(bestState, examine, Factory.getCellDown(examine), openHash, open2, closed, open);
-	   			}
-   			}
-   		}	
+	   			if(Search.Astar(this, player, Factory.getCellUp(box), false) != null){
+	   				
+	   				return true;
+	   				
+	   			} else return false;
+   			} else return false;
+   		} else return false;
+   	}
    		
+   	/**
+   	 * Check if box can be moved left.
+   	 * 
+   	 * @param box
+   	 * @return
+   	 */
+   	public boolean boxLeft(Point box){
    		// We examine if we can move the box to the LEFT on the map.
    		// To move the box left both the cell to the left and to the right of it need to be free.
-   		if(Factory.getCellLeft(examine) != null &&
-   		   Factory.getCellRight(examine) != null &&
-   		   Factory.getCellLeft(examine).boxAllowed){
+   		if(Factory.getCellLeft(box) != null &&
+   		   Factory.getCellRight(box) != null &&
+   		   Factory.getCellLeft(box).boxAllowed){
    			
    			// We then have to make sure that there is no box in the desired direction of push
    			// or where the player needs to be to do the push.
-   			if(boxes.contains(Factory.getCellLeft(examine)) == false &&
-   	   				boxes.contains(Factory.getCellRight(examine))== false){
+   			if(boxes.contains(Factory.getCellLeft(box)) == false &&
+   	   				boxes.contains(Factory.getCellRight(box))== false){
 	   			
 	   			// If we can move the box in this direction we also have to check if the player
 	   			// can move to the cell to push the box.
-	   			if(Search.Astar(this, player, Factory.getCellRight(examine), false) != null){
-	   				createNewState(bestState, examine, Factory.getCellLeft(examine), openHash, open2, closed, open);
-	   			}
-   			}
-   		}
-   		
-   		// We examine if we can move the box to the RIGHT on the map.
-   		// To move the box right both the cell to the left and to the right of it need to be free.
-   		if(Factory.getCellRight(examine) != null &&
-   		   Factory.getCellLeft(examine) != null &&
-   		   Factory.getCellRight(examine).boxAllowed){
-   			
-   			// We then have to make sure that there is no box in the desired direction of push
-   			// or where the player needs to be to do the push.
-   			if(boxes.contains(Factory.getCellRight(examine)) == false &&
-   	   				boxes.contains(Factory.getCellLeft(examine))== false){
-	   			
-	   			// If we can move the box in this direction we also have to check if the player
-	   			// can move to the cell to push the box.
-	   			if(Search.Astar(this, player, Factory.getCellLeft(examine), false) != null){
-	   				createNewState(bestState, examine, Factory.getCellRight(examine), openHash, open2, closed, open);
-	   			}
-   			}
-   		}
+	   			if(Search.Astar(this, player, Factory.getCellRight(box), false) != null){
+	   				
+	   				return true;
+	   				
+	   			} else return false;
+   			} else return false;
+   		} else return false;
    	}
    	
    	
    	/**
-   	 * Create new state.
+   	 * Check if box can be moved right.
    	 * 
-   	 * @param bestState
-   	 * @param oldBoxCell
-   	 * @param newBoxCell
-   	 * @param openHash
-   	 * @param open2
-   	 * @param closed
-   	 * @param open
+   	 * @param box
+   	 * @return
    	 */
-   	public void createNewState(State bestState, Box oldBoxCell, Cell newBoxCell, HashSet<State> openHash, HashSet<State> open2,
-   			HashSet<State> closed, PriorityQueue<State> open){
-	   		
-			// Create new state and put it in stateHolder until finished.
-			State stateHolder = Factory.createState();
-			stateHolder.setParent(this);
-			
-			// Add new player to state.
-			stateHolder.player = Factory.createPlayer(oldBoxCell);
-			
-			// Create copies of boxes in this state.
-	   		for(Point p : boxes){
-	   			Box b = Factory.createBox(p);
-	   			if(Board.goals.contains(p)) b.onGoal = true;
-	   			stateHolder.boxes.add(b);
-	   		}
-	   		
-	   		// Remove the box we moved.
-	   		stateHolder.boxes.remove(oldBoxCell);
-	   		// Add new moved box.
-	   		Box b = Factory.createBox(newBoxCell);
-	   		if(Board.goals.contains(Factory.getCellUp(oldBoxCell))) b.onGoal = true;
-	   		stateHolder.boxes.add(b);
-			stateHolder.calculateHashCode();
-	   		// Add state to PriorityQueue.
-	   		if(openHash.contains(stateHolder) == false &&
-	   			open2.contains(stateHolder) == false &&
-	   			closed.contains(stateHolder) == false && 
-	   			Deadlocks.checkWallDeadlock(stateHolder) == false &&
-	   			Deadlocks.checkFourBoxesDeadlock(stateHolder) == false){
+   	public boolean boxRight(Point box){
+   		// We examine if we can move the box to the RIGHT on the map.
+   		// To move the box right both the cell to the left and to the right of it need to be free.
+   		if(Factory.getCellRight(box) != null &&
+   		   Factory.getCellLeft(box) != null &&
+   		   Factory.getCellRight(box).boxAllowed){
+   			
+   			// We then have to make sure that there is no box in the desired direction of push
+   			// or where the player needs to be to do the push.
+   			if(boxes.contains(Factory.getCellRight(box)) == false &&
+   	   				boxes.contains(Factory.getCellLeft(box))== false){
 	   			
-	   			stateHolder.heuristic();
-	   			stateHolder.setPreviousMove(0);
-	   			if(Solver.BFS == false){
-		   			if(bestState != null){
-		   				if(bestState.h > stateHolder.h){
-		   					open2.add(bestState);
-		   					bestState = stateHolder;
-		   				} else open2.add(stateHolder);
-		   			} else bestState = stateHolder;
-	   			} else{
-	   				openHash.add(stateHolder);
-	   				open.add(stateHolder);
-	   			}
-	   			
-	   		} else {
-	   			//
-	   		}
+	   			// If we can move the box in this direction we also have to check if the player
+	   			// can move to the cell to push the box.
+	   			if(Search.Astar(this, player, Factory.getCellLeft(box), false) != null){
+	   				
+	   				return true;
+	   				
+	   			} else return false;
+   			} else return false;
+   		} else return false;
    	}
    	
    	
@@ -320,7 +327,7 @@ public class State implements Cloneable{
         
    		for (Point box : boxes) {
         		h  = h + Factory.getCell(box).getGradient();
-        		if(Factory.getCell(box).isGoal) h = h - 1;
+        		if(Factory.getCell(box).isGoal) h = h - 2;
         }
         
    		if(Sokoban.debugTime) TimeIt.heuristicTotal = TimeIt.heuristicTotal + System.currentTimeMillis() - TimeIt.heuristic;
@@ -328,7 +335,7 @@ public class State implements Cloneable{
    	
    	
    	/** Returns value of heuristic. */
-   	public int getH(){
+   	public double getH(){
    		return h;
    	}
    	

@@ -5,10 +5,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Queue;
 import java.util.Vector;
 
 /**
@@ -31,9 +27,6 @@ public class Board {
 	// Original map, saved for printing.
 	private Vector<StringBuilder> map = new Vector<StringBuilder>();
 	
-	// Gradient field stuff.
-	private Queue<Cell> open = new LinkedList<Cell>();
-	private HashSet<Cell> closed = new HashSet<Cell>();
 	
 	/**
 	 * Constructor takes Reader object.
@@ -41,10 +34,9 @@ public class Board {
 	public Board(Reader r) throws IOException{
 		// Build our board representation from map.
 		buildBoard(getMapFromReader(r));
-		if(mapCells.size()>200)System.out.println("In Board."); 
 		locateCornersAndCorridors();
 		locateCornerWallDeadlocks();
-		gradientField();
+		minDistanceMap();
 		
 		// Debug message.
 		if(Sokoban.debug){ System.out.println("Boardsize: " + Integer.toString(mapCells.size()) + " or " + 
@@ -52,11 +44,34 @@ public class Board {
 				Integer.toString(initialBoxes.size()) + ", goals: " + 
 				Integer.toString(goals.size()));
 				printBoard();
-				printGradient();
+				printDistanceMap();
 				}
 	}
 	
-	public void gradientField(){
+	
+	/**
+	 * Generate average distance map.
+	 */
+	public void averageDistanceMap(){
+		State state = Factory.createState();
+		for(Cell mapCell : mapCells){
+			double dist = 0;
+			String path = "";
+			for(Cell goal : goals){
+				path = Search.Astar(state, mapCell, goal, true);
+				try{
+					dist = dist + path.length();
+					//dist = dist / goals.size();
+				} catch(NullPointerException e) {}
+			}
+			mapCell.setGradient(dist);
+		}
+	}
+	
+	/**
+	 * Generate minimum distance map.
+	 */
+	public void minDistanceMap(){
 		State state = Factory.createState();
 		for(Cell mapCell : mapCells){
 			int dist = Integer.MAX_VALUE;
@@ -70,6 +85,7 @@ public class Board {
 			mapCell.setGradient(dist);
 		}
 	}	
+	
 	
 	/** Method that will examine walls between two corners to see if deadlock. */
 	public void locateCornerWallDeadlocks(){
@@ -224,6 +240,7 @@ public class Board {
 		return map;
 	}
 	
+	
 	/**
 	 * Looking for corners and corridors in board.
 	 */
@@ -297,6 +314,7 @@ public class Board {
 				}
 		}
 	}
+	
 	
 	/**
 	 * Method that creates board from Vector<string> representation of map. 
@@ -387,6 +405,10 @@ public class Board {
 		} // End for each row loop.
 	}
 	
+	
+	/**
+	 * Print board.
+	 */
 	public void printBoard(){
 		for(Cell mapCell : mapCells ){
 			//map.elementAt((int)mapCell.getY()).setCharAt((int)mapCell.getX(), '-');
@@ -408,10 +430,14 @@ public class Board {
 		}
 	}
 	
-	public void printGradient(){
+	
+	/**
+	 * Print distance map.
+	 */
+	public void printDistanceMap(){
 		for(Cell mapCell : mapCells ){
 			if(mapCell.getGradient()<10)
-			map.elementAt((int)mapCell.getY()).setCharAt((int)mapCell.getX(),Character.forDigit(mapCell.getGradient(), 10));
+			map.elementAt((int)mapCell.getY()).setCharAt((int)mapCell.getX(),Character.forDigit((int)mapCell.getGradient(), 10));
 			else map.elementAt((int)mapCell.getY()).setCharAt((int)mapCell.getX(),'L');
 		}
 		for(StringBuilder s : map){
@@ -419,6 +445,11 @@ public class Board {
 		}
 	}
 	
+	
+	/**
+	 * Print state.
+	 * @param state
+	 */
 	public void printState(State state){
 		for(Cell mapCell : mapCells ){
 			if(mapCell.isGoal)
@@ -435,14 +466,29 @@ public class Board {
 		}
 	}
 	
+	
+	/**
+	 * Get original boxes.
+	 * @return
+	 */
 	public HashSet<Box> getBoxes(){
 		return initialBoxes;
 	}
 	
+	
+	/**
+	 * Get goals.
+	 * @return
+	 */
 	public HashSet<Cell> getGoals(){
 		return goals;
 	}
 	
+	
+	/**
+	 * Get player.
+	 * @return
+	 */
 	public Player getPlayer(){
 		return player;
 	}

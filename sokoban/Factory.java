@@ -2,7 +2,6 @@ package sokoban;
 
 import java.awt.Point;
 import java.util.LinkedList;
-import java.util.NoSuchElementException;
 import java.util.Queue;
 
 /**
@@ -11,8 +10,6 @@ import java.util.Queue;
  */
 
 public class Factory {
-	
-	private static boolean createNew = false;
 	
 	// Parameters.
 	private static int estimatedMaxNumberOfStates = 500000;

@@ -5,9 +5,9 @@ import java.awt.Point;
 /**
  * NEO-SOKOBAN BOX CLASS.
  * 
- * @author Ariel
  *
  */
+@SuppressWarnings("serial")
 public class Box extends Point{
 	
 	public boolean onGoal = false;
