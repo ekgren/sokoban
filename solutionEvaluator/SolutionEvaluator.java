@@ -18,7 +18,7 @@ public class SolutionEvaluator {
 	private Vector<StringBuilder> board = new Vector<StringBuilder>();
 
     // Insert Level number (0 = TestTrack)
-    private int levelNo = 1;
+    private int levelNo = 6029;
     private MapReader map;
 
 	public SolutionEvaluator() throws IOException{
