@@ -10,11 +10,9 @@ import java.util.Vector;
 /**
  * NEO-SOKOBAN BOARD CLASS.
  * 
- * Class to store original board.
+ * Class to store original board and goals.
  * 
- * Current idea is to store the complete board as a set of cells.
  * 
- *
  */
 public class Board {
 	
@@ -30,6 +28,8 @@ public class Board {
 	
 	/**
 	 * Constructor takes Reader object.
+	 * @param r
+	 * @throws IOException
 	 */
 	public Board(Reader r) throws IOException{
 		// Build our board representation from map.
@@ -50,44 +50,42 @@ public class Board {
 	
 	
 	/**
-	 * Generate average distance map.
-	 */
-	public void averageDistanceMap(){
-		State state = Factory.createState();
-		for(Cell mapCell : mapCells){
-			double dist = 0;
-			String path = "";
-			for(Cell goal : goals){
-				path = Search.Astar(state, mapCell, goal, true);
-				try{
-					dist = dist + path.length();
-					//dist = dist / goals.size();
-				} catch(NullPointerException e) {}
-			}
-			mapCell.setGradient(dist);
-		}
-	}
-	
-	/**
 	 * Generate minimum distance map.
 	 */
 	public void minDistanceMap(){
+		// Create a state without boxes.
 		State state = Factory.createState();
+		
+		// For each cell in map.
 		for(Cell mapCell : mapCells){
+			
+			// Start with distance as max.
 			int dist = Integer.MAX_VALUE;
 			String path = "";
+			
+			// For each goal.
 			for(Cell goal : goals){
+				
+				// Get path from cell to goal.
 				path = Search.Astar(state, mapCell, goal, true);
+				
 				try{
+					// If path not null and path < distance,
+					// set distance equal to path length.
 					if(path.length() < dist) dist = path.length();
 				} catch(NullPointerException e) {}
-			}
+			} // End for each goal.
+			
+			// Finally set cells gradient to distance.
 			mapCell.setGradient(dist);
-		}
+			
+		} // End for each cell.
 	}	
 	
 	
-	/** Method that will examine walls between two corners to see if deadlock. */
+	/**
+	 * Method that will examine walls between two corners to see if deadlock.
+	 */
 	public void locateCornerWallDeadlocks(){
 		
 		// Boolean to check for deadlock and a Cell holder.
@@ -214,10 +212,12 @@ public class Board {
 	}
 	
 	
-	
 	/**
 	 * Method that processes input from Reader object and returns vector 
 	 * containing string representations of map.
+	 * @param r
+	 * @return
+	 * @throws IOException
 	 */
 	public Vector<String> getMapFromReader(Reader r) throws IOException{
 		
@@ -318,6 +318,7 @@ public class Board {
 	
 	/**
 	 * Method that creates board from Vector<string> representation of map. 
+	 * @param map
 	 */
 	public void buildBoard(Vector<String> map){
 		// Saving map for later printout.
@@ -471,25 +472,19 @@ public class Board {
 	 * Get original boxes.
 	 * @return
 	 */
-	public HashSet<Box> getBoxes(){
-		return initialBoxes;
-	}
+	public HashSet<Box> getBoxes(){ return initialBoxes; }
 	
 	
 	/**
 	 * Get goals.
 	 * @return
 	 */
-	public HashSet<Cell> getGoals(){
-		return goals;
-	}
+	public HashSet<Cell> getGoals(){ return goals; }
 	
 	
 	/**
 	 * Get player.
 	 * @return
 	 */
-	public Player getPlayer(){
-		return player;
-	}
+	public Player getPlayer(){ return player; }
 }
