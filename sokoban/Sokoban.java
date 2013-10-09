@@ -7,7 +7,6 @@ import java.io.Reader;
 /**
  * NEO-SOKOBAN SOKOBAN CLASS.
  * 
- * @author Ariel
  */
 public class Sokoban {
 	
@@ -31,6 +30,7 @@ public class Sokoban {
 		/** "Fun" debug message to signal start of program. */
 		if(debug) System.out.println("NEO-SOKOBAN IS ONLINE.");
 		
+		// Create an initial batch of empty states, players and boxes.
 		Factory.initializeBoxes();
 		Factory.initializePlayers();
 		Factory.initializeStates();

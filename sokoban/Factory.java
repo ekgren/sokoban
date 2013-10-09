@@ -1,8 +1,6 @@
 package sokoban;
 
 import java.awt.Point;
-import java.util.LinkedList;
-import java.util.Queue;
 
 /**
  * NEO-SOKOBAN FACTORY CLASS
@@ -11,78 +9,84 @@ import java.util.Queue;
 
 public class Factory {
 	
-	// Parameters.
+	// Array sizes depend on this number.
 	private static int estimatedMaxNumberOfStates = 500000;
+	
+	// Number of states created at start depend on this number.
 	private static int startStates = 10000;
 	
-	// Containers of all cells, goals, boxes, states and players.
+	// Containers of all cells, boxes, states and players.
 	private static Cell[][] boardCells = new Cell[50][50];
-	
-	// Probably remove Goals since cells already contain same info.
-	private static Goal[] goals; 
-	
 	private static Box[] boxes = new Box[estimatedMaxNumberOfStates * 20];
 	private static State[] states = new State[estimatedMaxNumberOfStates];
 	private static Player[] players = new Player[estimatedMaxNumberOfStates];
 	
-	public static Queue<State> usedStates = new LinkedList<State>();
-	public static Queue<Box> usedBoxes = new LinkedList<Box>();
-	public static Queue<Player> usedPlayers = new LinkedList<Player>();
-	
-	// Total counts of "created" cells, goals, boxes, states and players.
+	// Total counts of "created" cells, boxes, states and players.
 	private static int totalCellCount = 0;
-	private static int totalGoalCount = 0;
 	private static int totalBoxCount = 0;
 	private static int totalStateCount = 0;
-	private static int totalExpandedStateCount = 0;
 	private static int totalPlayerCount = 0;
 
 	
 	/**
 	 * Method that "creates" state.
+	 * @return
 	 */
 	public static State createState(){
-		// This can be removed if we choose to create all at start instead.
+		// Create new player if we are out of premade ones.
 		if(totalStateCount >= startStates) states[totalStateCount] = new State();
 		
-		// Return.
+		// If debug print every 10000 state.
 		if(Sokoban.debug) if( totalStateCount % 10000 == 0) 
 			System.out.println(totalStateCount);
+		
+		// Return.
 		addStateCount();
 		return states[totalStateCount-1];	
 	}
 	
+	
 	/**
 	 * Method that "creates" player from x, y coordinates.
+	 * @param x
+	 * @param y
+	 * @return
 	 */
 	public static Player createPlayer(int x, int y){
-		// This can be removed if we choose to create all at start instead.
+		// Create new player if we are out of premade ones.
 		if(totalPlayerCount >= startStates) players[totalPlayerCount] = new Player();
 		
-
+		// Set x and y then return.
 		players[totalPlayerCount].setLocation(x, y);
 		addPlayerCount();
 		return players[totalPlayerCount-1];
 	}
 	
+	
 	/**
 	 * Method that "creates" player from Point object.
+	 * @param p
+	 * @return
 	 */
 	public static Player createPlayer(Point p){
-		// This can be removed if we choose to create all at start instead.
+		// Create new player if we are out of premade ones.
 		if(totalPlayerCount >= startStates) players[totalPlayerCount] = new Player();
-
+		
+		// Set x and y then return.
 		players[totalPlayerCount].setLocation(p.x, p.y);
 		addPlayerCount();
 		return players[totalPlayerCount-1];
 
 	}
 	
+	
 	/**
-	 * Method that "creates" box.
+	 * Method that "creates" box from Point object.
+	 * @param p
+	 * @return
 	 */
 	public static Box createBox(Point p){
-		// This can be removed if we choose to create all at start instead.
+		// Create new state if we are out of premade ones.
 		if(totalBoxCount >= startStates*3) boxes[totalBoxCount] = new Box();
 
 		// Set x and y then return.
@@ -91,11 +95,15 @@ public class Factory {
 		return boxes[totalBoxCount-1];
 	}
 	
+
 	/**
-	 * Method that "creates" box.
+	 * Method that "creates" box from x and y coordinates.
+	 * @param x
+	 * @param y
+	 * @return
 	 */
 	public static Box createBox(int x, int y){
-		// This can be removed if we choose to create all at start instead.
+		// Create new box if we are out of premade ones.
 		if(totalBoxCount >= startStates*3) boxes[totalBoxCount] = new Box();
 
 		// Set x and y then return.
@@ -104,11 +112,15 @@ public class Factory {
 		return boxes[totalBoxCount-1];
 	}
 	
+	
 	/**
-	 * Method that "creates" cell.
+	 * Method that "creates" cell from x and y coordinates..
+	 * @param x
+	 * @param y
+	 * @return
 	 */
 	public static Cell createCell(int x, int y){
-		// This can be removed if we choose to create all at start instead.
+
 		boardCells[x][y] = new Cell();
 		
 		// Set x and y then return.
@@ -117,208 +129,177 @@ public class Factory {
 		return boardCells[x][y];
 	}
 	
-	/**
-	 * Method that returns cell at x, y position.
-	 */
-	public static Cell getCell(int x, int y){
-		return boardCells[x][y];
-	}
 	
 	/**
-	 * Method that returns cell at x, y position.
+	 * Method that returns a cell from at x and y value.
+	 * @param x
+	 * @param y
+	 * @return
 	 */
-	public static Cell getCell(Point p){
-		return boardCells[p.x][p.y];
-	}
+	public static Cell getCell(int x, int y){ return boardCells[x][y]; }
+	
+	
+	/**
+	 * Method that returns cell at a points x and y position.
+	 * @param p
+	 * @return
+	 */
+	public static Cell getCell(Point p){ return boardCells[p.x][p.y]; }
+	
+	
+	/**
+	 * Method that returns cell one position up from given x and y coordinates.
+	 * @param x
+	 * @param y
+	 * @return
+	 */
+	public static Cell getCellUp(int x, int y){	return boardCells[x][y - 1]; }
+	
 	
 	/**
 	 * Method that returns cell at x, y - 1 position.
+	 * @param point
+	 * @return
 	 */
-	public static Cell getCellUp(int x, int y){
-		return boardCells[x][y - 1];
-	}
+	public static Cell getCellUp(Point point){ return boardCells[point.x][point.y - 1]; }
 	
-	/**
-	 * Method that returns cell at x, y - 1 position.
-	 */
-	public static Cell getCellUp(Cell cell){
-		return boardCells[cell.x][cell.y - 1];
-	}
-	
-	/**
-	 * Method that returns cell at x, y - 1 position.
-	 */
-	public static Cell getCellUp(Point point){
-		return boardCells[point.x][point.y - 1];
-	}
 	
 	/**
 	 * Method that returns cell at x, y + 1 position.
+	 * @param x
+	 * @param y
+	 * @return
 	 */
-	public static Cell getCellDown(int x, int y){
-		return boardCells[x][y + 1];
-	}
+	public static Cell getCellDown(int x, int y){ return boardCells[x][y + 1]; }
+	
 	
 	/**
 	 * Method that returns cell at x, y + 1 position.
+	 * @param point
+	 * @return
 	 */
-	public static Cell getCellDown(Cell cell){
-		return boardCells[cell.x][cell.y + 1];
-	}
+	public static Cell getCellDown(Point point){ return boardCells[point.x][point.y + 1]; }
 	
-	/**
-	 * Method that returns cell at x, y + 1 position.
-	 */
-	public static Cell getCellDown(Point point){
-		return boardCells[point.x][point.y + 1];
-	}
 	
 	/**
 	 * Method that returns cell at x - 1, y position.
+	 * @param x
+	 * @param y
+	 * @return
 	 */
-	public static Cell getCellLeft(int x, int y){
-		return boardCells[x - 1][y];
-	}
+	public static Cell getCellLeft(int x, int y){ return boardCells[x - 1][y]; }
+
 	
 	/**
 	 * Method that returns cell at x - 1, y position.
+	 * @param point
+	 * @return
 	 */
-	public static Cell getCellLeft(Cell cell){
-		return boardCells[cell.x - 1][cell.y];
-	}
+	public static Cell getCellLeft(Point point){ return boardCells[point.x - 1][point.y]; }
 	
+
 	/**
-	 * Method that returns cell at x - 1, y position.
+	 * Method that returns cell at x + 1, y position.
+	 * @param x
+	 * @param y
+	 * @return
 	 */
-	public static Cell getCellLeft(Point point){
-		return boardCells[point.x - 1][point.y];
-	}
+	public static Cell getCellRight(int x, int y){ return boardCells[x + 1][y]; }
+	
 	
 	/**
 	 * Method that returns cell at x + 1, y position.
+	 * @param point
+	 * @return
 	 */
-	public static Cell getCellRight(int x, int y){
-		return boardCells[x + 1][y];
-	}
+	public static Cell getCellRight(Point point){ return boardCells[point.x + 1][point.y]; }
+
 	
 	/**
-	 * Method that returns cell at x + 1, y position.
+	 * Method that creates boxes in all places in boxes array.
 	 */
-	public static Cell getCellRight(Cell cell){
-		return boardCells[cell.x + 1][cell.y];
-	}
-	
-	/**
-	 * Method that returns cell at x + 1, y position.
-	 */
-	public static Cell getCellRight(Point point){
-		return boardCells[point.x + 1][point.y];
-	}
-	
-	/**
-	 * Method that "creates" goal.
-	 */
-	public static Goal createGoal(int x, int y){
-		// This can be removed if we choose to create all at start instead.
-		goals[totalGoalCount] = new Goal();
-		
-		// Set x and y then return.
-		goals[totalGoalCount].setLocation(x, y);
-		addGoalCount();
-		return goals[totalGoalCount-1];
-	}
-	
-	/** Method that creates goals in all places in goals array. */
-	public static void initializeGoals(){
-		for (int i = 0; i < goals.length; i++) {
-			goals[i] = new Goal();
-			}
-	}
-	
-	/** Method that creates boxes in all places in boxes array. */
 	public static void initializeBoxes(){
 		for (int i = 0; i < startStates*3; i++) {
 			boxes[i] = new Box();
 			}
 	}
 	
-	/** Method that creates states in all places in states array. */
+	
+	/**
+	 * Method that creates states in all places in states array.
+	 */
 	public static void initializeStates(){
 		for (int i = 0; i < startStates; i++) {
 			states[i] = new State();
 			}
 	}
 	
-	/** Method that creates players in all places in players array. */
+	
+	/** 
+	 * Method that creates players in all places in players array. 
+	 */
 	public static void initializePlayers(){
 		for (int i = 0; i < startStates; i++) {
 			players[i] = new Player();
 			}
 	}
 	
-	/** Method that adds one to the total cell count. */
-	public static void addCellCount(){
-		totalCellCount = totalCellCount + 1;
-	}
 	
-	/** Method that returns total cell count */
-	public static int getCellCount(){
-		return totalCellCount;
-	}
+	/**
+	 * Method that adds one to the total cell count.
+	 */
+	public static void addCellCount(){ totalCellCount = totalCellCount + 1; }
 	
-	/** Method that adds one to the total goal count. */
-	public static void addGoalCount(){
-		totalGoalCount = totalGoalCount + 1;
-	}
 	
-	/** Method that returns total goal count */
-	public static int getGoalCount(){
-		return totalGoalCount;
-	}
+	/**
+	 * Method that returns total cell count.
+	 * @return
+	 */
+	public static int getCellCount(){ return totalCellCount; }
 	
-	/** Method that adds one to the total box count. */
-	public static void addBoxCount(){
-		totalBoxCount = totalBoxCount + 1;
-	}
 	
-	/** Method that returns total box count */
-	public static int getBoxCount(){
-		return totalBoxCount;
-	}
+	/** 
+	 * Method that adds one to the total box count. 
+	 */
+	public static void addBoxCount(){ totalBoxCount = totalBoxCount + 1; }
 	
-	/** Method that adds one to the total state count. */
-	public static void addStateCount(){
-		totalStateCount = totalStateCount + 1;
-	}
 	
-	/** Method that adds one to the total state count. */
-	public static void addExpandedStateCount(){
-		totalExpandedStateCount = totalExpandedStateCount + 1;
-	}
+	/**
+	 * Method that returns total box count.
+	 * @return
+	 */
+	public static int getBoxCount(){ return totalBoxCount; }
 	
-	/** Method that returns total state count */
-	public static int getStateCount(){
-		return totalStateCount;
-	}
 	
-	/** Method that returns total state count */
-	public static int getExpandedStateCount(){
-		return totalExpandedStateCount;
-	}
+	/** 
+	 * Method that adds one to the total state count. 
+	 */
+	public static void addStateCount(){	totalStateCount = totalStateCount + 1; }
 	
-	/** Method that returns total bananas. */
-	public static int getCreatedStates(){
-		return estimatedMaxNumberOfStates;
-	}
 	
-	/** Method that adds one to the total player count. */
-	public static void addPlayerCount(){
-		totalPlayerCount = totalPlayerCount + 1;
-	}
+	/**
+	 * Method that returns total state count.
+	 * @return
+	 */
+	public static int getStateCount(){ return totalStateCount; }
 	
-	/** Method that returns total player count */
-	public static int getPlayerCount(){
-		return totalPlayerCount;
-	}
-
+	
+	/**
+	 * Method that returns total bananas.
+	 * @return
+	 */
+	public static int getCreatedStates(){ return estimatedMaxNumberOfStates; }
+	
+	
+	/** 
+	 * Method that adds one to the total player count.
+	 */
+	public static void addPlayerCount(){ totalPlayerCount = totalPlayerCount + 1; }
+	
+	
+	/**
+	 * Method that returns total player count.
+	 * @return
+	 */
+	public static int getPlayerCount(){	return totalPlayerCount; }
 }
