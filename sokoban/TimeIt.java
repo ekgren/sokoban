@@ -4,7 +4,6 @@ package sokoban;
  * 
  * Class to measure and store execution times.
  * 
- * @author Ariel
  *
  */
 
@@ -42,6 +41,9 @@ public class TimeIt {
 	public static long stateHashCodeTotal;
 	public static long stateHashCode;
 	
+	/**
+	 * Method that prints times.
+	 */
 	public static void print(){
         System.err.println("\n--- TIMES ---");
         System.err.println("Create children  : " + createAllChildrenTotal + " ms");

@@ -13,7 +13,6 @@ import java.util.Queue;
  * Class to store game states.
  * 
  */
-
 public class State implements Cloneable{
 	
 	// MAGIC.
@@ -47,20 +46,26 @@ public class State implements Cloneable{
 		157, 163, 167, 173, 179, 181, 191, 193, 197, 199, 211, 223, 227, 229};
 
     
-	/** Empty constructor. */
+	/**
+	 * Empty constructor.
+	 */
    	public State() {
    	}
    	
    	
-   	/** Constructor that takes parent state. */
+   	/**
+   	 * Constructor that takes parent state.
+   	 * @param parentState
+   	 */
    	public State(State parentState){
    		this.parentState = parentState;
    	}
    	
    	
-   	/** 
+   	/**
    	 * USE ONLY FOR INITIAL STATE. 
-   	 * */
+   	 * @param board
+   	 */
    	public void initialState(Board board){
    		this.player = Factory.createPlayer(board.getPlayer());
    		for(Point p : board.getBoxes()){
@@ -71,7 +76,6 @@ public class State implements Cloneable{
    	
    	/**
    	 * Create child states from valid moves.
-   	 * 
    	 * @return
    	 */
    	public Queue<State> createAllChildren(){
@@ -97,7 +101,13 @@ public class State implements Cloneable{
    	}
    	
    	
-   	/** Create a new state. */
+   	/**
+   	 * Create a new state.
+   	 * @param currentPosition
+   	 * @param newPosition
+   	 * @param previousMove
+   	 * @return
+   	 */
    	public State createNewState(Point currentPosition, Point newPosition, int previousMove){
    		
    		if(Sokoban.debugTime) TimeIt.createNewState = System.currentTimeMillis();
@@ -138,7 +148,6 @@ public class State implements Cloneable{
    	
    	/**
    	 * Check if box can be moved up.
-   	 * 
    	 * @param box
    	 * @return
    	 */
@@ -186,7 +195,6 @@ public class State implements Cloneable{
    	
    	/**
    	 * Check if box can be moved down.
-   	 * 
    	 * @param box
    	 * @return
    	 */
@@ -231,7 +239,6 @@ public class State implements Cloneable{
    		
    	/**
    	 * Check if box can be moved left.
-   	 * 
    	 * @param box
    	 * @return
    	 */
@@ -279,7 +286,6 @@ public class State implements Cloneable{
    	
    	/**
    	 * Check if box can be moved right.
-   	 * 
    	 * @param box
    	 * @return
    	 */
@@ -441,73 +447,77 @@ public class State implements Cloneable{
    	}
    	
    	
-   	/** Returns value of heuristic. */
-   	public double getH(){
-   		return h;
-   	}
+   	/**
+   	 * Returns value of heuristic.
+   	 * @return
+   	 */
+   	public double getH(){ return h;	}
    	
    	
-   	/** Method to set previous move. 
-   	 * Where 0 = up, 1 = down, 2 = left and 3 = right. */
-   	public void setPreviousMove(int previousMove){
-   		this.previousMove = previousMove;
-   	}
+   	/**
+   	 * Method to set previous move. 
+   	 * Where 0 = up, 1 = down, 2 = left and 3 = right.
+   	 * @param previousMove
+   	 */
+   	public void setPreviousMove(int previousMove){ this.previousMove = previousMove; }
    	
    	
-   	/** Method to get previous move. 
-   	 * Where 0 = up, 1 = down, 2 = left and 3 = right. */
-   	public int getPreviousMove(){
-   		return previousMove;
-   	}
+   	/**
+   	 * Method to get previous move. 
+   	 * Where 0 = up, 1 = down, 2 = left and 3 = right.
+   	 * @return
+   	 */
+   	public int getPreviousMove(){ return previousMove; }
    	
    	
-   	/** Return boxes. */
-   	public HashSet<Point> getBoxes(){
-   		return boxes;
-   	}
+   	/**
+   	 * Return boxes.
+   	 * @return
+   	 */
+   	public HashSet<Point> getBoxes(){ return boxes;	}
    	
    	
-   	/** Returns true if box at point p. */
-   	public boolean gotBoxAt(Point p){
-   		return boxes.contains(p);
-   	}
+   	/**
+   	 * Returns true if box at point p.
+   	 * @param p
+   	 * @return
+   	 */
+   	public boolean gotBoxAt(Point p){ return boxes.contains(p);	}
    	
    	
    	/**
    	 * Set parent state.
-   	 * 
    	 * @param parentState
    	 */
-   	public void setParent(State parentState){
-   		this.parentState = parentState;
-   	}
+   	public void setParent(State parentState){ this.parentState = parentState; }
    	
    	
    	/**
    	 * Returns parent state.
-   	 * 
    	 * @return
    	 */
-   	public State getParent(){
-   		return parentState;
-   	}
+   	public State getParent(){ return parentState; }
    	
    
-   	/** Adds box at point p. */
-   	public void addBoxAt(Point p){
-   		boxes.add(Factory.createBox(p));
-   	}
+   	/**
+   	 * Adds box at point p.
+   	 * @param p
+   	 */
+   	public void addBoxAt(Point p){ boxes.add(Factory.createBox(p));	}
    	
    
-   	/** Adds player at point p. */
-   	public void addPlayerAt(int x, int y){
-   		player = Factory.createPlayer(x, y);
-   	}
+   	/**
+   	 * Adds player at point p.
+   	 * @param x
+   	 * @param y
+   	 */
+   	public void addPlayerAt(int x, int y){ player = Factory.createPlayer(x, y); }
    	
   
-   	/** Get player. */
-   	public Player getPlayer(){
-   		return player;
-   	}
+   	/**
+   	 * Get player.
+   	 * @return
+   	 */
+   	public Player getPlayer(){ return player; }
 
 }
