@@ -7,8 +7,6 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
 
-import com.sun.xml.internal.ws.util.StringUtils;
-
 /**
  * NEO-SOKOBAN STATE CLASS.
  * 
@@ -400,7 +398,6 @@ public class State implements Cloneable{
 		// Cast object as State object.
 		State otherState = (State) obj;
 	    
-		
 	    // If the states have boxes at different positions return false.
 	    for(Point box : otherState.boxes){
 	    	if(boxes.contains(box) == false){
