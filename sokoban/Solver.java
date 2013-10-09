@@ -7,10 +7,10 @@ import java.util.Queue;
 
 /**
  * NEO-SOKOBAN SOLVER CLASS.
+ * 
+ * 
  */
-
 public class Solver {
-	
 	
 	/**
 	 * Comparator class.
@@ -48,7 +48,7 @@ public class Solver {
 	
 	
 	/**
-	 * 
+	 * Solver constructor.
 	 * @param board
 	 */
 	public Solver(Board board){
@@ -58,11 +58,12 @@ public class Solver {
 		initState = Factory.createState();
 		initState.initialState(board);
 		
-		// Create solved state.
+		// Create solved state with all boxes on goals.
 		solvedState = Factory.createState();
 		for(Cell goal : board.getGoals()) solvedState.addBoxAt(goal);
 		solvedState.isSolved = true;
 		
+		// Start timer.
 		if(Sokoban.debugTime) startTime = System.currentTimeMillis(); 
 		
 		// Create first children.
@@ -74,42 +75,54 @@ public class Solver {
         	processState = open.remove();
         	closed.add(processState);
         	
+        	// Get children.
         	children = processState.createAllChildren();
         	
+        	// For each child.
         	while(children.isEmpty() == false){
+        		
+        		// Get child.
         		processState = children.remove();
+        		
+        		// Check if visited state.
         		if(closed.contains(processState) == false){
         			
-        			if(Sokoban.debugTime) TimeIt.deadlock1 = System.currentTimeMillis();
+        			// Check that no two boxes are next to each other against a wall.
+        			/* Clocking start. */ if(Sokoban.debugTime) TimeIt.deadlock1 = System.currentTimeMillis();
         			boolean deadlock1 = Deadlocks.checkWallDeadlock(processState);
-        			if(Sokoban.debugTime) TimeIt.deadlock1Total = TimeIt.deadlock1Total + System.currentTimeMillis() - TimeIt.deadlock1;
+        			/* Clocking end. */ if(Sokoban.debugTime) TimeIt.deadlock1Total = TimeIt.deadlock1Total + System.currentTimeMillis() - TimeIt.deadlock1;
         			
+        			// If not deadlock proceed.
         			if(deadlock1 == false){
         				
-        				if(Sokoban.debugTime) TimeIt.deadlock2 = System.currentTimeMillis();
+        				// Check that four boxes are not pushed together.
+        				/* Clocking start. */ if(Sokoban.debugTime) TimeIt.deadlock2 = System.currentTimeMillis();
         	   			boolean deadlock2 = Deadlocks.checkFourBoxesDeadlock(processState);
-        	   			if(Sokoban.debugTime) TimeIt.deadlock2Total = TimeIt.deadlock2Total + System.currentTimeMillis() - TimeIt.deadlock2;
+        	   			/* Clocking end. */ if(Sokoban.debugTime) TimeIt.deadlock2Total = TimeIt.deadlock2Total + System.currentTimeMillis() - TimeIt.deadlock2;
         	   			
+        	   			// If not deadlock proceed.
         	   			if(deadlock2 == false){
         	   				
-        	   				if(Sokoban.debugTime) TimeIt.deadlock3 = System.currentTimeMillis();
+        	   				// Check that three boxes not stuck at corner.
+        	   				/* Clocking start. */ if(Sokoban.debugTime) TimeIt.deadlock3 = System.currentTimeMillis();
             	   			boolean deadlock3 = Deadlocks.checkWallDeadlock(processState);
-            	   			if(Sokoban.debugTime) TimeIt.deadlock3Total = TimeIt.deadlock3Total + System.currentTimeMillis() - TimeIt.deadlock3;
+            	   			/* Clocking end. */ if(Sokoban.debugTime) TimeIt.deadlock3Total = TimeIt.deadlock3Total + System.currentTimeMillis() - TimeIt.deadlock3;
                 			
+            	   			// If not deadlock proceed.
             	   			if(deadlock3 == false){
-                				// Be careful might not want to add it 
-                    			// to open and closed at the same time.
+
+            	   				// Add child to open and closed.
                     			open.add(processState); 
                     			closed.add(processState);		
                 			}
         	   			}
         			}
         		}
-        	}
+        	} // End for each child.
 		}
 		
 		
-		// End time
+		// Print statement with times.
         if (Sokoban.debugTime) {
         	long endTime = System.currentTimeMillis() - startTime;
 	        double seconds = (double) endTime / 1000;
@@ -117,7 +130,7 @@ public class Solver {
 	        System.err.println("Expanded nodes for: " + endTime + " ms");
 	        System.err.println("Number of Expanded nodes/second: " + Factory.getStateCount() / seconds);
 	        System.err.println("Number of Created nodes/second: " + Factory.getCreatedStates() / seconds);
-    }
+        }
 		
 		// Set the last state as solvedState.
 		solvedState = open.remove();
@@ -126,7 +139,6 @@ public class Solver {
 	
 	/**
 	 * Method for retrieving the final solution.
-	 * 
 	 * @return
 	 */
 	public static String getSolution(){
@@ -162,7 +174,7 @@ public class Solver {
 	
 	
 	/**
-	 * 
+	 * Method that converts the integer representation of previous step to string.
 	 * @param previousMove
 	 * @return
 	 */

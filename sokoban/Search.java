@@ -9,10 +9,11 @@ import java.util.PriorityQueue;
  * NEO-SOKOBAN SEARCH CLASS.
  *
  */
-
 public class Search {
 	
-	/** A compare class to compare points. */
+	/**
+	 * A compare class to compare points.
+	 */
 	static class PointCompare implements Comparator<Point> {
 	    
 		// The goal of the comparison.
@@ -46,8 +47,16 @@ public class Search {
 	private static PriorityQueue<Point> open = new PriorityQueue<Point>(100, pointComparator);
 	private static HashSet<Point> closed = new HashSet<Point>();
 	
-	/** Method that takes two points, a board state and a boolean and checks if 
-	 * it is possible to walk between the two points. */
+	
+	/**
+	 * Method that takes two points, a board state and a boolean and checks if 
+	 * it is possible to walk between the two points. 
+	 * @param state
+	 * @param startPoint
+	 * @param goalPoint
+	 * @param returnPath
+	 * @return
+	 */
 	public static String Astar(State state, Point startPoint, Point goalPoint, boolean returnPath) {
 			
 			boolean searchState = true;
@@ -68,9 +77,7 @@ public class Search {
 			open.clear();
 			closed.clear();
 			
-			//neighborCells.clear();
-	        
-	        // Initialising search.
+	        // Initializing search.
 	        open.offer(startCell);
 	        try{
 		        while(open.peek().equals(goalPoint)==false){
@@ -83,7 +90,7 @@ public class Search {
 		        	
 		        	/*
 		        	 * See if neighbors can be created and if they can 
-		        	 * add neighborCell to open if it's not allready in there
+		        	 * add neighborCell to open if it's not already in there
 		        	 * or in closed.
 		        	 */
 		        	
@@ -148,6 +155,8 @@ public class Search {
 	        	searchState = false;
 	        }
 	        if(searchState==true){
+	        	
+	        	// If return path set to true: create and return string with path.
 	        	if(returnPath){
 	        		String walkingPath = "";
 	        		Cell child = (Cell) open.remove();
@@ -169,13 +178,11 @@ public class Search {
 	        			child = parent;
 	        		}
 	        		return walkingPath;
+	        		
+	        		// Else just return empty string.
 	        		} else return "";
 	        }
+	        // If no path found: return null.
 			else return null;
 		}
-	
-	/** Search that return string. */
-	public static String AstarString(State state, Point startPoint, Point goalPoint) {
-		return "";
-	}
 }

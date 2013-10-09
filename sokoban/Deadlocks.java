@@ -2,6 +2,10 @@ package sokoban;
 
 import java.awt.Point;
 
+/**
+ * NEO-SOKOBAN DEADLOCK CLASS. 
+ *
+ */
 public class Deadlocks {
 	/**
 	 * Checks for deadlocks like these.
@@ -76,28 +80,24 @@ public class Deadlocks {
 				Factory.getCellLeft(box).wallUp == false && state.getBoxes().contains(Factory.getCellLeft(box)) &&
 				state.getBoxes().contains(Factory.getCellUp(box)) 
 				&& state.getBoxes().contains(Factory.getCellLeft(Factory.getCellUp(box)))){
-					//if(Sokoban.debug) Sokoban.board.printState(state);
 					return true;
 			}
 			if(Factory.getCell(box).wallRight == false && Factory.getCell(box).wallUp == false &&
 				Factory.getCellRight(box).wallUp == false && state.getBoxes().contains(Factory.getCellRight(box)) &&
 				state.getBoxes().contains(Factory.getCellUp(box)) 
 				&& state.getBoxes().contains(Factory.getCellRight(Factory.getCellUp(box)))){
-					//if(Sokoban.debug) Sokoban.board.printState(state);
 					return true;
 			}
 			if(Factory.getCell(box).wallLeft == false && Factory.getCell(box).wallDown == false &&
 				Factory.getCellLeft(box).wallDown == false && state.getBoxes().contains(Factory.getCellLeft(box)) &&
 				state.getBoxes().contains(Factory.getCellDown(box)) 
 				&& state.getBoxes().contains(Factory.getCellLeft(Factory.getCellDown(box)))){
-					//if(Sokoban.debug) Sokoban.board.printState(state);
 					return true;
 			}
 			if(Factory.getCell(box).wallRight == false && Factory.getCell(box).wallDown == false &&
 				Factory.getCellRight(box).wallDown == false && state.getBoxes().contains(Factory.getCellRight(box)) &&
 				state.getBoxes().contains(Factory.getCellDown(box)) 
 				&& state.getBoxes().contains(Factory.getCellRight(Factory.getCellDown(box)))){
-					//if(Sokoban.debug) Sokoban.board.printState(state);
 					return true;
 			}
 		}

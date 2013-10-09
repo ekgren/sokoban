@@ -12,7 +12,6 @@ import java.util.Vector;
  * 
  * Class to store original board and goals.
  * 
- * 
  */
 public class Board {
 	

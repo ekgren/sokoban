@@ -6,6 +6,7 @@ import java.awt.Point;
  * NEO-SOKOBAN CELL CLASS.
  * 
  * The basic building block of our map representation.
+ * Extends the java Point class.
  */
 
 @SuppressWarnings("serial")
