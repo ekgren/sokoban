@@ -35,7 +35,6 @@ public class Solver {
 	private static State initState;
 	private static State solvedState;
 	private static State processState;
-	public static boolean BFS = true;
 	
 	// Time field.
     private long startTime;

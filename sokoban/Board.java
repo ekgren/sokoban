@@ -49,7 +49,7 @@ public class Board {
 	
 	
 	/**
-	 * Generate minimum distance map.
+	 * Generate minimum distance map AKA gradient field.
 	 */
 	public void minDistanceMap(){
 		// Create a state without boxes.
