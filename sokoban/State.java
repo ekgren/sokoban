@@ -1,9 +1,13 @@
 package sokoban;
 
 import java.awt.Point;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Queue;
+
+import com.sun.xml.internal.ws.util.StringUtils;
 
 /**
  * NEO-SOKOBAN STATE CLASS.
@@ -32,6 +36,17 @@ public class State implements Cloneable{
 	
 	// List containing children.
 	private static Queue<State> childStates = new LinkedList<State>();
+	
+	private static int xMax;
+	private static int yMax;
+	
+	private static ArrayList<char[]> map = new ArrayList<char[]>();
+		
+	
+	// 40 prime numbers for hashing.
+	private static int[] primes = {31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 
+		79, 83, 89, 97, 101, 103, 107, 109, 113, 127, 131, 137, 139, 149, 151, 
+		157, 163, 167, 173, 179, 181, 191, 193, 197, 199, 211, 223, 227, 229};
 
     
 	/** Empty constructor. */
@@ -63,7 +78,7 @@ public class State implements Cloneable{
    	 */
    	public Queue<State> createAllChildren(){
    		// Start time for this method.
-   		if(Sokoban.debugTime) TimeIt.createChildren = System.currentTimeMillis();
+   		if(Sokoban.debugTime) TimeIt.createAllChildren = System.currentTimeMillis();
    		
    		// Clear old child states.
    		childStates.clear();
@@ -77,7 +92,7 @@ public class State implements Cloneable{
    		}
    		
    		// End time for this method.
-   		if(Sokoban.debugTime) TimeIt.createChildrenTotal = TimeIt.createChildrenTotal + System.currentTimeMillis() - TimeIt.createChildren;
+   		if(Sokoban.debugTime) TimeIt.createAllChildrenTotal = TimeIt.createAllChildrenTotal + System.currentTimeMillis() - TimeIt.createAllChildren;
    		
    		// Return new child states.
    		return childStates;
@@ -86,6 +101,8 @@ public class State implements Cloneable{
    	
    	/** Create a new state. */
    	public State createNewState(Point currentPosition, Point newPosition, int previousMove){
+   		
+   		if(Sokoban.debugTime) TimeIt.createNewState = System.currentTimeMillis();
    		
    		// Create new state and put it in stateHolder until finished.
    		State stateHolder = Factory.createState();
@@ -114,6 +131,9 @@ public class State implements Cloneable{
    		stateHolder.calculateHashCode();
    		stateHolder.heuristic();
    		
+   		// End time for this method.
+   		if(Sokoban.debugTime) TimeIt.createNewStateTotal = TimeIt.createNewStateTotal + System.currentTimeMillis() - TimeIt.createNewState;
+   		
 		return stateHolder;
    	}
    	
@@ -124,7 +144,10 @@ public class State implements Cloneable{
    	 * @param box
    	 * @return
    	 */
-   	public boolean boxUp(Point box){   		
+   	public boolean boxUp(Point box){
+   		
+   		if(Sokoban.debugTime) TimeIt.boxMoveAllowed = System.currentTimeMillis();
+   		
    		// We examine if we can move the box UP on the map. 
    		// To move the box up both the cell above and below it need to be free.
    		if(Factory.getCellUp(box) != null &&
@@ -140,11 +163,26 @@ public class State implements Cloneable{
 	   			// can move to the cell to push the box.
 	   			if(Search.Astar(this, player, Factory.getCellDown(box), false) != null){
 	   				
+	   				// End time for this method.
+	   		   		if(Sokoban.debugTime) TimeIt.boxMoveAllowedTotal = TimeIt.boxMoveAllowedTotal + System.currentTimeMillis() - TimeIt.boxMoveAllowed;
+	   		   		
 	   				return true;
 	   				
-	   			} else return false;
-   			} else return false;
-   		} else return false;
+	   			} else {
+	   				// End time for this method.
+	   		   		if(Sokoban.debugTime) TimeIt.boxMoveAllowedTotal = TimeIt.boxMoveAllowedTotal + System.currentTimeMillis() - TimeIt.boxMoveAllowed;
+	   		   		return false;
+	   			}
+   			} else{
+   				// End time for this method.
+   		   		if(Sokoban.debugTime) TimeIt.boxMoveAllowedTotal = TimeIt.boxMoveAllowedTotal + System.currentTimeMillis() - TimeIt.boxMoveAllowed;
+   				return false;
+   			}
+   		} else {
+				// End time for this method.
+		   		if(Sokoban.debugTime) TimeIt.boxMoveAllowedTotal = TimeIt.boxMoveAllowedTotal + System.currentTimeMillis() - TimeIt.boxMoveAllowed;
+   			return false;
+   		}
    	}
    	
    	
@@ -155,6 +193,9 @@ public class State implements Cloneable{
    	 * @return
    	 */
    	public boolean boxDown(Point box){
+   		
+   		if(Sokoban.debugTime) TimeIt.boxMoveAllowed = System.currentTimeMillis();
+   		
    		// We examine if we can move the box DOWN on the map.
    		// To move the box down both the cell above and below it need to be free.
    		if(Factory.getCellDown(box) != null &&
@@ -169,12 +210,25 @@ public class State implements Cloneable{
    				// If we can move the box in this direction we also have to check if the player
 	   			// can move to the cell to push the box.
 	   			if(Search.Astar(this, player, Factory.getCellUp(box), false) != null){
-	   				
+	   				// End time for this method.
+	   		   		if(Sokoban.debugTime) TimeIt.boxMoveAllowedTotal = TimeIt.boxMoveAllowedTotal + System.currentTimeMillis() - TimeIt.boxMoveAllowed;
 	   				return true;
 	   				
-	   			} else return false;
-   			} else return false;
-   		} else return false;
+	   			} else{
+	   				// End time for this method.
+	   		   		if(Sokoban.debugTime) TimeIt.boxMoveAllowedTotal = TimeIt.boxMoveAllowedTotal + System.currentTimeMillis() - TimeIt.boxMoveAllowed;
+	   		   		return false;
+	   			}
+   			} else{
+   				// End time for this method.
+   		   		if(Sokoban.debugTime) TimeIt.boxMoveAllowedTotal = TimeIt.boxMoveAllowedTotal + System.currentTimeMillis() - TimeIt.boxMoveAllowed;
+   				return false;
+   			}
+   		} else{
+			// End time for this method.
+	   		if(Sokoban.debugTime) TimeIt.boxMoveAllowedTotal = TimeIt.boxMoveAllowedTotal + System.currentTimeMillis() - TimeIt.boxMoveAllowed;
+   			return false;
+   		}
    	}
    		
    	/**
@@ -184,6 +238,9 @@ public class State implements Cloneable{
    	 * @return
    	 */
    	public boolean boxLeft(Point box){
+   		
+   		if(Sokoban.debugTime) TimeIt.boxMoveAllowed = System.currentTimeMillis();
+   		
    		// We examine if we can move the box to the LEFT on the map.
    		// To move the box left both the cell to the left and to the right of it need to be free.
    		if(Factory.getCellLeft(box) != null &&
@@ -199,11 +256,26 @@ public class State implements Cloneable{
 	   			// can move to the cell to push the box.
 	   			if(Search.Astar(this, player, Factory.getCellRight(box), false) != null){
 	   				
+	   				// End time for this method.
+	   		   		if(Sokoban.debugTime) TimeIt.boxMoveAllowedTotal = TimeIt.boxMoveAllowedTotal + System.currentTimeMillis() - TimeIt.boxMoveAllowed;
+	   				
 	   				return true;
 	   				
-	   			} else return false;
-   			} else return false;
-   		} else return false;
+	   			} else {
+	   				// End time for this method.
+	   		   		if(Sokoban.debugTime) TimeIt.boxMoveAllowedTotal = TimeIt.boxMoveAllowedTotal + System.currentTimeMillis() - TimeIt.boxMoveAllowed;
+	   				return false;
+	   			}
+   			} else {
+   				// End time for this method.
+   		   		if(Sokoban.debugTime) TimeIt.boxMoveAllowedTotal = TimeIt.boxMoveAllowedTotal + System.currentTimeMillis() - TimeIt.boxMoveAllowed;
+   				return false;
+   			}
+   		} else {
+			// End time for this method.
+	   		if(Sokoban.debugTime) TimeIt.boxMoveAllowedTotal = TimeIt.boxMoveAllowedTotal + System.currentTimeMillis() - TimeIt.boxMoveAllowed;
+   			return false;
+   		}
    	}
    	
    	
@@ -214,6 +286,9 @@ public class State implements Cloneable{
    	 * @return
    	 */
    	public boolean boxRight(Point box){
+   		
+   		if(Sokoban.debugTime) TimeIt.boxMoveAllowed = System.currentTimeMillis();
+   		
    		// We examine if we can move the box to the RIGHT on the map.
    		// To move the box right both the cell to the left and to the right of it need to be free.
    		if(Factory.getCellRight(box) != null &&
@@ -229,11 +304,26 @@ public class State implements Cloneable{
 	   			// can move to the cell to push the box.
 	   			if(Search.Astar(this, player, Factory.getCellLeft(box), false) != null){
 	   				
+	   				// End time for this method.
+	   		   		if(Sokoban.debugTime) TimeIt.boxMoveAllowedTotal = TimeIt.boxMoveAllowedTotal + System.currentTimeMillis() - TimeIt.boxMoveAllowed;
+	   				
 	   				return true;
 	   				
-	   			} else return false;
-   			} else return false;
-   		} else return false;
+	   			} else {
+	   				// End time for this method.
+	   		   		if(Sokoban.debugTime) TimeIt.boxMoveAllowedTotal = TimeIt.boxMoveAllowedTotal + System.currentTimeMillis() - TimeIt.boxMoveAllowed;
+	   				return false;
+	   			}
+   			} else {
+   				// End time for this method.
+   		   		if(Sokoban.debugTime) TimeIt.boxMoveAllowedTotal = TimeIt.boxMoveAllowedTotal + System.currentTimeMillis() - TimeIt.boxMoveAllowed;
+   				return false;
+   			}
+   		} else {
+			// End time for this method.
+	   		if(Sokoban.debugTime) TimeIt.boxMoveAllowedTotal = TimeIt.boxMoveAllowedTotal + System.currentTimeMillis() - TimeIt.boxMoveAllowed;
+   			return false;
+   		}
    	}
    	
    	
@@ -243,8 +333,28 @@ public class State implements Cloneable{
    	public void calculateHashCode(){
    		if(Sokoban.debugTime) TimeIt.stateHashCode = System.currentTimeMillis();
    		
+   		xMax = 0;
+   		yMax = 0;
+   		
    		for(Point box : boxes){
-   			hashCode = hashCode + box.hashCode();
+   			if(box.x > xMax) xMax = box.x;
+   			if(box.y > yMax) yMax = box.y;
+   		}
+   		
+   		map.clear();
+   		
+   		for(int i = 0; i < yMax + 1; ++i){
+   			char[] array = new char[xMax + 1];
+   		    Arrays.fill(array, Character.forDigit(0, 10));
+   		    map.add(array);
+   		}
+   		
+   		for(Point box : boxes){
+   			map.get(box.y)[box.x] = Character.forDigit(1, 10);
+   		}
+   		
+   		for(int i = 0; i < map.size(); i++){
+   			hashCode = hashCode + primes[i]*Integer.parseInt(new String(map.get(i)), 2);
    		}
    		
    		if(Sokoban.debugTime) TimeIt.stateHashCodeTotal = TimeIt.stateHashCodeTotal + System.currentTimeMillis() - TimeIt.stateHashCode;
@@ -324,7 +434,7 @@ public class State implements Cloneable{
    	 * */
    	public void heuristic(){
    		if(Sokoban.debugTime) TimeIt.heuristic = System.currentTimeMillis();
-        
+   		
    		for (Point box : boxes) {
         		h  = h + Factory.getCell(box).getGradient();
         		if(Factory.getCell(box).isGoal) h = h - 2;

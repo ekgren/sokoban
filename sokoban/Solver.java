@@ -78,14 +78,32 @@ public class Solver {
         	
         	while(children.isEmpty() == false){
         		processState = children.remove();
-        		if(closed.contains(processState) == false &&
-    				Deadlocks.checkWallDeadlock(processState) == false &&
-    	   			Deadlocks.checkFourBoxesDeadlock(processState) == false &&
-    	   			Deadlocks.checkWallDeadlock(processState) == false){
-        			// Be careful might not want to add it 
-        			// to open and closed at the same time.
-        			open.add(processState); 
-        			closed.add(processState);
+        		if(closed.contains(processState) == false){
+        			
+        			if(Sokoban.debugTime) TimeIt.deadlock1 = System.currentTimeMillis();
+        			boolean deadlock1 = Deadlocks.checkWallDeadlock(processState);
+        			if(Sokoban.debugTime) TimeIt.deadlock1Total = TimeIt.deadlock1Total + System.currentTimeMillis() - TimeIt.deadlock1;
+        			
+        			if(deadlock1 == false){
+        				
+        				if(Sokoban.debugTime) TimeIt.deadlock2 = System.currentTimeMillis();
+        	   			boolean deadlock2 = Deadlocks.checkFourBoxesDeadlock(processState);
+        	   			if(Sokoban.debugTime) TimeIt.deadlock2Total = TimeIt.deadlock2Total + System.currentTimeMillis() - TimeIt.deadlock2;
+        	   			
+        	   			if(deadlock2 == false){
+        	   				
+        	   				if(Sokoban.debugTime) TimeIt.deadlock3 = System.currentTimeMillis();
+            	   			boolean deadlock3 = Deadlocks.checkWallDeadlock(processState);
+            	   			if(Sokoban.debugTime) TimeIt.deadlock3Total = TimeIt.deadlock3Total + System.currentTimeMillis() - TimeIt.deadlock3;
+                			
+            	   			if(deadlock3 == false){
+                				// Be careful might not want to add it 
+                    			// to open and closed at the same time.
+                    			open.add(processState); 
+                    			closed.add(processState);		
+                			}
+        	   			}
+        			}
         		}
         	}
 		}
