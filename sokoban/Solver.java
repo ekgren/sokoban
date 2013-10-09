@@ -30,7 +30,7 @@ public class Solver {
     
     //Static 
 	//Static fields for saving creations of Map,Queues, when calling isPathToBox.
-    private static Cell[][] matrixCells = new Cell[Board.getNbRows()][Board.getNbCols()];
+    //private static Cell[][] matrixCells = new Cell[Board.getNbRows()][Board.getNbCols()];
     private static Cell.NormComparator comparatorCell = new Cell.NormComparator();
 	private static HashSet<String> mapPrPathsCell = new HashSet<String>();
     private static PriorityQueue<Cell> queueCellChildren = new PriorityQueue<Cell>(10000,
@@ -44,11 +44,11 @@ public class Solver {
 
 	public Solver(){
 		
-		for(int row = 0 ; row < Board.getNbRows() ; row ++){
+		/*for(int row = 0 ; row < Board.getNbRows() ; row ++){
 			for(int col = 0 ; col < Board.getNbCols() ; col ++){
 				this.matrixCells[row][col] = new Cell(row,col);
 			}
-		}
+		}*/
 
 		
 		/*
@@ -321,13 +321,22 @@ public class Solver {
                                           int pRow, int pCol, int pRowPath, int pColPath) {
 
 		
-		if(pRow==pRowPath && pCol==pColPath){
+		/*if(pRow==pRowPath && pCol==pColPath){
 			System.out.println("well");
 			return matrixCells[pRow][pCol];
-		}
+		}*/
 		//Get start and end positions from matrix with cells (save garbagecollection)
-		Cell pStartCell = matrixCells[pRow][pCol];
-		Cell pEndCell = matrixCells[pRowPath][pColPath];
+		//Cell pStartCell = matrixCells[pRow][pCol];
+		//Cell pEndCell = matrixCells[pRowPath][pColPath];
+		
+		
+
+		if(!Board.isFree(pState, pRowPath, pColPath)){
+			return null;
+		}
+		
+		Cell pStartCell = Board.matrixCells[pRow][pCol];
+		Cell pEndCell = Board.matrixCells[pRowPath][pColPath];
 		//Set comparator to look for path we are searching for.
 		comparatorCell.setGoal(pRowPath, pColPath);
 		//Child queue for search
@@ -361,8 +370,7 @@ public class Solver {
 						}
 						else{
 							//If we have not found path we add children to queue and continue
-							queueCellChildren.add(
-									matrixCells[lCellChild.getRow()+incInt][lCellChild.getCol()]);
+							queueCellChildren.add(Board.matrixCells[lCellChild.getRow()+incInt][lCellChild.getCol()]);
 						}	
 					}
 				}
@@ -385,7 +393,7 @@ public class Solver {
 							return STATIC_CELL;
 						}
 						else{
-							queueCellChildren.add(matrixCells[lCellChild.getRow()+incInt][lCellChild.getCol()]);
+							queueCellChildren.add(Board.matrixCells[lCellChild.getRow()][lCellChild.getCol()+incInt]);
 						}	
 					}
 				}
