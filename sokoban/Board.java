@@ -248,6 +248,7 @@ public class Board {
 		// Loop over all cells in board.
 		for(Cell cell : mapCells){
 			
+			// Check if cells got adjacent walls.
 			if(Factory.getCellUp(cell) == null) cell.wallUp = true;
 			if(Factory.getCellDown(cell) == null) cell.wallDown = true;
 			if(Factory.getCellLeft(cell) == null) cell.wallLeft = true;

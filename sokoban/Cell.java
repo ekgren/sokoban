@@ -36,48 +36,54 @@ public class Cell extends Point{
 	// Parent cell. Will be changed when cell is used for search.
 	private Cell parent;
 	
-	// Heuristic value for BFGS, maybe we wont use this.
-	private int heuristicValue;
 	private int cost;
 	private double gradient = 0;
 		
-	/** Get the parent cell of this cell. */
-	public Cell getParent(){
-		return this.parent;
-	}
+
+	/**
+	 * Get the parent cell of this cell.
+	 * @return
+	 */
+	public Cell getParent(){ return this.parent; }
 	
-	/** Set the parent cell of this cell. */
-	public void setParent(Cell parent){
-		this.parent = parent;
-	}
 	
-	/** Manhattan distance heuristic for search. */
-	public void heuristic(int goalX, int goalY){
-		this.heuristicValue = (int)(Math.abs(this.getX() - goalX) + Math.abs(this.getY() - goalY));
-	}
+	/**
+	 * Set the parent cell of this cell.
+	 * @param parent
+	 */
+	public void setParent(Cell parent){	this.parent = parent; }
 	
-	/** Set cost. */
-	public void setCost(int cost){
-		this.cost = cost;
-	}
 	
-	/** Get cost. */
-	public int getCost(){
-		return cost;
-	}
+	/**
+	 * Set cost.
+	 * @param cost
+	 */
+	public void setCost(int cost){ this.cost = cost; }
 	
-	/** Reset cost. */
-	public void resetCost(){
-		cost = 0;
-	}
+
+	/**
+	 * Get cost. 
+	 * @return
+	 */
+	public int getCost(){ return cost; }
 	
-	/** Get gradient. */
-	public double getGradient(){
-		return gradient;
-	}
+
+	/**
+	 * Reset cost.
+	 */
+	public void resetCost(){ cost = 0; }
 	
-	/** Set gradient. */
-	public void setGradient(double gradient){
-		this.gradient = gradient;
-	}
+	
+	/**
+	 * Get gradient.
+	 * @return
+	 */
+	public double getGradient(){ return gradient; }
+	
+	
+	/**
+	 * Set gradient.
+	 * @param gradient
+	 */
+	public void setGradient(double gradient){ this.gradient = gradient; }
 }
