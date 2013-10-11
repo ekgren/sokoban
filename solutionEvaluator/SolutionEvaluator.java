@@ -15,7 +15,7 @@ public class SolutionEvaluator {
 	private Vector<StringBuilder> board = new Vector<StringBuilder>();
 
     // Insert Level number (0 = TestTrack)
-    private int levelNo = 21;
+    private int levelNo = 6030;
     private MapReader map;
 
 	public SolutionEvaluator() throws IOException{
@@ -25,10 +25,8 @@ public class SolutionEvaluator {
 		// Initializing sokoban solver object with map from mapReader.
         map = new MapReader(levelNo + 1);
         
-        long startTime = System.currentTimeMillis();
         // Try to solve
 		path = new Sokoban(new StringReader(map.getMap()), true, true);
-		System.out.println("\nTime to execute: " + Double.toString((System.currentTimeMillis() - startTime)/1000.0) + " seconds.\n");
         // Animate solution
 		//animateSolution();
 	}
