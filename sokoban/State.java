@@ -619,21 +619,6 @@ public class State implements Cloneable {
         return newBoxIndex;
     }
 
-    public void boxJudge(Vector<State> pStates) {
-
-        for (int boxIndex = 0; boxIndex < boxes.size() ; boxIndex++) {
-            // If gradient value is grater than some value then use gradientDec
-            if (boxes.get(boxIndex).isOnGoal()){
-                selectiveSuccessors(pStates, boxIndex);
-            }else if (getGradValue(boxes.get(boxIndex), 'C') < 3) {
-                gradientDecentSuccessor(pStates, boxIndex);
-            } else {
-                selectiveSuccessors(pStates, boxIndex);
-            }
-        }
-    }
-
-
 
     public boolean isFinalState() {
         return nbOfBoxesOnGoal == Board.getNbOfGoals();
