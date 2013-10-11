@@ -94,7 +94,7 @@ public class Sokoban {
 	}
 	
 	public static void main(String[] args) throws IOException {
-	    Sokoban soko = new Sokoban(new InputStreamReader(System.in), false, true);
+	    Sokoban soko = new Sokoban(new InputStreamReader(System.in), false, false);
         // Prints the solution to Kattis
         System.out.println(soko.solution.toUpperCase());
     } // main

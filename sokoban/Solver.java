@@ -114,7 +114,7 @@ public class Solver {
         Vector<State> childrenOfCurState = new Vector<State>();
 
         // Expand nodes until the queue is empty or until max iterations
-        while (lExpandedNodes<10000 && !simpleQueue.isEmpty()) {
+        while (lExpandedNodes < 50000 && !simpleQueue.isEmpty()) {
 
             // Get state first in line
             lCurState = simpleQueue.poll();

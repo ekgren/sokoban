@@ -583,7 +583,6 @@ public class State implements Cloneable {
                 }
             } else {
                 // If it didn't work, call selective...
-                System.out.println("IT DINT WORK");
                 //selectiveSuccessors(pStates, pBoxIndex);
                 // allSuccessors(pStates);
             }
