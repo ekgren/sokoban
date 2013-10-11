@@ -70,6 +70,8 @@ public class Solver {
 		
 		// Start exploration.
 		while(open.peek().equals(solvedState) == false){
+			Factory.expandedNodes++;
+			
 			// Get first element from open.
         	processState = open.remove();
         	closed.add(processState);
@@ -111,6 +113,7 @@ public class Solver {
             	   			if(deadlock3 == false){
 
             	   				// Add child to open and closed.
+            	   				Factory.createdNodes++;
                     			open.add(processState); 
                     			closed.add(processState);		
                 			}
@@ -127,8 +130,8 @@ public class Solver {
 	        double seconds = (double) endTime / 1000;
 	        System.err.println("\n--- Greedy BFS ---");
 	        System.err.println("Expanded nodes for: " + endTime + " ms");
-	        System.err.println("Number of Expanded nodes/second: " + Factory.getStateCount() / seconds);
-	        System.err.println("Number of Created nodes/second: " + Factory.getCreatedStates() / seconds);
+	        System.err.println("Number of Expanded nodes/second: " + Factory.expandedNodes / seconds);
+	        System.err.println("Number of Created nodes/second: " + Factory.getStateCount() / seconds);
         }
 		
 		// Set the last state as solvedState.
