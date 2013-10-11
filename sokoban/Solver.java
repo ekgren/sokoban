@@ -29,8 +29,8 @@ public class Solver {
 	 */
     
     //Static 
-	//Static fields for saving creations of Cells,Queues.. when calling isPathToBox.
-	public static Cell [][] matrixCells;
+	//Static fields for saving creations of Map,Queues, when calling isPathToBox.
+    //private static Cell[][] matrixCells = new Cell[Board.getNbRows()][Board.getNbCols()];
     private static Cell.NormComparator comparatorCell = new Cell.NormComparator();
 	private static HashSet<String> mapPrPathsCell = new HashSet<String>();
     private static PriorityQueue<Cell> queueCellChildren = new PriorityQueue<Cell>(10000,
@@ -43,14 +43,13 @@ public class Solver {
     PriorityQueue<State> newQueue = new PriorityQueue<State>(10000, comparator);
 
 	public Solver(){
-		//Instancing matrix with cells for saving garbageCollecting time, maybe it is better
-		//to instance this matrix when we are making board, (for only non wall positions).
-		matrixCells = new Cell[Board.getNbRows()][Board.getNbCols()];		
-		for(int rowIndex = 0 ; rowIndex < Board.getNbRows() ; rowIndex++){
-			for(int colIndex = 0 ; colIndex < Board.getNbCols() ; colIndex++){
-				matrixCells[rowIndex][colIndex] = new Cell(rowIndex,colIndex);
+		
+		/*for(int row = 0 ; row < Board.getNbRows() ; row ++){
+			for(int col = 0 ; col < Board.getNbCols() ; col ++){
+				this.matrixCells[row][col] = new Cell(row,col);
 			}
-		}
+		}*/
+
 		
 		/*
 		 *TODO
@@ -319,10 +318,23 @@ public class Solver {
 	public static Cell cellNeighborToPath(State pState,
                                           int pRow, int pCol, int pRowPath, int pColPath) {
 
+		
+		/*if(pRow==pRowPath && pCol==pColPath){
+			System.out.println("well");
+			return matrixCells[pRow][pCol];
+		}*/
 		//Get start and end positions from matrix with cells (save garbagecollection)
-		Cell pStartCell = matrixCells[pRow][pCol];
-		Cell pEndCell = matrixCells[pRowPath][pColPath];
+		//Cell pStartCell = matrixCells[pRow][pCol];
+		//Cell pEndCell = matrixCells[pRowPath][pColPath];
+		
+		
 
+		if(!Board.isFree(pState, pRowPath, pColPath)){
+			return null;
+		}
+		
+		Cell pStartCell = Board.matrixCells[pRow][pCol];
+		Cell pEndCell = Board.matrixCells[pRowPath][pColPath];
 		//Set comparator to look for path we are searching for.
 		comparatorCell.setGoal(pRowPath, pColPath);
 		//Child queue for search
@@ -347,7 +359,7 @@ public class Solver {
 					if(Board.isFree(pState,lCellChild.getRow() + incInt, lCellChild.getCol())){
 						
 						if(lCellChild.getRow() + incInt == pEndCell.getRow() &&
-								lCellChild.getCol() == pEndCell.getCol()){
+		lCellChild.getCol() == pEndCell.getCol()){
 							STATIC_CELL.setRow(pEndCell.getRow());
 							STATIC_CELL.setCol(pEndCell.getCol());
 							mapPrPathsCell.clear();
@@ -356,7 +368,7 @@ public class Solver {
 						}
 						else{
 							//If we have not found path we add children to queue and continue
-							queueCellChildren.add(matrixCells[lCellChild.getRow() + incInt][lCellChild.getCol()]);
+							queueCellChildren.add(Board.matrixCells[lCellChild.getRow()+incInt][lCellChild.getCol()]);
 						}	
 					}
 				}
@@ -379,7 +391,7 @@ public class Solver {
 							return STATIC_CELL;
 						}
 						else{
-							queueCellChildren.add(new Cell(lCellChild.getRow(),lCellChild.getCol() + incInt));
+							queueCellChildren.add(Board.matrixCells[lCellChild.getRow()][lCellChild.getCol()+incInt]);
 						}	
 					}
 				}
@@ -406,8 +418,12 @@ public class Solver {
 	 */
 	public static boolean isPathToPath(State pState,int pRow,int pCol,int pRowPath,
 			int pColPath){
-		if(pRow==pRowPath && pCol==pColPath)
+		
+		//System.out.println(pRow);
+		//System.out.println(pCol);
+		if(pRow==pRowPath && pCol==pColPath){
 			return true;
+		}
 		
 		Cell lCell = cellNeighborToPath(pState, pRow, pCol, pRowPath, pColPath);
 		return (lCell != null);
@@ -450,14 +466,13 @@ public class Solver {
 		String goalString = "";
 		
 		//Two steps from initial-state we can always add getCharsLastMove and
-		//use while (when we are one step from initialstate we have to to different)
+		//use while (when we are one step from initial state we have to to different)
 		while(pEndState.getParent().getParent()!=null){
 			//Add charLastMove (L,R,U or D)
 			goalString = pEndState.getCharLastMove() + goalString;
 
 			//If we for example, have added string U. We have player position-row is U-1			
 			Cell currentPos = cellLinkedToState(pEndState);
-			//Cell nextPos = cellLinkedToState(pEndState.getParent());
 			//Next position is at parent-state player position.
 			//We link these positions with cells.
 			Cell nextPos = cellLinkedToPath(pEndState.getParent(), currentPos.getRow(),
@@ -478,7 +493,7 @@ public class Solver {
 		//If we are two steps from parent == null, we have that state.parent is 
 		//initial state where player position is equal to start position.
 		goalString = pEndState.getCharLastMove() + goalString;
-		//CurrentPos is needed player position to perform this state.
+		//CurrentPos is player position necessary to perform this state.
 		Cell currentPos = cellLinkedToState(pEndState);
 		if(currentPos.getRow()==pEndState.getParent().getPlayerRow() &&
 				currentPos.getCol()==pEndState.getParent().getPlayerCol()){
