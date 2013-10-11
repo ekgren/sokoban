@@ -350,7 +350,7 @@ public class Board {
     /**
      * Summed goalGrad
      */
-    private void setGoalGradMerged() {
+    public static void setGoalGradMerged(State pState) {
         // set high values
         for (int row = 0; row < nbRows; row++) {
             // for each col

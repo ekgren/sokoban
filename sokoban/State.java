@@ -291,6 +291,20 @@ public class State implements Cloneable {
     public Vector<Box> getBoxes() {
         return boxes;
     }
+    
+    public Box getBox(int pIndex) {
+        return boxes.elementAt(pIndex);
+    }
+    
+    public Box getBox(int pRow, int pCol) {
+    	for(int i = 0; i < boxes.size(); i++){
+    		if(boxes.get(i).getRow() == pRow && boxes.get(i).getCol() == pCol){
+    			return boxes.get(i);
+    		}
+    	}
+    	if(Sokoban.debugMode) System.err.println("Error in State/getBox(): NO box at this position");
+    	return null;
+    }
 
 	/**
 	 * Does all necessary checks to see if a box is movable to the position.
@@ -540,55 +554,53 @@ public class State implements Cloneable {
     /**
      * Not working....
      */
-    public void gradientDecentSuccessor(Vector<State> pStates, int pBoxIndex) {
+	public int gradientDecentSuccessor(Vector<State> pStates, int pBoxIndex) {
 
-            // Set initial null char
-            char moveDir = '\0';
-            // Get gradient value at current position
-            int gradValue = getGradValue(boxes.get(pBoxIndex), 'C');
+		// Set initial null char
+		char moveDir = '\0';
+		// Get gradient value at current position
+		int gradValue = getGradValue(boxes.get(pBoxIndex), 'C');
 
-            /* If a move is possible, then add the new state in the pStates vector */
-            if (tryMove(boxes.get(pBoxIndex), 'U')) {
-                if (gradValue > getGradValue(boxes.get(pBoxIndex), 'U')) {
-                    moveDir = 'U';
-                    gradValue = getGradValue(boxes.get(pBoxIndex), 'U');
-                }
-            }
+		/* If a move is possible, then add the new state in the pStates vector */
+		if (tryMove(boxes.get(pBoxIndex), 'U')) {
+			if (gradValue > getGradValue(boxes.get(pBoxIndex), 'U')) {
+				moveDir = 'U';
+				gradValue = getGradValue(boxes.get(pBoxIndex), 'U');
+			}
+		}
 
-            if (tryMove(boxes.get(pBoxIndex), 'D')) {
-                if (gradValue > getGradValue(boxes.get(pBoxIndex), 'D')) {
-                    moveDir = 'D';
-                    gradValue = getGradValue(boxes.get(pBoxIndex), 'D');
-                }
-            }
+		if (tryMove(boxes.get(pBoxIndex), 'D')) {
+			if (gradValue > getGradValue(boxes.get(pBoxIndex), 'D')) {
+				moveDir = 'D';
+				gradValue = getGradValue(boxes.get(pBoxIndex), 'D');
+			}
+		}
 
-            if (tryMove(boxes.get(pBoxIndex), 'R')) {
-                if (gradValue > getGradValue(boxes.get(pBoxIndex), 'R')) {
-                    moveDir = 'R';
-                    gradValue = getGradValue(boxes.get(pBoxIndex), 'R');
-                }
-            }
+		if (tryMove(boxes.get(pBoxIndex), 'R')) {
+			if (gradValue > getGradValue(boxes.get(pBoxIndex), 'R')) {
+				moveDir = 'R';
+				gradValue = getGradValue(boxes.get(pBoxIndex), 'R');
+			}
+		}
 
-            if (tryMove(boxes.get(pBoxIndex), 'L')) {
-                if (gradValue > getGradValue(boxes.get(pBoxIndex), 'L'))
-                    moveDir = 'L';
-            }
+		if (tryMove(boxes.get(pBoxIndex), 'L')) {
+			if (gradValue > getGradValue(boxes.get(pBoxIndex), 'L'))
+				moveDir = 'L';
+		}
 
-            if (moveDir != '\0') {
-                if (!reusableStates.isEmpty()) {
-                    pStates.add(reusableStates.pop());
-                    pStates.lastElement().changeBoxConfig(this, pBoxIndex, moveDir);
-                } else {
-                    pStates.add(new State(this, pBoxIndex, moveDir));
-                }
-            } else {
-                // If it didn't work, call selective...
-                System.out.println("IT DINT WORK");
-                //selectiveSuccessors(pStates, pBoxIndex);
-                // allSuccessors(pStates);
-            }
+		if (moveDir != '\0') {
+			if (!reusableStates.isEmpty()) {
+				pStates.add(reusableStates.pop());
+				pStates.lastElement().changeBoxConfig(this, pBoxIndex, moveDir);
+			} else {
+				pStates.add(new State(this, pBoxIndex, moveDir));
+			}
+		} else {
+			pStates.add(this);
+		}
+		return gradValue;
 
-    } // End allSuccessors
+	} // End allSuccessors
 
     public void boxJudge(Vector<State> pStates) {
 

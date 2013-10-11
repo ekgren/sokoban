@@ -185,6 +185,59 @@ public class Solver {
 	} // End greedyBFS
 	
 	
+	
+	
+	
+	
+	
+	
+	
+	
+	/**
+	 * Before running this: Board.setGoalGradMerged(pState) must be set!
+	 * The vector should only contain one state from which we want to move one box...
+	 *
+	 * @param pState
+	 * @param pBoxIndex
+	 * @param recurNb
+	 * @return
+	 */
+	public void moveOneBoxToGoal(Vector<State> pTempStorage, int pBoxIndex, int recurNb){
+		recurNb++;
+		int prevGradValueUnderBox = Integer.MAX_VALUE;
+		int curGradValueUnderBox = Board.getGoalGradMerged(
+				pTempStorage.lastElement().getBox(pBoxIndex).getRow(),
+				pTempStorage.lastElement().getBox(pBoxIndex).getCol() );
+		
+		while(curGradValueUnderBox < prevGradValueUnderBox){
+			prevGradValueUnderBox = curGradValueUnderBox; //update last value
+			//adds the new state after move and sets cur grad value to the pos it moved to.
+			curGradValueUnderBox = 
+					pTempStorage.lastElement().gradientDecentSuccessor(pTempStorage, pBoxIndex);
+		}
+		
+		if(curGradValueUnderBox > 1){
+			moveOneBoxToGoal(pTempStorage, 
+					pTempStorage.lastElement().getBlockingBoxIndex(pBoxIndex),
+					recurNb);
+		}		
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	/**
 	 * Returns move necessary from cell to first parent cell.
 	 * @param pCell
