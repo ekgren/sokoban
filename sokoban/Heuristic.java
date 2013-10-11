@@ -88,7 +88,45 @@ public class Heuristic {
         return lStateScore / lBoxes.size();
     }
 
-    public static int arielHeuristic(State pState) {
-        return 0;
+    public static int arielHeuristic(State pState){
+    	
+    	int lPOINTS = 0;
+    	
+        for (Box box : pState.getBoxes()) {
+        	Vector<Goal> goalCopy = Board.getListOFGoals();
+        	int minDist = Integer.MAX_VALUE;
+        	int cityBlockDistance;
+
+        	for (Goal goal : goalCopy) {
+            	cityBlockDistance = Math.abs(box.getRow() - goal.getRow()) + Math.abs(box.getCol() - goal.getCol());
+            	lPOINTS = lPOINTS + cityBlockDistance;
+            }
+    	}
+        //lPOINTS = lPOINTS + pState.getG();
+        
+    	return lPOINTS;
+    }
+
+    /**
+     * Hasselhoff heuristics - Returns the the average of the box distances ( sum(smallest distance per box)/#boxes )
+     *
+     * @param pState input state
+     * @return int
+     */
+    public static double getDavidDistanceHeuristic(State pState) {
+
+        Vector<Box> lBoxes = pState.getBoxes();
+        double lBoxScore = 0;
+        for (Box box : lBoxes) {
+            lBoxScore = 100 * lBoxScore + Board.getGoalGradMerged(box.getRow(), box.getCol());
+        }
+        return lBoxScore / lBoxes.size();
+    }
+
+    /**
+     * Number of boxes of goals
+     */
+    public static int getBoxesOnGoals(State pState) {
+        return pState.nbOfBoxesOnGoal;
     }
 }

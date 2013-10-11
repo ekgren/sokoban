@@ -45,6 +45,7 @@ public class Board {
 	 * e.g. ArrayList<Wall> walls; or HashMap...
 	 */
 
+	public static Cell [][] matrixCells; //Cells for saving garbage collection time.
 	private static boolean[][] walls; //all "fixed" parts of map i.e. walls are true [row][col].
 	private static boolean[][] goals; //all goals are true [row][col].
 	private static int[][] goalsIndexAtPos; //all goals are true [row][col].
@@ -52,9 +53,9 @@ public class Board {
 	private static Vector<Goal> goalsList = new Vector<Goal>(); //might sometimes or always be more efficient can have both...
 
 	private static boolean [][] deadLocksT0; //marks Type0 deadlocks = corners (independet of goals) [row][col].
-	private static int[][][] goalGrad; //Gradient to each goal considering only walls [goal][row][col]. 
-	//Includes the information about deadlocksT1 marked by -1 in goalGrad!
-
+	private static int[][][] goalGrad; //Gradient to each goal considering only walls [goal][row][col].
+    //Includes the information about deadlocksT1 marked by -1 in goalGrad!
+    private static int[][] goalGradMerged; // Summed GoalGrad
 
 	/**
 	 * Constructs the internal representation of the Map
@@ -80,6 +81,7 @@ public class Board {
 		nbCols = lMaxNbOfCol;
 
 		//Set dimensions
+		matrixCells = new Cell[nbRows][nbCols];
 		walls = new boolean[nbRows][nbCols];
 		goals = new boolean[nbRows][nbCols];	
 		goalsIndexAtPos = new int[nbRows][nbCols]; //all zero initially
@@ -100,14 +102,17 @@ public class Board {
 
 				if(stringRepr.get(row).charAt(col) == ' '){ //Free space
 					//Do nothing, this comes first since most common.
+					matrixCells[row][col] = new Cell(row,col); //So don't make new cells at every srch.
 				}
 				else if(stringRepr.get(row).charAt(col) == '#'){ //Wall
 					walls[row][col]=true; //All automatically false initially
 				}
 				else if(stringRepr.get(row).charAt(col) == '$'){ //Box
+					matrixCells[row][col] = new Cell(row,col); //So don't make new cells at every srch.
 					lBoxesList.add(new Box(row, col, false));
 				}
 				else if(stringRepr.get(row).charAt(col) == '.'){ //Goal
+					matrixCells[row][col] = new Cell(row,col); //So don't make new cells at every srch.
 					goals[row][col]=true; //All automatically false initially
 					goalsIndexAtPos[row][col] = lGoalIndexCounter; //all zero initially
 					goalsList.add(new Goal(row, col, false));
@@ -115,7 +120,7 @@ public class Board {
 
 				}
 				else if(stringRepr.get(row).charAt(col) == '*'){ //Box on goal
-					
+					matrixCells[row][col] = new Cell(row,col); //So don't make new cells at every srch.
 					goals[row][col]=true; //All automatically false initially
 					goalsIndexAtPos[row][col] = lGoalIndexCounter;
 					goalsList.add(new Goal(row, col, true)); //true means is occupied.
@@ -124,10 +129,12 @@ public class Board {
 					lGoalIndexCounter++;
 				}
 				else if(stringRepr.get(row).charAt(col) == '@'){ //Sokoban Player
+					matrixCells[row][col] = new Cell(row,col); //So don't make new cells at every srch.
 					lPlayerStartRow = row;
 					lPlayerStartCol = col;
 				}
 				else if(stringRepr.get(row).charAt(col) == '+'){ //Sokoban PLayer on Goal
+					matrixCells[row][col] = new Cell(row,col); //So don't make new cells at every srch.
 					lPlayerStartRow = row;
 					lPlayerStartCol = col;
 					goals[row][col]=true; //All automatically false initially
@@ -172,6 +179,7 @@ public class Board {
 		//Set dimension
 		deadLocksT0 = new boolean[nbRows][nbCols];
 		goalGrad = new int[nbBoxes][nbRows][nbCols];
+        goalGradMerged = new int[nbRows][nbCols];
 
 		
 		//Fix the cleanMapString:		
@@ -188,6 +196,8 @@ public class Board {
 		
 		//mark DealLocks and Gradient to respective Goal:
 		markDeadlocksAndGrad();
+        // sum the gradients
+        setGoalGradMerged();
 
 	} // End constructor Map
 
@@ -319,7 +329,61 @@ public class Board {
 				}//End if, check "Pushed left from right"
 			}
 		}//End for goal in goalsList
+
+
+        for(int row = 0; row < nbRows; row++){
+            for(int col = 0; col < nbCols; col++){
+                boolean allDeadT1 = true;
+                for(int goalIndex = 0; goalIndex < nbGoals; goalIndex++){
+                    if (goalGrad[goalIndex][row][col] != -1){
+                        allDeadT1 = false;
+                        break;
+                    }
+                }
+                if (allDeadT1){
+                    deadLocksT0[row][col]=true;
+                }
+            }
+        }
 	}
+
+    /**
+     * Summed goalGrad
+     */
+    private void setGoalGradMerged() {
+        // set high values
+        for (int row = 0; row < nbRows; row++) {
+            // for each col
+            for (int col = 0; col < nbCols; col++) {
+                goalGradMerged[row][col] = 999;
+            }
+        }
+
+        // for every goal
+        for (int i = 0; i < nbBoxes; i++) {
+            // for each row
+            for (int row = 0; row < nbRows; row++) {
+                // for each col
+                for (int col = 0; col < nbCols; col++) {
+                    // Choose the min value
+                    if (goalGradMerged[row][col] > goalGrad[i][row][col] && goalGrad[i][row][col] != -1)
+                        goalGradMerged[row][col] = goalGrad[i][row][col];
+                }
+            }
+        }
+
+        /* Print the board
+        for (int row = 0; row < nbRows; row++) {
+            // for each col
+            System.out.println();
+            for (int col = 0; col < nbCols; col++) {
+                System.out.print(goalGradMerged[row][col]);
+
+            }
+        }
+        */
+    }
+
 	
 	public static State getInitialState(){
 		return initialState;
@@ -337,9 +401,7 @@ public class Board {
 		return goalsIndexAtPos[pRow][pCol] - 1; 
 	}
 
-	/**
-	 * Not initiated always returns false!
-	 */
+
 	public static boolean isDeadLockT0(int pRow, int pCol){
 		return deadLocksT0[pRow][pCol];
 	}
@@ -379,6 +441,10 @@ public class Board {
 	public static int getGoalGrad(int pGoalIndex, int pRow, int pCol){
 		return goalGrad[pGoalIndex][pRow][pCol];
 	}
+
+    public static int getGoalGradMerged(int pRow, int pCol) {
+        return goalGradMerged[pRow][pCol];
+    }
 
 	public static int getNbOfBoxes(){
 		return nbBoxes;

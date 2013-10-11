@@ -53,21 +53,36 @@ public class Cell {
 		return this.parent;
 	}
 	
+	public void setRow(int rowIndex){
+		this.row = rowIndex;
+	}
+	
+	public void setCol(int colIndex){
+		this.col = colIndex;
+	}
+	
 	public void setParent(Cell pCell){
 		this.parent = pCell;
 	}
 	
 	public boolean equals(Cell obj) {
-	    //null instanceof Object will always return false
+	    //null instance of Object will always return false
 	    if (obj == this)
 	      return true;
+	    //Else check if fields are the same.
 	    return  this.getRow() == ((Cell) obj).getRow() &&
 	            this.getCol() == ((Cell) obj).getCol();  
 	}
 	
+
 	public static class NormComparator implements Comparator<Cell>{
+		//NormComparator which uses Manhattan distance.
 		int lRow = 0;
 		int lCol = 0;
+		
+		public NormComparator(){
+			
+		}
 		
 		public NormComparator(int pRow,int pCol){
 			this.lRow = pRow;
@@ -79,7 +94,9 @@ public class Cell {
 			int d2 = Math.abs(N2.getRow()-lRow) + Math.abs(N2.getCol() - lCol);
 			return d1-d2;
 		}
-		public void setStart(int pRow,int pCol){
+		//Since we are using static NormComparator we want to change to what position we are
+		//searching to.
+		public void setGoal(int pRow,int pCol){
 			this.lRow = pRow;
 			this.lCol = pCol;
 		}

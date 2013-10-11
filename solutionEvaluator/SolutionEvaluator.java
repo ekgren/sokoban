@@ -18,24 +18,20 @@ public class SolutionEvaluator {
 	private Vector<StringBuilder> board = new Vector<StringBuilder>();
 
     // Insert Level number (0 = TestTrack)
-    private int levelNo = 0;//4806;
+    private int levelNo = 6030;
     private MapReader map;
 
 	public SolutionEvaluator() throws IOException{
 		System.out.println("Initializing evaluation... \n");
-		long startTime = System.currentTimeMillis();
-		
 
-		String filePath = "./sokoban/res/TestTrack.in";
 
-		// Initializing sokoban solver object with map from file.
-		path = new Sokoban(new FileReader(filePath), true);
-		
 		// Initializing sokoban solver object with map from mapReader.
-        //map = new MapReader(levelNo + 1);
-		//path = new Sokoban(new StringReader(map.getMap()), false);
-		
-		System.out.println("\nTime to execute: " + Double.toString((System.currentTimeMillis() - startTime)/1000.0) + " seconds.\n");
+        map = new MapReader(levelNo + 1);
+
+        // Try to solve
+		path = new Sokoban(new StringReader(map.getMap()), false, true);
+
+        // Animate solution
 		//animateSolution();
 	}
 	
@@ -44,8 +40,8 @@ public class SolutionEvaluator {
 		// Method to animate solution to see if it's correct!
 		
 		BufferedReader fileBr = new BufferedReader(new StringReader(map.getMap()));
-		
-		String line;
+
+        String line;
 		boolean STATE = false;
 		
 		int[] xy = new int[2];
@@ -194,7 +190,7 @@ public class SolutionEvaluator {
                 System.out.println(s);
         }
         try {
-            Thread.sleep(500);
+            Thread.sleep(100);
         } catch(InterruptedException ex) {
             Thread.currentThread().interrupt();
         }

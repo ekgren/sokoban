@@ -26,27 +26,56 @@ public class Sokoban {
 	 * 
 	 */
 	
-	public static boolean debugMode = true;
+	public static boolean debugMode;
+    public static boolean profilingMode;
+    // Start constructorTime for the profiling
+    private long startTime;
+
 	public String solution;
 	
-	public Sokoban(Reader r, boolean debugMode) throws IOException{
+	public Sokoban(Reader r, boolean debugMode, boolean profilingMode) throws IOException{
 		
 		//final Client client = new Client();
 		this.debugMode = debugMode;
-		final Board board = getBoardFromFile(r);
+        this.profilingMode = profilingMode;
+
+        // Start constructorTime for board init
+        if (profilingMode) startTime = System.currentTimeMillis();
+
+        // Set the board
+        final Board board = getBoardFromFile(r);
+
+        // End constructorTime for board init
+        if (profilingMode) {
+            System.err.println("Initialized board in: " +
+                    (System.currentTimeMillis() - startTime) + " ms");
+        }
 
 		if (debugMode){
 			Visualizer v = new Visualizer();
 			Visualizer.printState(board.getInitialState(), "INITIAL STATE");
 		}
-		 
-		Solver solver = new Solver(); //Reaches info incl. initial state from Map staticaly.
-		State finalState = solver.greedyBFS();
-		 
-	    if(finalState.isFinalState()) solution = solver.getStrToGoal(finalState);
-        else solution = "no path";
 
-	}
+        //Reaches info incl. initial state from Map statically.
+		Solver solver = new Solver();
+
+        // Search after solution
+        State solution = solver.greedyBFS();
+
+	    if(solution.isFinalState()) this.solution = solver.getStrToGoal(solution);
+        else this.solution = "no path";
+
+        if(profilingMode) {
+            System.err.println("\n--- Total RunTime ---");
+            System.err.println("Total Time: " + (System.currentTimeMillis() - startTime) + " ms");
+
+            System.err.println("\n--- Accumulated Time in State Methods ---");
+            System.err.println("Time spent constructing states: " + State.constructorTime + " ms");
+            System.err.println("Time spent in ''changeBoxConfig'': " + State.changeBoxConfigTime + " ms");
+            System.err.println("Time spent in ''allSuccessors'': " + State.allSuccessorsTime + " ms");
+            System.err.println("Time spend in ''tryMove'': " + State.tryMoveTime + " ms");
+        }
+    }
 	
 	public Board getBoardFromFile(Reader r) throws IOException{
 		
@@ -58,14 +87,14 @@ public class Sokoban {
 		
 		while((line = fileBr.readLine()) != null) {
 			board.add(line);
-		} // End while
+        } // End while
 		fileBr.close();
 		
 		return new Board(board);
 	}
 	
 	public static void main(String[] args) throws IOException {
-	    Sokoban soko = new Sokoban(new InputStreamReader(System.in), false);
+	    Sokoban soko = new Sokoban(new InputStreamReader(System.in), false, true);
         // Prints the solution to Kattis
         System.out.println(soko.solution.toUpperCase());
     } // main
