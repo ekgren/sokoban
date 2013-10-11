@@ -6,10 +6,7 @@ import java.io.*;
 import java.util.Vector;
 
 /**
- * 
  * Class to simulate Kattis and evaluate our sokoban solver.
- * 
- * @author Ariel Ekgren
  *
  */
 
@@ -17,8 +14,9 @@ public class SolutionEvaluator {
 	private static Sokoban path;
 	private Vector<StringBuilder> board = new Vector<StringBuilder>();
 
-    // Insert Level number (0 = TestTrack)
-    private int levelNo = 6469;
+    // Insert Level number (0 = TestTrack) 6401, 6027
+
+    private int levelNo = 6038;
     private MapReader map;
 
 	public SolutionEvaluator() throws IOException{
@@ -27,10 +25,11 @@ public class SolutionEvaluator {
 
 		// Initializing sokoban solver object with map from mapReader.
         map = new MapReader(levelNo + 1);
-
+        
+        long startTime = System.currentTimeMillis();
         // Try to solve
-		path = new Sokoban(new StringReader(map.getMap()), false, true);
-
+		path = new Sokoban(new StringReader(map.getMap()), true, true);
+		System.out.println("\nTime to execute: " + Double.toString((System.currentTimeMillis() - startTime)/1000.0) + " seconds.\n");
         // Animate solution
 		//animateSolution();
 	}
@@ -40,8 +39,8 @@ public class SolutionEvaluator {
 		// Method to animate solution to see if it's correct!
 		
 		BufferedReader fileBr = new BufferedReader(new StringReader(map.getMap()));
-
-        String line;
+		
+		String line;
 		boolean STATE = false;
 		
 		int[] xy = new int[2];
