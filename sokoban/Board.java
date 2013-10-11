@@ -61,7 +61,7 @@ public class Board {
 	 * Constructs the internal representation of the Map
 	 * from the standard string representation.
 	 *
-	 * @param pMessage the compact string representation of the state
+	 * @param pStringRepr the compact string representation of the state
 	 */
 	public Board(final Vector<String> pStringRepr) {
 
@@ -351,14 +351,6 @@ public class Board {
      * Summed goalGrad
      */
     private void setGoalGradMerged() {
-        // set high values
-        for (int row = 0; row < nbRows; row++) {
-            // for each col
-            for (int col = 0; col < nbCols; col++) {
-                goalGradMerged[row][col] = 999;
-            }
-        }
-
         // for every goal
         for (int i = 0; i < nbBoxes; i++) {
             // for each row
@@ -368,6 +360,37 @@ public class Board {
                     // Choose the min value
                     if (goalGradMerged[row][col] > goalGrad[i][row][col] && goalGrad[i][row][col] != -1)
                         goalGradMerged[row][col] = goalGrad[i][row][col];
+                }
+            }
+        }
+
+        /* Print the board
+        for (int row = 0; row < nbRows; row++) {
+            // for each col
+            System.out.println();
+            for (int col = 0; col < nbCols; col++) {
+                System.out.print(goalGradMerged[row][col]);
+
+            }
+        }
+        */
+    }
+
+    public static void setGoalGradMerged(State pState) {
+        int value;
+        // for each row
+        for (int row = 0; row < nbRows; row++) {
+            // for each col
+            for (int col = 0; col < nbCols; col++) {
+                // for every goal
+                value = Integer.MAX_VALUE;
+                for (int i = 0; i < nbBoxes; i++) {
+                    if (pState.isGoalOccupied(i)) continue;
+                    // Choose the min value
+                    if (value > goalGrad[i][row][col] && goalGrad[i][row][col] != -1) {
+                        goalGradMerged[row][col] = goalGrad[i][row][col];
+                        value = goalGrad[i][row][col];
+                    }
                 }
             }
         }

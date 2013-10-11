@@ -120,7 +120,7 @@ public class Solver {
             // Add one; new expanded node
             lExpandedNodes++;
 
-            //Visualizer.printStateDelux(lCurState, "--- State explored in iteration: #" + lIterations + " ---");
+            // Visualizer.printStateDelux(lCurState, "--- State explored in iteration: #" + lExpandedNodes + " ---");
 
             if (lCurState.nbOfBoxesOnGoal / Board.getNbOfGoals() < 1) {
                 // Clear and get new children of current state
