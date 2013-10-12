@@ -26,6 +26,10 @@ public class Factory {
 	private static int totalBoxCount = 0;
 	private static int totalStateCount = 0;
 	private static int totalPlayerCount = 0;
+	
+	// 
+	public static int expandedNodes = 0;
+	public static int createdNodes = 0;
 
 	
 	/**

@@ -442,6 +442,8 @@ public class State implements Cloneable{
         		h  = h + Factory.getCell(box).getGradient();
         		if(Factory.getCell(box).isGoal) h = h - 2;
         }
+   		
+   		h = h / Board.goals.size();
         
    		if(Sokoban.debugTime) TimeIt.heuristicTotal = TimeIt.heuristicTotal + System.currentTimeMillis() - TimeIt.heuristic;
    	}
