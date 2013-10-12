@@ -6,7 +6,7 @@ import java.awt.Point;
  * NEO-SOKOBAN DEADLOCK CLASS. 
  *
  */
-public class Deadlocks {
+public static class Deadlocks {
 	/**
 	 * Checks for deadlocks like these.
 	 * 
