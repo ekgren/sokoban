@@ -118,7 +118,8 @@ public class Heuristic {
         Vector<Box> lBoxes = pState.getBoxes();
         double lBoxScore = 0;
         for (Box box : lBoxes) {
-            lBoxScore = 100 * lBoxScore + Board.getGoalGradMerged(box.getRow(), box.getCol());
+            if (box.isOnGoal()) lBoxScore = lBoxScore - 2;
+            lBoxScore = lBoxScore + Board.getGoalGradMerged(box.getRow(), box.getCol());
         }
         return lBoxScore / lBoxes.size();
     }

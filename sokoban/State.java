@@ -34,7 +34,7 @@ public class State implements Cloneable {
 	private int g = 0; // Cost of moving to this position.
 	private double h = 0; // Heuristic cost.
 
-	boolean[] goalsOccupied; //Vector which indicates if a goal(index) is occupied.
+    boolean[] goalsOccupied; //Vector which indicates if a goal(index) is occupied.
 	int nbOfBoxesOnGoal;
 
     // Time fields
@@ -583,27 +583,41 @@ public class State implements Cloneable {
                 }
             } else {
                 // If it didn't work, call selective...
-                System.out.println("IT DINT WORK");
                 //selectiveSuccessors(pStates, pBoxIndex);
                 // allSuccessors(pStates);
             }
 
     } // End allSuccessors
 
-    public void boxJudge(Vector<State> pStates) {
+    /**
+     * This method returns the index of the box that is blocking the way for another box.
+     * The two for-loops loops through a 3 by 3 square to check the surrounding tiles for a lower state.
+     *
+     * @return the index of a box that blocks the index
+     */
+    public int getBlockingBoxIndex(int pCurrentBoxIndex) {
+        // Get the gradient value at current position
+        int lowestGradValue = getGradValue(getBoxes().get(pCurrentBoxIndex), 'C');
+        // The blocking box-index
+        int newBoxIndex = -1;
+        // The coordinates, starting in the upper left corner in the 3 by 3 surrounding
+        int upperLeftRow = boxes.get(pCurrentBoxIndex).getRow() - 1;
+        int upperLeftCol = boxes.get(pCurrentBoxIndex).getCol() - 1;
 
-        for (int boxIndex = 0; boxIndex < boxes.size() ; boxIndex++) {
-            // If gradient value is grater than some value then use gradientDec
-            if (boxes.get(boxIndex).isOnGoal()){
-                selectiveSuccessors(pStates, boxIndex);
-            }else if (getGradValue(boxes.get(boxIndex), 'C') < 3) {
-                gradientDecentSuccessor(pStates, boxIndex);
-            } else {
-                selectiveSuccessors(pStates, boxIndex);
+        // Iterate through every row end every column
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                // If the gradient score is lower and there is a box there (and not deadlock)
+                if (Board.getGoalGradMerged(i, j) < lowestGradValue && getBox(i, j) != null) {
+                    newBoxIndex = getBox(i, j);
+                    lowestGradValue = Board.getGoalGradMerged(upperLeftRow + i, upperLeftCol + j);
+                }
             }
-        }
-    }
+        }// End check surrounding
 
+        // return the new box index
+        return newBoxIndex;
+    }
 
 
     public boolean isFinalState() {
@@ -623,6 +637,13 @@ public class State implements Cloneable {
     // Static method to add reusable states from Solver
     public static void addReusableState(State pState) {
         reusableStates.push(pState);
+    }
+
+    /**
+     * @return if the goal is occupied
+     */
+    public boolean isGoalOccupied(int pGoalIndex) {
+        return goalsOccupied[pGoalIndex];
     }
    
 } // End Class State

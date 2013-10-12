@@ -113,16 +113,14 @@ public class Solver {
         Vector<State> childrenOfCurState = new Vector<State>();
 
         // Expand nodes until the queue is empty or until max iterations
-
-        while(lExpandedNodes<100000 && !simpleQueue.isEmpty() ){
-
+        while (lExpandedNodes < 50000 && !simpleQueue.isEmpty()) {
 
             // Get state first in line
             lCurState = simpleQueue.poll();
             // Add one; new expanded node
             lExpandedNodes++;
 
-            //Visualizer.printStateDelux(lCurState, "--- State explored in iteration: #" + lIterations + " ---");
+            // Visualizer.printStateDelux(lCurState, "--- State explored in iteration: #" + lExpandedNodes + " ---");
 
             if (lCurState.nbOfBoxesOnGoal / Board.getNbOfGoals() < 1) {
                 // Clear and get new children of current state
