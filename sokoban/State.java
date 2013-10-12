@@ -608,15 +608,18 @@ public class State implements Cloneable {
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
                 // If the gradient score is lower and there is a box there (and not deadlock)
-                if (Board.getGoalGradMerged(i, j) < lowestGradValue && getBox(i, j) != null) {
-                    newBoxIndex = getBox(i, j);
+                
+//GET BOX DOESNT EXISTS
+            	/*
+            	if (Board.getGoalGradMerged(i, j) < lowestGradValue && getBox(i, j) != null) {
+            		newBoxIndex = getBox(i, j);
                     lowestGradValue = Board.getGoalGradMerged(upperLeftRow + i, upperLeftCol + j);
-                }
+                }*/
             }
         }// End check surrounding
-
+    	return 0;
         // return the new box index
-        return newBoxIndex;
+        //return newBoxIndex;
     }
 
 
