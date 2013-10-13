@@ -18,7 +18,7 @@ public class SolutionEvaluator {
 	// maps we should be able to finnish
 	// 6057, 6063
 
-    private int levelNo = 6063;
+    private int levelNo = 21;
     private MapReader map;
 
 	public SolutionEvaluator() throws IOException{
