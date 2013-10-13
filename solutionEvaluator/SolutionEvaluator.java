@@ -14,27 +14,26 @@ public class SolutionEvaluator {
 	private static Sokoban path;
 	private Vector<StringBuilder> board = new Vector<StringBuilder>();
 
-    // Insert Level number (0 = TestTrack) 6401, 6027
+    // Insert Level number (0 = TestTrack) 6401, 6027, 6057
+	// maps we should be able to finnish
+	// 6057, 6063
 
-    private int levelNo = 6401;
+    private int levelNo = 6063;
     private MapReader map;
 
 	public SolutionEvaluator() throws IOException{
 		System.out.println("Initializing evaluation... \n");
 
-		while(true){
 		// Initializing sokoban solver object with map from mapReader.
-			System.out.println(levelNo);
+		System.out.println(levelNo);
         map = new MapReader(levelNo + 1);
         
         long startTime = System.currentTimeMillis();
         // Try to solve
-		path = new Sokoban(new StringReader(map.getMap()), false, false);
+		path = new Sokoban(new StringReader(map.getMap()), false,false);
 		System.out.println("\nTime to execute: " + Double.toString((System.currentTimeMillis() - startTime)/1000.0) + " seconds.\n");
         // Animate solution
-		animateSolution();
-		levelNo++;
-		}
+		//animateSolution();
 	}
 	
 	public void animateSolution() throws FileNotFoundException, IOException{

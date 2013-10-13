@@ -10,7 +10,7 @@ import java.awt.Point;
 public class Factory {
 	
 	// Array sizes depend on this number.
-	private static int estimatedMaxNumberOfStates = 500000;
+	private static int estimatedMaxNumberOfStates = 1000000;
 	
 	// Number of states created at start depend on this number.
 	private static int startStates = 0;

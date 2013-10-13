@@ -1,6 +1,5 @@
 package sokoban;
 
-import java.awt.Point;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -39,6 +38,8 @@ public class Solver {
 	private static State processState;
 	private static State processState2;
 	
+	private static boolean first = true;
+	
 	// Time field.
     private long startTime;
 
@@ -64,27 +65,29 @@ public class Solver {
 		if(Sokoban.debug) System.out.println("Solver: initial state created.");
 		if(Sokoban.debug) Sokoban.board.printState(initState);
 		processState = initState;
-
+		
 		for(Box box : Sokoban.board.getBoxes()){
+			boxQueue.add(box);
+		}
+		
+		int okayForSomeTime = 0;
+		while(boxQueue.isEmpty() == false && okayForSomeTime < Sokoban.board.getBoxes().size()*2){
+			Box box = boxQueue.remove();
 			if(Sokoban.debug) System.out.println("Solver: for box.");
 			if(Sokoban.debug) System.out.println(box.toString());
 			
-			if(Factory.getCell(box).isGoal==false && Factory.getCell(box).getGradient() > 3 && Search.NextToAstar(processState, processState.getPlayer(), box)){
+			if(Factory.getCell(box).isGoal==false && Factory.getCell(box).getGradient() > 2 && Search.NextToAstar(processState, processState.getPlayer(), box)){
 				if(Sokoban.debug) System.out.println("Solver: Execute fast move.");
-//				processState.getBoxes().remove(box);
 				String path = Search.BoxAstar(processState, box, box.dreamGoal, true);
-				
-				processState2 = processState.createNewState(box, Search.endPoint, Search.endPoint.lastMove, true);
-				
-				processState2.setParent(processState);
-				processState2.longStep = true;
+				if(Sokoban.debug) System.out.println(path);
+				processState2 = Search.boxSearchState;
 				processState2.path = path;
-//				processState.getBoxes().add(box);
 				processState = processState2;
 				if(Sokoban.debug) Sokoban.board.printState(processState);
-			} else {
-
+			} else { 
+				if(Factory.getCell(box).isGoal==false && Factory.getCell(box).getGradient() > 2) boxQueue.add(box);
 			}
+			okayForSomeTime++;
 		}
 		
 		
@@ -105,6 +108,8 @@ public class Solver {
 				
 		// Start exploration.
 		while(open.peek().equals(solvedState) == false){
+			if(open.size() == 1 && first == false) open.add(initState);
+			first = false;
 			Factory.expandedNodes++;
 			
 			/*
@@ -193,10 +198,11 @@ public class Solver {
 		
 		// Current state.
 		State currentState = solvedState;
+		//if(Sokoban.debug) Sokoban.board.printState(currentState);
 		
 		// While not initial state.
 		while(currentState.getParent() != null){
-			
+			//if(Sokoban.debug) Sokoban.board.printState(currentState);
 			if(currentState.longStep == true){
 				solution = currentState.path + solution;
 				currentState = currentState.getParent();

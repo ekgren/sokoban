@@ -14,6 +14,7 @@ public class Search {
 	public static String boxMoveSearchString = "";
 	public static Point nextBestbox;
 	public static Cell endPoint;
+	public static State boxSearchState;
 	
 	/**
 	 * A compare class to compare points.
@@ -60,7 +61,7 @@ public class Search {
 		
 		/** Set different goal for comparator object. */
 		public static void setGoal(Point goal){
-			PointCompare.goal = goal;
+			BoxPointCompare.goal = goal;
 		}
 		
 		/** Compare the manhattan distance between two points to a goal. */
@@ -246,19 +247,25 @@ public class Search {
 	public static String BoxAstar(State state, Point box, Point goalPoint, boolean returnPath) {
 		
 			// New state that we move box in.
-			State newState = Factory.createState();
+			State newState = state.createNewState();
+			newState.longStep = true;
+			
+			if(Sokoban.debug){
+				System.out.println("Start state for BoxAstar Search.");
+				Sokoban.board.printState(newState);
+			}
 			
 			// If we can't push the box to the goal we move it to the next best position.
-			Search.nextBestbox = null;
+			//Search.nextBestbox = null;
 			
-			// Dont remember what this variable does.
+			// To check if we found goal.
 			boolean searchState = true;
 			
 			// The cell that we process.
 			Point processCell = null;
 						
 			// Remove box to avoid collisions.
-			state.getBoxes().remove(box);
+			newState.getBoxes().remove(box);
 			
 			// Creating start and goal cells.
 			Cell startCell = Factory.getCell(box);
@@ -296,66 +303,97 @@ public class Search {
 		        	 * add neighborCell to open if it's not already in there
 		        	 * or in closed.
 		        	 */
-		        	
+		        	newState.getBoxes().add(Factory.getCell(processCell));
 		        	// Check there is a map cell up and that it's not occupied by box.
-		        	if(state.boxUp(processCell, true)){
+		        	if(newState.boxUp(processCell, true)){
+		        		
+		        		// If box move okay add box for a short while.
+			        	newState.getBoxes().add(Factory.getCellUp(processCell));
 		        		
 		        		// Check that the new cell is neither in open or closed.
-		        		if(openBox.contains(Factory.getCellUp(processCell)) == false 
-		        				&& closedBox.contains(Factory.getCellUp(processCell)) == false){
+		        		if(openBox.contains(Factory.getCellUp(processCell)) == false && 
+		        			closedBox.contains(Factory.getCellUp(processCell)) == false &&
+		        			Deadlocks.checkFourBoxesDeadlock(newState) == false &&
+		        			Deadlocks.checkThreeBoxesCornerDeadlock(newState) == false &&
+		        			Deadlocks.checkWallDeadlock(newState) == false){
 		        			
 		        			// If it is not then set parent and add it to open.
-		        			Factory.getCellUp(processCell).setBoxParent((Cell)processCell);
+		        			Factory.getCellUp(processCell).setBoxParent(Factory.getCell(processCell));
 		        			Factory.getCellUp(processCell).boxMoveSearch = Search.boxMoveSearchString;
 		        			Factory.getCellUp(processCell).lastMove = 0;
 		        			openBox.add(Factory.getCellUp(processCell));
 		        		}
+		        		// And finally put the previous cell back.
+		        		newState.getBoxes().remove(Factory.getCellUp(processCell));
 		        	}
 		        	
 		        	// Check there is a map cell down and that it's not occupied by box.
-		        	if(state.boxDown(processCell, true)){
+		        	if(newState.boxDown(processCell, true)){
+		        		
+		        		// If box move was okay remove old box add new box.
+			        	newState.getBoxes().add(Factory.getCellDown(processCell));
 		        		
 		        		// Check that the new cell is neither in open or closed.
-		        		if(openBox.contains(Factory.getCellDown(processCell)) == false 
-		        				&& closedBox.contains(Factory.getCellDown(processCell)) == false){
+		        		if(openBox.contains(Factory.getCellDown(processCell)) == false &&
+	        				closedBox.contains(Factory.getCellDown(processCell)) == false &&
+		        			Deadlocks.checkFourBoxesDeadlock(newState) == false &&
+		        			Deadlocks.checkThreeBoxesCornerDeadlock(newState) == false &&
+		        			Deadlocks.checkWallDeadlock(newState) == false){
 		        			
 		        			// If it is not then set parent and add it to open.
-		        			Factory.getCellDown(processCell).setBoxParent((Cell)processCell);
+		        			Factory.getCellDown(processCell).setBoxParent(Factory.getCell(processCell));
 		        			Factory.getCellDown(processCell).boxMoveSearch = Search.boxMoveSearchString;
 		        			Factory.getCellDown(processCell).lastMove = 1;
 		        			openBox.add(Factory.getCellDown(processCell));
 		        		}
+		        		// And finally put the previous cell back.
+		        		newState.getBoxes().remove(Factory.getCellDown(processCell));
 		        	}
 		        	
 		        	// Check there is a map cell left and that it's not occupied by box.
-		        	if(state.boxLeft(processCell, true)){
+		        	if(newState.boxLeft(processCell, true)){
+		        		// If box move was okay remove old box add new box.
+			        	newState.getBoxes().add(Factory.getCellLeft(processCell));
 		        		
 		        		// Check that the new cell is neither in open or closed.
-		        		if(openBox.contains(Factory.getCellLeft(processCell)) == false 
-		        				&& closedBox.contains(Factory.getCellLeft(processCell)) == false){
+		        		if(openBox.contains(Factory.getCellLeft(processCell)) == false &&
+	        				closedBox.contains(Factory.getCellLeft(processCell)) == false &&
+		        			Deadlocks.checkFourBoxesDeadlock(newState) == false &&
+		        			Deadlocks.checkThreeBoxesCornerDeadlock(newState) == false &&
+		        			Deadlocks.checkWallDeadlock(newState) == false){
 		        			
 		        			// If it is not then set parent and add it to open.
-		        			Factory.getCellLeft(processCell).setBoxParent((Cell)processCell);
+		        			Factory.getCellLeft(processCell).setBoxParent(Factory.getCell(processCell));
 		        			Factory.getCellLeft(processCell).boxMoveSearch = Search.boxMoveSearchString;
 		        			Factory.getCellLeft(processCell).lastMove = 2;
 		        			openBox.add(Factory.getCellLeft(processCell));
 		        		}
+		        		// And finally put the previous cell back.
+		        		newState.getBoxes().remove(Factory.getCellLeft(processCell));
 		        	}
 		        	
 		        	// Check there is a map cell right and that it's not occupied by box.
-		        	if(state.boxRight(processCell, true)){
+		        	if(newState.boxRight(processCell, true)){
+		        		// If box move was okay remove old box add new box.
+			        	newState.getBoxes().add(Factory.getCellRight(processCell));
 
 		        		// Check that the new cell is neither in open or closed.
-		        		if(openBox.contains(Factory.getCellRight(processCell)) == false 
-		        				&& closedBox.contains(Factory.getCellRight(processCell)) == false){
+		        		if(openBox.contains(Factory.getCellRight(processCell)) == false &&
+	        				closedBox.contains(Factory.getCellRight(processCell)) == false &&
+		        			Deadlocks.checkFourBoxesDeadlock(newState) == false &&
+		        			Deadlocks.checkThreeBoxesCornerDeadlock(newState) == false &&
+		        			Deadlocks.checkWallDeadlock(newState) == false){
 		        			
 		        			// If it is not then set parent and add it to open.
-		        			Factory.getCellRight(processCell).setBoxParent((Cell)processCell);
+		        			Factory.getCellRight(processCell).setBoxParent(Factory.getCell(processCell));
 		        			Factory.getCellRight(processCell).boxMoveSearch = Search.boxMoveSearchString;
 		        			Factory.getCellRight(processCell).lastMove = 3;
 		        			openBox.add(Factory.getCellRight(processCell));
 		        		}
+		        		// And finally put the previous cell back.
+		        		newState.getBoxes().remove(Factory.getCellRight(processCell));
 		        	}
+		        	newState.getBoxes().remove(Factory.getCell(processCell));
 		    	}
 	        } catch(NullPointerException e) {
 	        	// If we run out of cells to search we can't find a way.
@@ -370,8 +408,10 @@ public class Search {
 	        	Search.nextBestbox = nextBestCell;
 	        }
 	        
-	        state.getBoxes().add(box);
-	        
+	        // Add last box position to state.
+	        if(searchState==true) newState.getBoxes().add(openBox.peek());
+    		else newState.getBoxes().add(nextBestCell);
+	        Search.boxSearchState = newState;
         	// If return path set to true: create and return string with path.
         	if(returnPath){
         		String walkingPath = "";
@@ -379,6 +419,22 @@ public class Search {
         		if(searchState==true) child = (Cell) openBox.remove();
         		else child = nextBestCell;
         		Search.endPoint = child;
+        		switch (child.lastMove) {
+	                case 0:
+	                	newState.addPlayerAt(Factory.getCellDown(child));
+	                	break;
+	                case 1:
+	                	newState.addPlayerAt(Factory.getCellUp(child));
+	                    break;
+	                case 2:
+	                	newState.addPlayerAt(Factory.getCellRight(child));
+	                	break;
+	                case 3:
+	                	newState.addPlayerAt(Factory.getCellLeft(child));
+	                	break;
+        		}
+        		newState.heuristic();
+        		newState.hashCode();
         		Cell parent = null;
         		while(child.getBoxParent() != null){
         			parent = child.getBoxParent();
@@ -396,6 +452,7 @@ public class Search {
         			}
         			child = parent;
         		}
+        		
         		return walkingPath;
 	        		
         		// Else just return empty string.
