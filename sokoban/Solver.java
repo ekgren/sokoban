@@ -28,9 +28,8 @@ public class Solver {
 	 * player in different subspaces...)
 	 */
     
-    //Static 
+
 	//Static fields for saving creations of Map,Queues, when calling isPathToBox.
-    //private static Cell[][] matrixCells = new Cell[Board.getNbRows()][Board.getNbCols()];
     private static Cell.NormComparator comparatorCell = new Cell.NormComparator();
 	private static HashSet<String> mapPrPathsCell = new HashSet<String>();
     private static PriorityQueue<Cell> queueCellChildren = new PriorityQueue<Cell>(10000,
@@ -42,15 +41,7 @@ public class Solver {
 	PriorityQueue<State> simpleQueue = new PriorityQueue<State>(10000, comparator);
     PriorityQueue<State> newQueue = new PriorityQueue<State>(10000, comparator);
 
-	public Solver(){
-		
-		/*for(int row = 0 ; row < Board.getNbRows() ; row ++){
-			for(int col = 0 ; col < Board.getNbCols() ; col ++){
-				this.matrixCells[row][col] = new Cell(row,col);
-			}
-		}*/
-
-		
+	public Solver(){		
 		/*
 		 *TODO
 		 *
@@ -602,7 +593,7 @@ public class Solver {
 	
 		if(pCell.getRow() == pCell.getParent().getRow()){
 			// If rows are equal we are moving left or right, since we are going backwards,
-			// so the condition are reversed.
+			// the condition are reversed.
 			if(pCell.getCol() > pCell.getParent().getCol()){
 				return "l";
 			}
@@ -649,8 +640,8 @@ public class Solver {
 	public static Cell cellLinkedToPath(State pState,
                                         int pRow, int pCol, int pRowPath, int pColPath) {
 
-		//See documentation for method below cellToPath, this is method is only used for printing 
-		//out solution path.
+		//See documentation for method below cellToPath, this is method is only used for 
+		//printing out solution path.
 		Cell pStartCell = new Cell(pRow,pCol);
 		Cell pEndCell = new Cell(pRowPath,pColPath);
 		boolean bolFinished = false;
@@ -717,7 +708,8 @@ public class Solver {
 	
 	
 	/**
-	 * Returns cell next to some position.
+	 * Returns cell next to some position (the position we are searching to can not
+	 * be a box).
 	 * @param pState
 	 * @param pRow
 	 * @param pCol
@@ -728,23 +720,20 @@ public class Solver {
 	public static Cell cellNeighborToPath(State pState,
                                           int pRow, int pCol, int pRowPath, int pColPath) {
 
-		
-		/*if(pRow==pRowPath && pCol==pColPath){
-			System.out.println("well");
-			return matrixCells[pRow][pCol];
-		}*/
-		//Get start and end positions from matrix with cells (save garbagecollection)
-		//Cell pStartCell = matrixCells[pRow][pCol];
-		//Cell pEndCell = matrixCells[pRowPath][pColPath];
-		
-		
-
-		if(!Board.isFree(pState, pRowPath, pColPath)){
+		// If searching to wall.
+		if(Board.isWall(pRowPath, pColPath)){
 			return null;
 		}
 		
+		// If we are at searched position.
+		if(pRow == pRowPath && pCol == pColPath){
+			return Board.matrixCells[pRow][pCol];
+		}
+		
+		//Get start and end positions cell position from matrix.		
 		Cell pStartCell = Board.matrixCells[pRow][pCol];
 		Cell pEndCell = Board.matrixCells[pRowPath][pColPath];
+		
 		//Set comparator to look for path we are searching for.
 		comparatorCell.setGoal(pRowPath, pColPath);
 		//Child queue for search
@@ -767,9 +756,10 @@ public class Solver {
 					//Make row child first. (lCellChild.getRow() + incInt)
 					//No walls
 					if(Board.isFree(pState,lCellChild.getRow() + incInt, lCellChild.getCol())){
-						
+
 						if(lCellChild.getRow() + incInt == pEndCell.getRow() &&
-		lCellChild.getCol() == pEndCell.getCol()){
+								lCellChild.getCol() == pEndCell.getCol()){
+							//We have found path.
 							STATIC_CELL.setRow(pEndCell.getRow());
 							STATIC_CELL.setCol(pEndCell.getCol());
 							mapPrPathsCell.clear();
@@ -829,12 +819,7 @@ public class Solver {
 	public static boolean isPathToPath(State pState,int pRow,int pCol,int pRowPath,
 			int pColPath){
 		
-		//System.out.println(pRow);
-		//System.out.println(pCol);
-		if(pRow==pRowPath && pCol==pColPath){
-			return true;
-		}
-		
+		// if lCell is null we there is no path.
 		Cell lCell = cellNeighborToPath(pState, pRow, pCol, pRowPath, pColPath);
 		return (lCell != null);
 	}

@@ -701,8 +701,6 @@ public class State implements Cloneable {
                 }
             }
         }// End check surrounding
-
-        // return the new box index
         return newBoxIndex;
     }
 
