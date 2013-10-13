@@ -97,6 +97,9 @@ public class Solver {
 
 	public State greedyBFS(){
 
+		//While workning on goalClustering...
+		if(Sokoban.debugMode) Visualizer.printGoalGrad(0);
+
         int lExpandedNodes = 0;
         int lCreatedNodes = 0;
 		
@@ -113,16 +116,14 @@ public class Solver {
         Vector<State> childrenOfCurState = new Vector<State>();
 
         // Expand nodes until the queue is empty or until max iterations
-
-        while(lExpandedNodes<100000 && !simpleQueue.isEmpty() ){
-
-
+        while (lExpandedNodes < 10000 && !simpleQueue.isEmpty()) {
+        	
             // Get state first in line
             lCurState = simpleQueue.poll();
             // Add one; new expanded node
             lExpandedNodes++;
 
-            //Visualizer.printStateDelux(lCurState, "--- State explored in iteration: #" + lIterations + " ---");
+            // Visualizer.printStateDelux(lCurState, "--- State explored in iteration: #" + lExpandedNodes + " ---");
 
             if (lCurState.nbOfBoxesOnGoal / Board.getNbOfGoals() < 1) {
                 // Clear and get new children of current state
@@ -135,6 +136,8 @@ public class Solver {
                 simpleQueue.add(lCurState);
             }
 
+            
+            
             // Add the number of new states
             lCreatedNodes = lCreatedNodes + childrenOfCurState.size();
 
@@ -153,7 +156,7 @@ public class Solver {
                         System.err.println("Number of Created nodes/second: " + lCreatedNodes / seconds);
                     }
 
-                    if (Sokoban.debugMode) Visualizer.printState(child, "THE FINAL STATE IS FOUND! See below:");
+                    if(Sokoban.visualizeMode) Visualizer.printState(child, "/Solver: THE FINAL STATE IS FOUND! See below:");
                     return child;
 
                 // If child is NOT in closed (Visited states), add it!
@@ -184,58 +187,410 @@ public class Solver {
         return Board.getInitialState();
 	} // End greedyBFS
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	/**
-	 * Before running this: Board.setGoalGradMerged(pState) must be set!
+	 * A first try to combine guided and unguided BFS, 
+	 * at one point in the search all the 200 highest scoring states 
+	 * are simply expanded two levels without sorting in between and then
+	 * the heuristic guides search continues. This should be made more sophisticated:
+	 * say when every 'I' nodes have been expanded we take the 'N' highest scoring in
+	 * the working queue and expand those (without sorting BUT deadlock detection!) 
+	 * 'M' times and then but back into queue to be judged by the heuristic along with others.
+	 * in this way the horizon is extended a few steps away "one step may lead to low heuristic value"
+	 * but taking just one step more might be much better...
+	 * 
+	 * This method was run by the recursive seacher er below there for it takes a state as parameter 
+	 * instead of getting it from Borad.initialstate as the other searchers.
+	 * 
+	 * @param pStartState
+	 * @return
+	 */
+	public State greedyBFSItDeep(State pStartState){
+
+        int lExpandedNodes = 0;
+        int lCreatedNodes = 0;
+		
+        simpleQueue.add(pStartState);
+        visitedStates.add(pStartState);
+        // First state created
+        lCreatedNodes++;
+
+        // Start constructorTime iterating through nodes
+        if (Sokoban.profilingMode) startTime = System.currentTimeMillis();
+
+        // The current state var.
+        State lCurState;
+        Vector<State> childrenOfCurState = new Vector<State>();
+
+        
+        // Expand nodes until the queue is empty or until max iterations
+        while (!simpleQueue.isEmpty() && simpleQueue.size() < 5000) {
+
+            // Get state first in line
+            lCurState = simpleQueue.poll();
+            // Add one; new expanded node
+            lExpandedNodes++;
+
+            //if(Sokoban.visualizeMode)  Visualizer.printStateDelux(lCurState, "--- State explored in iteration: #" + lExpandedNodes + " ---");
+            childrenOfCurState.clear();
+            lCurState.allSuccessors(childrenOfCurState); //fills with all children
+
+            // Add the number of new states
+            lCreatedNodes = lCreatedNodes + childrenOfCurState.size();
+
+            // Iterate through the children and add them to the queue and in Closed
+            for (State child : childrenOfCurState){
+               //if(Sokoban.visualizeMode)  Visualizer.printStateDelux(child, "--- Childs created in iteration: #" + lExpandedNodes + " ---");
+                
+            	// If the child is final state, then return it!
+                if (child.isFinalState()) {
+
+                    // End constructorTime searching for solution
+                    if (Sokoban.profilingMode) {
+                        long endTime = System.currentTimeMillis() - startTime;
+                        double seconds = (double) endTime / 1000;
+                        System.err.println("\n--- Greedy BFS ---");
+                        System.err.println("Expanded nodes for: " + endTime + " ms");
+                        System.err.println("Number of Expanded nodes/second: " + lExpandedNodes / seconds);
+                        System.err.println("Number of Created nodes/second: " + lCreatedNodes / seconds);
+                    }
+
+                    if(Sokoban.visualizeMode) Visualizer.printState(child, "THE FINAL STATE IS FOUND! See below:");
+                    return child;
+
+                // If child is NOT in closed (Visited states), add it!
+                } else if(!visitedStates.contains(child)){
+                    visitedStates.add(child);
+                    simpleQueue.add(child);
+
+                } else {
+                    // Add the state to the reusable container
+                    State.addReusableState(child);
+                }
+            }
+        }//End while
+     
+        Queue<State> tempQueue = new LinkedList<State>();
+
+    	if(Sokoban.debugMode) System.out.println("Entered BSF-part1. main queue size: " + simpleQueue.size());
+
+        for (int i = 0; i < 200; i++){
+        	lCurState = simpleQueue.poll();
+            lExpandedNodes++;
+        	childrenOfCurState.clear();
+            lCurState.allSuccessors(childrenOfCurState); //fills with all children
+            // Add the number of new states
+            lCreatedNodes = lCreatedNodes + childrenOfCurState.size();
+            for (State child : childrenOfCurState){
+                //if(Sokoban.visualizeMode)  Visualizer.printStateDelux(child, "--- Childs created in iteration: #" + lExpandedNodes + " ---");
+                 
+             	// If the child is final state, then return it!
+                 if (child.isFinalState()) {
+                     if(Sokoban.visualizeMode) Visualizer.printState(child, "THE FINAL STATE IS FOUND! See below:");
+                     return child;
+
+                 // If child is NOT in closed (Visited states), add it!
+                 } else if(!visitedStates.contains(child)){
+                     visitedStates.add(child);
+                     tempQueue.add(child);
+
+                 } else {
+                     // Add the state to the reusable container
+                     State.addReusableState(child);
+                 }
+            }
+        }
+        
+    	if(Sokoban.debugMode) System.out.println("Entered BSF-part2: temp queue size: " + tempQueue.size());
+
+        while(tempQueue.size()>0){
+
+        	lCurState = tempQueue.poll();
+            lExpandedNodes++;
+        	childrenOfCurState.clear();
+            lCurState.allSuccessors(childrenOfCurState); //fills with all children
+            // Add the number of new states
+            lCreatedNodes = lCreatedNodes + childrenOfCurState.size();
+            for (State child : childrenOfCurState){
+                //if(Sokoban.visualizeMode)  Visualizer.printStateDelux(child, "--- Childs created in iteration: #" + lExpandedNodes + " ---");
+                 
+             	// If the child is final state, then return it!
+                 if (child.isFinalState()) {
+                     if(Sokoban.visualizeMode) Visualizer.printState(child, "THE FINAL STATE IS FOUND! See below:");
+                     return child;
+
+                 // If child is NOT in closed (Visited states), add it!
+                 } else if(!visitedStates.contains(child)){
+                     visitedStates.add(child);
+                     simpleQueue.add(child);
+
+                 } else {
+                     // Add the state to the reusable container
+                     State.addReusableState(child);
+                 }
+            }
+        }
+         
+    	if(Sokoban.debugMode) System.out.println("Entered BestFS-again. main queue size:" + simpleQueue.size() + " Expanded: " + lExpandedNodes);
+
+        // Expand nodes until the queue is empty or until max iterations
+        while (!simpleQueue.isEmpty() && lExpandedNodes < 100000) {
+
+            // Get state first in line
+            lCurState = simpleQueue.poll();
+            // Add one; new expanded node
+            lExpandedNodes++;
+
+            //if(Sokoban.visualizeMode)  Visualizer.printStateDelux(lCurState, "--- State explored in iteration: #" + lExpandedNodes + " ---");
+            childrenOfCurState.clear();
+            lCurState.allSuccessors(childrenOfCurState); //fills with all children
+
+            // Add the number of new states
+            lCreatedNodes = lCreatedNodes + childrenOfCurState.size();
+
+            // Iterate through the children and add them to the queue and in Closed
+            for (State child : childrenOfCurState){
+               //if(Sokoban.visualizeMode)  Visualizer.printStateDelux(child, "--- Childs created in iteration: #" + lExpandedNodes + " ---");
+                
+            	// If the child is final state, then return it!
+                if (child.isFinalState()) {
+
+                    // End constructorTime searching for solution
+                    if (Sokoban.profilingMode) {
+                        long endTime = System.currentTimeMillis() - startTime;
+                        double seconds = (double) endTime / 1000;
+                        System.err.println("\n--- Greedy BFS ---");
+                        System.err.println("Expanded nodes for: " + endTime + " ms");
+                        System.err.println("Number of Expanded nodes/second: " + lExpandedNodes / seconds);
+                        System.err.println("Number of Created nodes/second: " + lCreatedNodes / seconds);
+                    }
+
+                    if(Sokoban.visualizeMode) Visualizer.printState(child, "THE FINAL STATE IS FOUND! See below:");
+                    return child;
+
+                // If child is NOT in closed (Visited states), add it!
+                } else if(!visitedStates.contains(child)){
+                    visitedStates.add(child);
+                    simpleQueue.add(child);
+
+                } else {
+                    // Add the state to the reusable container
+                    State.addReusableState(child);
+                }
+            }
+        }//End while
+
+        // End time
+        if (Sokoban.profilingMode) {
+            long endTime = System.currentTimeMillis() - startTime;
+            double seconds = (double) endTime / 1000;
+            System.err.println("\n--- Greedy BFS ---");
+            System.err.println("Expanded nodes for: " + endTime + " ms");
+            System.err.println("Number of Expanded nodes/second: " + lExpandedNodes / seconds);
+            System.err.println("Number of Created nodes/second: " + lCreatedNodes / seconds);
+        }
+
+        if(Sokoban.debugMode)
+            System.out.println("Solver line 77: No final sate was found, returned initial state.");
+
+        return Board.getInitialState();
+	} // End greedyBFSItDeep
+	
+		
+	/**
+	 * Runs the recursive method, where one box is moved at a time.
+	 * @return
+	 */
+	public State recursive(){
+		/*	
+		Vector<State> states = new Vector<State>();
+		states.add(Board.getInitialState());
+		for(int i = 0; i < Board.getNbOfBoxes(); i++){
+			moveOneBoxToGoal(states, i, 0);
+		}
+
+		return greedyBFS(states.lastElement());
+		*/
+		return greedyBFSItDeep(Board.getInitialState());
+	}
+	
+		
+	/**
 	 * The vector should only contain one state from which we want to move one box...
+	 * recurNb should be set to zero initially.
 	 *
 	 * @param pState
 	 * @param pBoxIndex
 	 * @param recurNb
 	 * @return
 	 */
-	public void moveOneBoxToGoal(Vector<State> pTempStorage, int pBoxIndex, int recurNb){
+	public void moveOneBoxToClosestGoal(Vector<State> pTempStorage, int pBoxIndex, int recurNb){
 		recurNb++;
+		Board.setGoalGradMerged(pTempStorage.lastElement());
+		if(Sokoban.visualizeMode) Visualizer.printGoalGradMerged();
+		if(Sokoban.visualizeMode) Visualizer.printVector(pTempStorage.lastElement().goalsOccupied, "OccupiedGoals:");
 		int prevGradValueUnderBox = Integer.MAX_VALUE;
 		int curGradValueUnderBox = Board.getGoalGradMerged(
 				pTempStorage.lastElement().getBox(pBoxIndex).getRow(),
 				pTempStorage.lastElement().getBox(pBoxIndex).getCol() );
 		
-		while(curGradValueUnderBox < prevGradValueUnderBox){
+		while(curGradValueUnderBox < prevGradValueUnderBox && curGradValueUnderBox > 0){
 			prevGradValueUnderBox = curGradValueUnderBox; //update last value
 			//adds the new state after move and sets cur grad value to the pos it moved to.
 			curGradValueUnderBox = 
 					pTempStorage.lastElement().gradientDecentSuccessor(pTempStorage, pBoxIndex);
+			
+			if(Sokoban.visualizeMode) Visualizer.printState(pTempStorage.lastElement(), "Recurs. for box: " + pBoxIndex);
 		}
 		
-		if(curGradValueUnderBox > 1){
-			moveOneBoxToGoal(pTempStorage, 
+		if(curGradValueUnderBox > 0 && recurNb < Board.getNbOfBoxes()){
+			if(Sokoban.debugMode) System.out.println("Entered recursion: "+recurNb);
+			int blockBoxIndex = pTempStorage.lastElement().getBlockingBoxIndex(pBoxIndex);
+			if (blockBoxIndex!=-1){ // -1 means Could not find bloxking box...
+				moveOneBoxToClosestGoal(pTempStorage, 
 					pTempStorage.lastElement().getBlockingBoxIndex(pBoxIndex),
 					recurNb);
+			}
 		}		
 	}
 	
 	
+	/**
+	 * TODO
+	 * This function should implement a greedyBFS using the GoalGrad for the
+	 * specidifed goal (not merged!) to move one box to this goal. 
+	 * If possible remove the state sent in in pTempStorage and add the new state
+	 * with the box moved and RETURN TRUE.
+	 * If not possible (no solution found) keep the state in the vector and RETURN FALSE.
+	 * 
+	 * this function should move one box to the goal specified by the index.
+	 * 
+	 * @param pTempStorage
+	 * @param pBoxIndex
+	 * @param goalIndex
+	 */
+	public boolean moveOneBoxToGoal(Vector<State> pTempStorage, int pBoxIndex, int goalIndex){
+	
+		return false;
+	}
+	
+	/**
+	 * TODO
+	 * This function should implement a greedyBFS (Manhattan distance) to move one 
+	 * box to the required position. 
+	 * -If possible remove the state sent in in pTempStorage and add the new state
+	 * with the box moved and RETURN TRUE.
+	 * -If not possible (no solution found) keep the state in the vector and RETURN FALSE.
+	 * 
+	 * this function should move one box to the goal specified by the index.
+	 * 
+	 * @param pTempStorage
+	 * @param pBoxIndex
+	 * @param goalIndex
+	 */
+	public boolean moveOneBoxToPosition(Vector<State> pTempStorage, int pBoxIndex, int goalIndex){
+	
+		return false;
+	}
 	
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+	/**
+	 * checks the last move made in each state and if that move was to a goal it checks
+	 * if it should be moved further onto another goal according to the goal clusterMatrix.
+	 * @param pStates
+	 */
+	public void postProcessAccordngGoalCluster(Vector<State> pStates){
+
+		//Queue with states that still need processing
+		Queue<State> processingQueue = new LinkedList<State>();
+		//moves all states where the last move was to goal to the Queue: (filter out these, the others are left in vector)
+		int i = 0;
+		while(i<pStates.size()){
+			if(pStates.get(i).getLastMovedBox().isOnGoal()){
+				processingQueue.add(pStates.remove(0)); //move over to queue for processing.
+			}
+			else{
+				i++; //Go t next object.
+			}
+		}
+
+		//if the states where the last moved box is on goal we need to check clusterMatrix!
+		while(processingQueue.size() > 0){
+			//look at first state:
+			State state = processingQueue.poll();
+			//temporary vector for sending state to move methods.
+			Vector<State> tempVect = new Vector<State>();
+
+			int goalIndex = Board.getGoalIndexAt(
+					state.getLastMovedBox().getRow(), state.getLastMovedBox().getCol());
+
+			//check in clusterMatrix if is block to any other goal:
+			int lowestValueBlockType = 5; //highest block value is 3;
+			int lowestValueRowIndex = -1;		
+			for(int matrixRow = 0; matrixRow<Board.getNbOfGoals(); matrixRow++){
+				if(GoalCluster.getClusterMatrixValue(matrixRow, goalIndex) != 0
+						&& GoalCluster.getClusterMatrixValue(matrixRow, goalIndex) < lowestValueBlockType){
+					lowestValueBlockType = GoalCluster.getClusterMatrixValue(matrixRow, goalIndex);
+					lowestValueRowIndex = matrixRow;
+				}
+			}
+
+			if(lowestValueBlockType == 5){
+				//Not blocking any box put back to original vector!
+				pStates.add(state); //(already polled from queue)
+			}
+			/*
+			 * if the value == 1,2,3 the box should be moved further on
+			 * to the goal with index corresponding to matrix row.
+			 */
+			else if(lowestValueBlockType == 1){
+				tempVect.add(state);
+				boolean moveSuccesful = moveOneBoxToGoal(tempVect, state.getLastBoxMovedIndex(), lowestValueRowIndex);
+				//if succesful put back in Queue - maybe it should be moved further on!
+				if(moveSuccesful){
+					processingQueue.add(tempVect.remove(0));
+				}
+				else{
+					/*
+					 * TODO
+					 * This should not happen to often if everything works but must be take care of!
+					 * DEAD LOCK? FOR NOW - JUST SEND THE STATE BACK...
+					 */
+					pStates.add(state); //(already polled from queue)
+				}
+			}
+			else{ //looping just two times for block type 2 and 3:
+				for(int blockType = 2; blockType <=3 ; blockType++){
+					if(lowestValueBlockType == blockType){
+						/*
+						 * check for mutual pointing if the other goal points back to this goal
+						 * with same or lower block type: do not move.
+						 */
+						if(GoalCluster.getClusterMatrixValue(goalIndex, lowestValueRowIndex) <= blockType){
+							//No more moving put back in original state vector:
+							pStates.add(state); //(already polled from queue)
+						}
+						else{
+							tempVect.add(state);
+							boolean moveSuccesful = moveOneBoxToGoal(tempVect, state.getLastBoxMovedIndex(), lowestValueRowIndex);
+							//if successful put back in Queue - maybe it should be moved further on!
+							if(moveSuccesful){
+								processingQueue.add(tempVect.remove(0));
+							}
+							else{
+								/*
+								 * TODO
+								 * This should not happen to often if everything works but must be take care of!
+								 * DEAD LOCK? FOR NOW - JUST SEND THE STATE BACK...
+								 */
+								pStates.add(state); //(already polled from queue)
+							}
+						}
+						break; //if lowestValueBlockType == 2 no need to check for 3.
+					}//End if == blockType
+				}
+			}
+		}
+	}
 	
 	
 	/**

@@ -51,6 +51,40 @@ public class Heuristic {
     }
 
     /**
+     * Sums the gradient values for each box relative the merged heuristic.
+     * Relies on that the goalGradMerged in Board is updated for the cur state.
+     *
+     * @param pState input state
+     * @return heuristic value (int)
+     */
+    public static double getMergedGradHeuristic(State pState) {
+        int lSumOfMovesToClosestUnOccupiedGoal = 0;
+        int flexibility = 0; //Sum of how many goals each box can reach
+        int onGoalsScore = 0;
+        for (Box box : pState.getBoxes()) {
+        	if(box.isOnGoal()){
+        		onGoalsScore = onGoalsScore + 30*Board.goalWheight[Board.getGoalIndexAt(box.getRow(), box.getCol())];
+        	}
+        	else if(pState.getGoalGradMerged(box.getRow(), box.getCol()) == -1){
+        		//if this is the case we must move another box away from goal...
+        		lSumOfMovesToClosestUnOccupiedGoal = lSumOfMovesToClosestUnOccupiedGoal + 200;
+        	}
+        	else{
+        		lSumOfMovesToClosestUnOccupiedGoal = 
+        				lSumOfMovesToClosestUnOccupiedGoal + pState.getGoalGradMerged(box.getRow(), box.getCol());
+        	}
+        	for(int i = 0; i < Board.getNbOfGoals(); i++){
+        		if( !pState.isGoalOccupied(i) &&
+        				Board.getGoalGrad(i, box.getRow(), box.getCol()) != -1){
+        			flexibility++;
+        		}
+        	}
+        }        
+        
+        return lSumOfMovesToClosestUnOccupiedGoal - onGoalsScore - flexibility;
+    }
+    
+    /**
      * David Hasselhoff heuristics - Returns the the distance that is the smallest distance of all boxes
      *
      * @param pState input state
@@ -118,7 +152,8 @@ public class Heuristic {
         Vector<Box> lBoxes = pState.getBoxes();
         double lBoxScore = 0;
         for (Box box : lBoxes) {
-            lBoxScore = 100 * lBoxScore + Board.getGoalGradMerged(box.getRow(), box.getCol());
+            if (box.isOnGoal()) lBoxScore = lBoxScore - 2;
+            lBoxScore = lBoxScore + Board.getGoalGradMerged(box.getRow(), box.getCol());
         }
         return lBoxScore / lBoxes.size();
     }

@@ -34,8 +34,10 @@ public class State implements Cloneable {
 	private int g = 0; // Cost of moving to this position.
 	private double h = 0; // Heuristic cost.
 
-	boolean[] goalsOccupied; //Vector which indicates if a goal(index) is occupied.
+    boolean[] goalsOccupied; //Vector which indicates if a goal(index) is occupied.
 	int nbOfBoxesOnGoal;
+	
+	private int[][] goalGradMerged;
 
     // Time fields
     public static long constructorTime;
@@ -58,13 +60,17 @@ public class State implements Cloneable {
 		playerRow = pPlayerRow;
 		playerCol= pPlayerCol;
 		lastBoxMovedIndex = -1; //No box is last moved in initial state.
-		//Should maybe be set to the box the player is moved to?
 		lastMoveDir = 'I'; // Initial state 'I', no last move direction.
 		goalsOccupied = pGoalsOccupied;
 		nbOfBoxesOnGoal = pNbOfBoxesOnGoal;
 		this.parentState = null;
+		goalGradMerged = new int[Board.getNbRows()][Board.getNbCols()];
+		for(int row = 0; row < Board.getNbRows(); row++){
+			for(int col = 0; col < Board.getNbCols(); col++){
+		        this.goalGradMerged[row][col] = Board.getGoalGradMerged()[row][col];
 
-
+			}
+		}
 	} // End constructor State
 
 	/**
@@ -97,6 +103,14 @@ public class State implements Cloneable {
 		lastMoveDir = pMoveDir;
 		this.parentState = pParentState;
 		this.nbOfBoxesOnGoal = pParentState.nbOfBoxesOnGoal;
+		goalGradMerged = new int[Board.getNbRows()][Board.getNbCols()];
+		for(int row = 0; row < Board.getNbRows(); row++){
+			for(int col = 0; col < Board.getNbCols(); col++){
+		        this.goalGradMerged[row][col] = pParentState.goalGradMerged[row][col];
+
+			}
+		}
+		//if(Sokoban.debugMode) Visualizer.printGoalGradMerged(goalGradMerged);
 		
 		this.goalsOccupied = new boolean[pParentState.goalsOccupied.length];
 		for(int i = 0; i < pParentState.goalsOccupied.length; i++){
@@ -120,16 +134,20 @@ public class State implements Cloneable {
         	if(!onGoalBeforeMove){
         		nbOfBoxesOnGoal++;
         	}
+        	setGoalGradMerged();
         }
         else{
         	boxes.get(pBoxIndex).setIsOnGoal(false);
         	if(onGoalBeforeMove){
         		nbOfBoxesOnGoal--;
+            	setGoalGradMerged();
+
         	}
         }
         
         this.g = pParentState.g + 1;
-        this.h = Heuristic.getDavidDistanceHeuristic(this);
+        this.h = Heuristic.getMergedGradHeuristic(this);
+        //this.h = Heuristic.getDavidDistanceHeuristic(this);
 
         // Append constructorTime to the constructorTime field
         if (Sokoban.profilingMode)
@@ -163,6 +181,13 @@ public class State implements Cloneable {
         lastMoveDir = pMoveDir;
         this.parentState = pParentState;
         this.nbOfBoxesOnGoal = pParentState.nbOfBoxesOnGoal;
+		//goalGradMerged = new int[Board.getNbRows()][Board.getNbCols()]; //Not necessary since this state already have been initiated!
+		for(int row = 0; row < Board.getNbRows(); row++){
+			for(int col = 0; col < Board.getNbCols(); col++){
+		        this.goalGradMerged[row][col] = pParentState.goalGradMerged[row][col];
+
+			}
+		}
 
         this.goalsOccupied = new boolean[pParentState.goalsOccupied.length];
         for(int i = 0; i < pParentState.goalsOccupied.length; i++){
@@ -186,11 +211,15 @@ public class State implements Cloneable {
             if(!onGoalBeforeMove){
                 nbOfBoxesOnGoal++;
             }
+        	setGoalGradMerged();
+
         }
         else{
             boxes.get(pBoxIndex).setIsOnGoal(false);
             if(onGoalBeforeMove){
                 nbOfBoxesOnGoal--;
+            	setGoalGradMerged();
+
             }
         }
 
@@ -204,13 +233,44 @@ public class State implements Cloneable {
 
 
     
-    /**
-     * Creates a string representation for each state which is
-     * only dependent on which cells are occupied with boxes
-     * (irrespective of which box is where)
-     * @return
-     */
+    public void setGoalGradMerged() {
+        
+        // set high values
+        for (int row = 0; row < Board.getNbRows(); row++) {
+            // for each col
+            for (int col = 0; col < Board.getNbCols(); col++) {
+                goalGradMerged[row][col] = -1;
+            }
+        }
+    	
+    	int value;
+        // for each row
+        for (int row = 0; row < Board.getNbRows(); row++) {
+            // for each col
+            for (int col = 0; col < Board.getNbCols(); col++) {
+                // for every goal
+                value = Integer.MAX_VALUE;
+                for (int i = 0; i < Board.getNbOfGoals(); i++) {
+                	if (goalsOccupied[i]){
+               		//do nothing
+                	}
+                	else if(value > Board.getGoalGrad(i, row, col) &&
+                    		Board.getGoalGrad(i, row, col) != -1) {
+                        goalGradMerged[row][col] = Board.getGoalGrad(i, row, col);
+                        value = goalGradMerged[row][col];
+                    }
+                }
+            }
+        }
 
+    }
+
+    public int getGoalGradMerged(int pRow, int pCol){
+    	return goalGradMerged[pRow][pCol];
+    }
+    public int[][] getGoalGradMerged(){
+    	return goalGradMerged;
+    }
     
     public char getCharLastMove(){
     	return this.lastMoveDir;
@@ -296,14 +356,14 @@ public class State implements Cloneable {
         return boxes.elementAt(pIndex);
     }
     
-    public Box getBox(int pRow, int pCol) {
+    public int getBox(int pRow, int pCol) {
     	for(int i = 0; i < boxes.size(); i++){
     		if(boxes.get(i).getRow() == pRow && boxes.get(i).getCol() == pCol){
-    			return boxes.get(i);
+    			return i;
     		}
     	}
-    	if(Sokoban.debugMode) System.err.println("Error in State/getBox(): NO box at this position");
-    	return null;
+    	if(Sokoban.debugMode) System.out.println("Error in State/getBox(): NO box at row: "+pRow +" col: "+pCol);
+    	return -1;
     }
 
 	/**
@@ -552,7 +612,7 @@ public class State implements Cloneable {
     } // End allSuccessors
 
     /**
-     * Not working....
+     * Not working....TESTING SOON
      */
 	public int gradientDecentSuccessor(Vector<State> pStates, int pBoxIndex) {
 
@@ -561,9 +621,13 @@ public class State implements Cloneable {
 		// Get gradient value at current position
 		int gradValue = getGradValue(boxes.get(pBoxIndex), 'C');
 
+		if(Sokoban.debugMode) System.out.println(
+				"gradientDecentSuccessor was called for box: "+pBoxIndex+" on gradValue: " + gradValue);
+		
 		/* If a move is possible, then add the new state in the pStates vector */
 		if (tryMove(boxes.get(pBoxIndex), 'U')) {
 			if (gradValue > getGradValue(boxes.get(pBoxIndex), 'U')) {
+				if(Sokoban.debugMode) System.out.println("get GradValue returned for move up: " + getGradValue(boxes.get(pBoxIndex), 'U') );
 				moveDir = 'U';
 				gradValue = getGradValue(boxes.get(pBoxIndex), 'U');
 			}
@@ -584,11 +648,16 @@ public class State implements Cloneable {
 		}
 
 		if (tryMove(boxes.get(pBoxIndex), 'L')) {
-			if (gradValue > getGradValue(boxes.get(pBoxIndex), 'L'))
+			if(Sokoban.debugMode) System.out.println("GRAD: "+ gradValue);
+			if (gradValue > getGradValue(boxes.get(pBoxIndex), 'L')){
+				if(Sokoban.debugMode) System.out.println("get GradValue returned for move L: " + getGradValue(boxes.get(pBoxIndex), 'L') );
 				moveDir = 'L';
+				gradValue = getGradValue(boxes.get(pBoxIndex), 'L');
+			}
 		}
-
+		
 		if (moveDir != '\0') {
+			if(Sokoban.debugMode) System.out.println("gradDecSuc: Move found: " + moveDir + ", To grad value: "+gradValue);
 			if (!reusableStates.isEmpty()) {
 				pStates.add(reusableStates.pop());
 				pStates.lastElement().changeBoxConfig(this, pBoxIndex, moveDir);
@@ -596,26 +665,46 @@ public class State implements Cloneable {
 				pStates.add(new State(this, pBoxIndex, moveDir));
 			}
 		} else {
-			pStates.add(this);
+			if(Sokoban.debugMode) System.out.println("gradDecSuc: No possible move was found");
 		}
 		return gradValue;
 
 	} // End allSuccessors
 
-    public void boxJudge(Vector<State> pStates) {
+    /**
+     * This method returns the index of the box that is blocking the way for another box.
+     * The two for-loops loops through a 3 by 3 square to check the surrounding tiles for a lower state.
+     *
+     * RETURNS -1 if no box in vicinity!
+     *
+     * @return the index of a box that blocks the index
+     */
+    public int getBlockingBoxIndex(int pCurrentBoxIndex) {
+        // Get the gradient value at current position
+        int lowestGradValue = getGradValue(getBoxes().get(pCurrentBoxIndex), 'C');
+        // The blocking box-index
+        int newBoxIndex = -1;
+        // The coordinates, starting in the upper left corner in the 3 by 3 surrounding
+        int upperLeftRow = boxes.get(pCurrentBoxIndex).getRow() - 1;
+        int upperLeftCol = boxes.get(pCurrentBoxIndex).getCol() - 1;
 
-        for (int boxIndex = 0; boxIndex < boxes.size() ; boxIndex++) {
-            // If gradient value is grater than some value then use gradientDec
-            if (boxes.get(boxIndex).isOnGoal()){
-                selectiveSuccessors(pStates, boxIndex);
-            }else if (getGradValue(boxes.get(boxIndex), 'C') < 3) {
-                gradientDecentSuccessor(pStates, boxIndex);
-            } else {
-                selectiveSuccessors(pStates, boxIndex);
+        // Iterate through every row end every column
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                // If the gradient score is lower and there is a box there (and not deadlock)
+                if (Board.getGoalGradMerged(upperLeftRow+i, upperLeftCol+j) !=-1 &&
+                		Board.getGoalGradMerged(upperLeftRow+i, upperLeftCol+j) < lowestGradValue &&
+                		!(i==1 && j==2) &&
+                		isBox(upperLeftRow + i, upperLeftCol+j)) {
+                    newBoxIndex = getBox(upperLeftRow + i, upperLeftCol + j);
+                    lowestGradValue = Board.getGoalGradMerged(upperLeftRow + i, upperLeftCol + j);
+                }
             }
-        }
-    }
+        }// End check surrounding
 
+        // return the new box index
+        return newBoxIndex;
+    }
 
 
     public boolean isFinalState() {
@@ -635,6 +724,13 @@ public class State implements Cloneable {
     // Static method to add reusable states from Solver
     public static void addReusableState(State pState) {
         reusableStates.push(pState);
+    }
+
+    /**
+     * @return if the goal is occupied
+     */
+    public boolean isGoalOccupied(int pGoalIndex) {
+        return goalsOccupied[pGoalIndex];
     }
    
 } // End Class State
