@@ -12,5 +12,6 @@ public class Box extends Point{
 	
 	// True if box is on goal.
 	public boolean onGoal = false;
+	public Point dreamGoal = null;
 
 }

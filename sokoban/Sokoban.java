@@ -44,7 +44,7 @@ public class Sokoban {
 		
 		// Set the solution string to desired answer.
 		solution = Solver.getSolution();
-		
+		//solution = "ddrRRRRRRRRRRRRRRRRRRRRRRRRRRRurDD";
 		/** "Fun" debug message to signal end of program. */
 		if(debug) System.out.println(Factory.getStateCount());
 		if(debug) System.out.println("NEO-SOKOBAN HAS TERMINATED.");

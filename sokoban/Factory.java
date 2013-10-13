@@ -13,7 +13,7 @@ public class Factory {
 	private static int estimatedMaxNumberOfStates = 500000;
 	
 	// Number of states created at start depend on this number.
-	private static int startStates = 10000;
+	private static int startStates = 0;
 	
 	// Containers of all cells, boxes, states and players.
 	private static Cell[][] boardCells = new Cell[50][50];

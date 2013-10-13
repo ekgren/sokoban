@@ -18,6 +18,9 @@ public class State implements Cloneable{
 	// MAGIC.
 	public boolean isSolved = false;
 	
+	public boolean longStep = false;
+	public String path = null;
+	
 	// Heuristic & hashCode.
 	private double h = 0;
 	private int hashCode;
@@ -87,10 +90,10 @@ public class State implements Cloneable{
    		
    		// For each box in the box array we call the method boxMoves.
    		for(Point box : boxes){
-   			if(boxUp(box)) childStates.add(createNewState(box, Factory.getCellUp(box), 0));
-   			if(boxDown(box)) childStates.add(createNewState(box, Factory.getCellDown(box), 1));
-   			if(boxLeft(box)) childStates.add(createNewState(box, Factory.getCellLeft(box), 2));
-   			if(boxRight(box)) childStates.add(createNewState(box, Factory.getCellRight(box), 3));
+   			if(boxUp(box, false)) childStates.add(createNewState(box, Factory.getCellUp(box), 0, false));
+   			if(boxDown(box, false)) childStates.add(createNewState(box, Factory.getCellDown(box), 1, false));
+   			if(boxLeft(box, false)) childStates.add(createNewState(box, Factory.getCellLeft(box), 2, false));
+   			if(boxRight(box, false)) childStates.add(createNewState(box, Factory.getCellRight(box), 3, false));
    		}
    		
    		// End time for this method.
@@ -108,8 +111,7 @@ public class State implements Cloneable{
    	 * @param previousMove
    	 * @return
    	 */
-   	public State createNewState(Point currentPosition, Point newPosition, int previousMove){
-   		
+   	public State createNewState(Point currentPosition, Point newPosition, int previousMove, boolean longMove){
    		if(Sokoban.debugTime) TimeIt.createNewState = System.currentTimeMillis();
    		
    		// Create new state and put it in stateHolder until finished.
@@ -118,7 +120,27 @@ public class State implements Cloneable{
 		stateHolder.setPreviousMove(previousMove);
 		
 		// Add new player to state.
-		stateHolder.player = Factory.createPlayer(currentPosition);
+		if(longMove == false) stateHolder.player = Factory.createPlayer(currentPosition);
+		else{
+			
+			switch (previousMove) {
+               case 0:
+            	   stateHolder.player = Factory.createPlayer(Factory.getCellDown(newPosition));
+                   break;
+               case 1:
+            	   stateHolder.player = Factory.createPlayer(Factory.getCellUp(newPosition));
+                   break;
+               case 2:
+            	   stateHolder.player = Factory.createPlayer(Factory.getCellRight(newPosition));
+                   break;
+               case 3:
+            	   stateHolder.player = Factory.createPlayer(Factory.getCellLeft(newPosition));
+            	   break;
+               case 4:
+            	   stateHolder.player = Factory.createPlayer(player);
+            	   break;
+			}
+		}
 		
 		// Create copies of boxes in this state.
    		for(Point p : boxes){
@@ -141,7 +163,6 @@ public class State implements Cloneable{
    		
    		// End time for this method.
    		if(Sokoban.debugTime) TimeIt.createNewStateTotal = TimeIt.createNewStateTotal + System.currentTimeMillis() - TimeIt.createNewState;
-   		
 		return stateHolder;
    	}
    	
@@ -151,7 +172,7 @@ public class State implements Cloneable{
    	 * @param box
    	 * @return
    	 */
-   	public boolean boxUp(Point box){
+   	public boolean boxUp(Point box, boolean playerPath){
    		
    		if(Sokoban.debugTime) TimeIt.boxMoveAllowed = System.currentTimeMillis();
    		
@@ -165,16 +186,46 @@ public class State implements Cloneable{
    			// or where the player needs to be to do the push.
    			if(boxes.contains(Factory.getCellUp(box)) == false &&
    				boxes.contains(Factory.getCellDown(box))== false){
-	   			
-   				// If we can move the box in this direction we also have to check if the player
+   				
+   				// In order to save box push path.
+   				if(playerPath){
+   					boxes.add(box);
+   					switch (Factory.getCell(box).lastMove) {
+	   	                case 0:
+	   	                	Search.boxMoveSearchString = "";
+	   	                    break;
+	   	                case 1:
+	   	                	Search.boxMoveSearchString = Search.Astar(this, Factory.getCellUp(box), Factory.getCellDown(box), playerPath);
+	   	                    break;
+	   	                case 2:
+	   	                	Search.boxMoveSearchString = Search.Astar(this, Factory.getCellRight(box), Factory.getCellDown(box), playerPath);
+	   	                    break;
+	   	                case 3:
+	   	                	Search.boxMoveSearchString = Search.Astar(this, Factory.getCellLeft(box), Factory.getCellDown(box), playerPath);
+	   	                	break;
+	   	                case 4:
+	   	                	Search.boxMoveSearchString = Search.Astar(this, player, Factory.getCellDown(box), playerPath);
+	   	                	break;
+   					}
+   					boxes.remove(box);
+   				}
+   				else Search.boxMoveSearchString = Search.Astar(this, player, Factory.getCellDown(box), playerPath);
+   				
+	   			// If we can move the box in this direction we also have to check if the player
 	   			// can move to the cell to push the box.
-	   			if(Search.Astar(this, player, Factory.getCellDown(box), false) != null){
+	   			if(Search.boxMoveSearchString != null){
 	   				
 	   				// End time for this method.
 	   		   		if(Sokoban.debugTime) TimeIt.boxMoveAllowedTotal = TimeIt.boxMoveAllowedTotal + System.currentTimeMillis() - TimeIt.boxMoveAllowed;
+	   		   		if(playerPath) boxes.add(box);
+	   		   		if(Deadlocks.checkWallDeadlock(this) == false &&
+   		   				Deadlocks.checkThreeBoxesCornerDeadlock(this) == false &&
+   		   				Deadlocks.checkFourBoxesDeadlock(this) == false){
+	   		   			return true;
+	   		   		} else {
+	   		   			return false;
+	   		   		}
 	   		   		
-	   				return true;
-	   				
 	   			} else {
 	   				// End time for this method.
 	   		   		if(Sokoban.debugTime) TimeIt.boxMoveAllowedTotal = TimeIt.boxMoveAllowedTotal + System.currentTimeMillis() - TimeIt.boxMoveAllowed;
@@ -198,7 +249,7 @@ public class State implements Cloneable{
    	 * @param box
    	 * @return
    	 */
-   	public boolean boxDown(Point box){
+   	public boolean boxDown(Point box, boolean playerPath){
    		
    		if(Sokoban.debugTime) TimeIt.boxMoveAllowed = System.currentTimeMillis();
    		
@@ -213,13 +264,43 @@ public class State implements Cloneable{
    			if(boxes.contains(Factory.getCellDown(box)) == false &&
    	   			boxes.contains(Factory.getCellUp(box))== false){
    				
+   				// In order to save box push path.
+   				if(playerPath){
+   					boxes.add(box);
+   					switch (Factory.getCell(box).lastMove) {
+	   	                case 0:
+	   	                	Search.boxMoveSearchString = Search.Astar(this, Factory.getCellDown(box), Factory.getCellUp(box), playerPath);
+	   	                    break;
+	   	                case 1:
+	   	                	Search.boxMoveSearchString = "";
+	   	                    break;
+	   	                case 2:
+	   	                	Search.boxMoveSearchString = Search.Astar(this, Factory.getCellRight(box), Factory.getCellUp(box), playerPath);
+	   	                    break;
+	   	                case 3:
+	   	                	Search.boxMoveSearchString = Search.Astar(this, Factory.getCellLeft(box), Factory.getCellUp(box), playerPath);
+	   	                	break;
+	   	                case 4:
+	   	                	Search.boxMoveSearchString = Search.Astar(this, player, Factory.getCellUp(box), playerPath);
+	   	                	break;
+   					}
+   					boxes.remove(box);
+   				}
+   				else Search.boxMoveSearchString = Search.Astar(this, player, Factory.getCellUp(box), playerPath);
+   				
    				// If we can move the box in this direction we also have to check if the player
 	   			// can move to the cell to push the box.
-	   			if(Search.Astar(this, player, Factory.getCellUp(box), false) != null){
+	   			if(Search.boxMoveSearchString != null){
 	   				// End time for this method.
 	   		   		if(Sokoban.debugTime) TimeIt.boxMoveAllowedTotal = TimeIt.boxMoveAllowedTotal + System.currentTimeMillis() - TimeIt.boxMoveAllowed;
-	   				return true;
-	   				
+	   		   		if(playerPath) boxes.add(box);
+	   		   		if(Deadlocks.checkWallDeadlock(this) == false &&
+   		   				Deadlocks.checkThreeBoxesCornerDeadlock(this) == false &&
+   		   				Deadlocks.checkFourBoxesDeadlock(this) == false){
+	   		   			return true;
+	   		   		} else {
+	   		   			return false;
+	   		   		}
 	   			} else{
 	   				// End time for this method.
 	   		   		if(Sokoban.debugTime) TimeIt.boxMoveAllowedTotal = TimeIt.boxMoveAllowedTotal + System.currentTimeMillis() - TimeIt.boxMoveAllowed;
@@ -242,7 +323,7 @@ public class State implements Cloneable{
    	 * @param box
    	 * @return
    	 */
-   	public boolean boxLeft(Point box){
+   	public boolean boxLeft(Point box, boolean playerPath){
    		
    		if(Sokoban.debugTime) TimeIt.boxMoveAllowed = System.currentTimeMillis();
    		
@@ -257,14 +338,45 @@ public class State implements Cloneable{
    			if(boxes.contains(Factory.getCellLeft(box)) == false &&
    	   				boxes.contains(Factory.getCellRight(box))== false){
 	   			
+   				// In order to save box push path.
+   				if(playerPath){
+   					boxes.add(box);
+   					switch (Factory.getCell(box).lastMove) {
+	   	                case 0:
+	   	                	Search.boxMoveSearchString = Search.Astar(this, Factory.getCellDown(box), Factory.getCellRight(box), playerPath);
+	   	                    break;
+	   	                case 1:
+	   	                	Search.boxMoveSearchString = Search.Astar(this, Factory.getCellUp(box), Factory.getCellRight(box), playerPath);
+	   	                    break;
+	   	                case 2:
+	   	                	Search.boxMoveSearchString = "";
+	   	                    break;
+	   	                case 3:
+	   	                	Search.boxMoveSearchString = Search.Astar(this, Factory.getCellLeft(box), Factory.getCellRight(box), playerPath);
+	   	                	break;
+	   	                case 4:
+	   	                	Search.boxMoveSearchString = Search.Astar(this, player, Factory.getCellRight(box), playerPath);
+	   	                	break;
+   					}
+   					boxes.remove(box);
+   				}
+   				else Search.boxMoveSearchString = Search.Astar(this, player, Factory.getCellRight(box), playerPath);
+   				
 	   			// If we can move the box in this direction we also have to check if the player
 	   			// can move to the cell to push the box.
-	   			if(Search.Astar(this, player, Factory.getCellRight(box), false) != null){
+	   			if(Search.boxMoveSearchString != null){
 	   				
 	   				// End time for this method.
 	   		   		if(Sokoban.debugTime) TimeIt.boxMoveAllowedTotal = TimeIt.boxMoveAllowedTotal + System.currentTimeMillis() - TimeIt.boxMoveAllowed;
+	   		   		if(playerPath) boxes.add(box);
+	   		   		if(Deadlocks.checkWallDeadlock(this) == false &&
+   		   				Deadlocks.checkThreeBoxesCornerDeadlock(this) == false &&
+   		   				Deadlocks.checkFourBoxesDeadlock(this) == false){
+	   		   			return true;
+	   		   		} else {
+	   		   			return false;
+	   		   		}
 	   				
-	   				return true;
 	   				
 	   			} else {
 	   				// End time for this method.
@@ -289,7 +401,7 @@ public class State implements Cloneable{
    	 * @param box
    	 * @return
    	 */
-   	public boolean boxRight(Point box){
+   	public boolean boxRight(Point box, boolean playerPath){
    		
    		if(Sokoban.debugTime) TimeIt.boxMoveAllowed = System.currentTimeMillis();
    		
@@ -304,14 +416,43 @@ public class State implements Cloneable{
    			if(boxes.contains(Factory.getCellRight(box)) == false &&
    	   				boxes.contains(Factory.getCellLeft(box))== false){
 	   			
+   				// In order to save box push path.
+   				if(playerPath){
+   					boxes.add(box);
+   					switch (Factory.getCell(box).lastMove) {
+	   	                case 0:
+	   	                	Search.boxMoveSearchString = Search.Astar(this, Factory.getCellDown(box), Factory.getCellLeft(box), playerPath);
+	   	                    break;
+	   	                case 1:
+	   	                	Search.boxMoveSearchString = Search.Astar(this, Factory.getCellUp(box), Factory.getCellLeft(box), playerPath);
+	   	                    break;
+	   	                case 2:
+	   	                	Search.boxMoveSearchString = Search.Astar(this, Factory.getCellRight(box), Factory.getCellLeft(box), playerPath);
+	   	                    break;
+	   	                case 3:
+	   	                	Search.boxMoveSearchString = "";
+	   	                	break;
+	   	                case 4:
+	   	                	Search.boxMoveSearchString = Search.Astar(this, player, Factory.getCellLeft(box), playerPath);
+	   	                	break;
+   					}
+   					boxes.remove(box);
+   				}
+   				else Search.boxMoveSearchString = Search.Astar(this, player, Factory.getCellLeft(box), playerPath);
+   				
 	   			// If we can move the box in this direction we also have to check if the player
 	   			// can move to the cell to push the box.
-	   			if(Search.Astar(this, player, Factory.getCellLeft(box), false) != null){
+	   			if(Search.boxMoveSearchString != null){
 	   				
 	   				// End time for this method.
 	   		   		if(Sokoban.debugTime) TimeIt.boxMoveAllowedTotal = TimeIt.boxMoveAllowedTotal + System.currentTimeMillis() - TimeIt.boxMoveAllowed;
-	   				
-	   				return true;
+	   		   		if(Deadlocks.checkWallDeadlock(this) == false &&
+   		   				Deadlocks.checkThreeBoxesCornerDeadlock(this) == false &&
+   		   				Deadlocks.checkFourBoxesDeadlock(this) == false){
+	   		   			return true;
+	   		   		} else {
+	   		   			return false;
+	   		   		}
 	   				
 	   			} else {
 	   				// End time for this method.

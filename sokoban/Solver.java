@@ -1,7 +1,9 @@
 package sokoban;
 
+import java.awt.Point;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.util.Queue;
 
@@ -35,6 +37,7 @@ public class Solver {
 	private static State initState;
 	private static State solvedState;
 	private static State processState;
+	private static State processState2;
 	
 	// Time field.
     private long startTime;
@@ -44,6 +47,7 @@ public class Solver {
 	private PriorityQueue<State> open = new PriorityQueue<State>(10000, comparator);
 	private HashSet<State> closed = new HashSet<State>();
 	private Queue<State> children;
+	private Queue<Box> boxQueue = new LinkedList<Box>();
 	
 	
 	/**
@@ -51,11 +55,38 @@ public class Solver {
 	 * @param board
 	 */
 	public Solver(Board board){
-		if(Sokoban.debug) System.out.println("IN THE SOLVE!");
+		if(Sokoban.debug) System.out.println("Solver: initiated.");
 		
 		// Create initial state.
 		initState = Factory.createState();
 		initState.initialState(board);
+		
+		if(Sokoban.debug) System.out.println("Solver: initial state created.");
+		if(Sokoban.debug) Sokoban.board.printState(initState);
+		processState = initState;
+
+		for(Box box : Sokoban.board.getBoxes()){
+			if(Sokoban.debug) System.out.println("Solver: for box.");
+			if(Sokoban.debug) System.out.println(box.toString());
+			
+			if(Factory.getCell(box).isGoal==false && Factory.getCell(box).getGradient() > 3 && Search.NextToAstar(processState, processState.getPlayer(), box)){
+				if(Sokoban.debug) System.out.println("Solver: Execute fast move.");
+//				processState.getBoxes().remove(box);
+				String path = Search.BoxAstar(processState, box, box.dreamGoal, true);
+				
+				processState2 = processState.createNewState(box, Search.endPoint, Search.endPoint.lastMove, true);
+				
+				processState2.setParent(processState);
+				processState2.longStep = true;
+				processState2.path = path;
+//				processState.getBoxes().add(box);
+				processState = processState2;
+				if(Sokoban.debug) Sokoban.board.printState(processState);
+			} else {
+
+			}
+		}
+		
 		
 		// Create solved state with all boxes on goals.
 		solvedState = Factory.createState();
@@ -66,11 +97,20 @@ public class Solver {
 		if(Sokoban.debugTime) startTime = System.currentTimeMillis(); 
 		
 		// Create first children.
-		open.add(initState);
+		if(processState != null) open.add(processState);
+		else open.add(initState);
 		
+		State test = open.peek();
+		if(Sokoban.debug) Sokoban.board.printState(test);
+				
 		// Start exploration.
 		while(open.peek().equals(solvedState) == false){
 			Factory.expandedNodes++;
+			
+			/*
+			if(Factory.expandedNodes<100){
+				Sokoban.board.printState(open.peek());
+			}*/
 			
 			// Get first element from open.
         	processState = open.remove();
@@ -157,18 +197,24 @@ public class Solver {
 		// While not initial state.
 		while(currentState.getParent() != null){
 			
-			solution = fromIntToString(currentState.getPreviousMove()) + solution;
-			
-			if(currentState.getPreviousMove() == 0) goalCell = Factory.getCellDown(currentState.getPlayer());
-			else if(currentState.getPreviousMove() == 1) goalCell = Factory.getCellUp(currentState.getPlayer());
-			else if(currentState.getPreviousMove() == 2) goalCell = Factory.getCellRight(currentState.getPlayer());
-			else if(currentState.getPreviousMove() == 3) goalCell = Factory.getCellLeft(currentState.getPlayer());
-			
-			currentState = currentState.getParent();
-			
-			startCell = Factory.getCell(currentState.getPlayer());
-			
-			solution = Search.Astar(currentState, startCell, goalCell, true) + solution;
+			if(currentState.longStep == true){
+				solution = currentState.path + solution;
+				currentState = currentState.getParent();
+			}
+			else {
+				solution = fromIntToString(currentState.getPreviousMove()) + solution;
+				
+				if(currentState.getPreviousMove() == 0) goalCell = Factory.getCellDown(currentState.getPlayer());
+				else if(currentState.getPreviousMove() == 1) goalCell = Factory.getCellUp(currentState.getPlayer());
+				else if(currentState.getPreviousMove() == 2) goalCell = Factory.getCellRight(currentState.getPlayer());
+				else if(currentState.getPreviousMove() == 3) goalCell = Factory.getCellLeft(currentState.getPlayer());
+				
+				currentState = currentState.getParent();
+				
+				startCell = Factory.getCell(currentState.getPlayer());
+				
+				solution = Search.Astar(currentState, startCell, goalCell, true) + solution;
+			}
 		}
 		
 		return solution;

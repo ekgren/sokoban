@@ -36,9 +36,13 @@ public class Cell extends Point{
 
 	// Parent cell. Will be changed when cell is used for search.
 	private Cell parent;
+	private Cell boxParent;
 	
 	private int cost;
 	private double gradient = 0;
+	
+	public String boxMoveSearch = null;
+	public int lastMove = 5;
 		
 
 	/**
@@ -53,6 +57,19 @@ public class Cell extends Point{
 	 * @param parent
 	 */
 	public void setParent(Cell parent){	this.parent = parent; }
+	
+	/**
+	 * Get the parent cell of this cell.
+	 * @return
+	 */
+	public Cell getBoxParent(){ return this.boxParent; }
+	
+	
+	/**
+	 * Set the parent cell of this cell.
+	 * @param parent
+	 */
+	public void setBoxParent(Cell parent){	this.boxParent = parent; }
 	
 	
 	/**

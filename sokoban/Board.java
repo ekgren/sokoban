@@ -36,6 +36,7 @@ public class Board {
 		locateCornersAndCorridors();
 		locateCornerWallDeadlocks();
 		minDistanceMap();
+		findBoxesClosestGoals();
 		
 		// Debug message.
 		if(Sokoban.debug){ System.out.println("Boardsize: " + Integer.toString(mapCells.size()) + " or " + 
@@ -462,8 +463,34 @@ public class Board {
 			map.elementAt((int)box.getY()).setCharAt((int)box.getX(),'*');
 			else map.elementAt((int)box.getY()).setCharAt((int)box.getX(),'$');
 		}
+		if(Factory.getCell(state.getPlayer()).isGoal)
+			map.elementAt((int)state.getPlayer().getY()).setCharAt((int)state.getPlayer().getX(),'+');
+			else map.elementAt((int)state.getPlayer().getY()).setCharAt((int)state.getPlayer().getX(),'@');
 		for(StringBuilder s : map){
             System.out.println(s);
+		}
+	}
+	
+	
+	/**
+	 * 
+	 * @param state
+	 */
+	public void findBoxesClosestGoals(){
+		Box closest = null;
+		Box lBox;
+		int min;
+		for(Point goal : Board.goals){
+			min = Integer.MAX_VALUE;
+			for(Point box: initialBoxes){
+				lBox = (Box) box;
+				if(Math.abs(goal.x - lBox.x) + Math.abs(goal.y - lBox.y) < min && 
+						lBox.dreamGoal == null){
+					min = Math.abs(goal.x - box.x) + Math.abs(goal.y - box.y);
+					closest = lBox;
+				}
+			}
+			closest.dreamGoal = goal;
 		}
 	}
 	
