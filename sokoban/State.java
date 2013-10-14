@@ -443,8 +443,10 @@ public class State implements Cloneable {
 	}
 
 
-    /* This Method returns the gradient value */
-    public int getGradValue(Box pBox, char pDir){
+    /**
+     * This Method returns the gradient value from the merged matrix.
+     */
+    public int getGradValueMerged(Box pBox, char pDir){
 
         switch (pDir) {
             // C = center = current box position
@@ -458,6 +460,28 @@ public class State implements Cloneable {
                 return Board.getGoalGradMerged(pBox.getRow(), pBox.getCol() + 1);
             case 'L':
                 return Board.getGoalGradMerged(pBox.getRow(), pBox.getCol() - 1);
+        }
+        // if wrong input, return -1.
+        return -1;
+    }
+    
+    /**
+     *  This Method returns the gradient value for the goal and box specified.
+     */
+    public int getGradValue(Box pBox, char pDir, int pGoalIndex){
+
+        switch (pDir) {
+            // C = center = current box position
+            case 'C':
+                return Board.getGoalGrad(pGoalIndex, pBox.getRow(), pBox.getCol());
+            case 'U':
+                return Board.getGoalGrad(pGoalIndex, pBox.getRow() - 1, pBox.getCol());
+            case 'D':
+                return Board.getGoalGrad(pGoalIndex, pBox.getRow() + 1, pBox.getCol());
+            case 'R':
+                return Board.getGoalGrad(pGoalIndex, pBox.getRow(), pBox.getCol() + 1);
+            case 'L':
+                return Board.getGoalGrad(pGoalIndex, pBox.getRow(), pBox.getCol() - 1);
         }
         // if wrong input, return -1.
         return -1;
@@ -614,45 +638,44 @@ public class State implements Cloneable {
     /**
      * Not working....TESTING SOON
      */
-	public int gradientDecentSuccessor(Vector<State> pStates, int pBoxIndex) {
+	public int gradientDecentMergedSuccessor(Vector<State> pStates, int pBoxIndex) {
 
 		// Set initial null char
 		char moveDir = '\0';
 		// Get gradient value at current position
-		int gradValue = getGradValue(boxes.get(pBoxIndex), 'C');
+		int gradValue = getGradValueMerged(boxes.get(pBoxIndex), 'C');
 
 		if(Sokoban.debugMode) System.out.println(
-				"gradientDecentSuccessor was called for box: "+pBoxIndex+" on gradValue: " + gradValue);
+				"gradientDecentMergedSuccessor was called for box: "+pBoxIndex+" on gradValue: " + gradValue);
 		
 		/* If a move is possible, then add the new state in the pStates vector */
 		if (tryMove(boxes.get(pBoxIndex), 'U')) {
-			if (gradValue > getGradValue(boxes.get(pBoxIndex), 'U')) {
-				if(Sokoban.debugMode) System.out.println("get GradValue returned for move up: " + getGradValue(boxes.get(pBoxIndex), 'U') );
+			if (gradValue > getGradValueMerged(boxes.get(pBoxIndex), 'U')) {
 				moveDir = 'U';
-				gradValue = getGradValue(boxes.get(pBoxIndex), 'U');
+				gradValue = getGradValueMerged(boxes.get(pBoxIndex), 'U');
 			}
 		}
 
 		if (tryMove(boxes.get(pBoxIndex), 'D')) {
-			if (gradValue > getGradValue(boxes.get(pBoxIndex), 'D')) {
+			if (gradValue > getGradValueMerged(boxes.get(pBoxIndex), 'D')) {
 				moveDir = 'D';
-				gradValue = getGradValue(boxes.get(pBoxIndex), 'D');
+				gradValue = getGradValueMerged(boxes.get(pBoxIndex), 'D');
 			}
 		}
 
 		if (tryMove(boxes.get(pBoxIndex), 'R')) {
-			if (gradValue > getGradValue(boxes.get(pBoxIndex), 'R')) {
+			if (gradValue > getGradValueMerged(boxes.get(pBoxIndex), 'R')) {
 				moveDir = 'R';
-				gradValue = getGradValue(boxes.get(pBoxIndex), 'R');
+				gradValue = getGradValueMerged(boxes.get(pBoxIndex), 'R');
 			}
 		}
 
 		if (tryMove(boxes.get(pBoxIndex), 'L')) {
 			if(Sokoban.debugMode) System.out.println("GRAD: "+ gradValue);
-			if (gradValue > getGradValue(boxes.get(pBoxIndex), 'L')){
-				if(Sokoban.debugMode) System.out.println("get GradValue returned for move L: " + getGradValue(boxes.get(pBoxIndex), 'L') );
+			if (gradValue > getGradValueMerged(boxes.get(pBoxIndex), 'L')){
+				if(Sokoban.debugMode) System.out.println("get GradValue returned for move L: " + getGradValueMerged(boxes.get(pBoxIndex), 'L') );
 				moveDir = 'L';
-				gradValue = getGradValue(boxes.get(pBoxIndex), 'L');
+				gradValue = getGradValueMerged(boxes.get(pBoxIndex), 'L');
 			}
 		}
 		
@@ -671,6 +694,71 @@ public class State implements Cloneable {
 
 	} // End allSuccessors
 
+	/**
+     * Moves the specified box one step closer to the specified goal.
+     * Adds the new state (after one move) to the vector as parameter.
+     * If it was not possible to move it adds the same state (no move).
+     * 
+     */
+	public int gradientDecentSuccessor(Vector<State> pStates, int pBoxIndex, int pGoalIndex) {
+
+		// Set initial null char
+		char moveDir = '\0';
+		// Get gradient value at current position
+		int gradValue = getGradValue(boxes.get(pBoxIndex), 'C', pGoalIndex);
+
+		if(Sokoban.debugMode) System.out.println(
+				"gradientDecentSuccessor was called for box: "+pBoxIndex+" on gradValue: " + gradValue + ", for goalIndex: " + pGoalIndex);
+		
+		/* If a move is possible, then add the new state in the pStates vector */
+		if (tryMove(boxes.get(pBoxIndex), 'U')) {
+			if (gradValue > getGradValue(boxes.get(pBoxIndex), 'U', pGoalIndex)
+					&& getGradValue(boxes.get(pBoxIndex), 'U', pGoalIndex)  != -1) {
+				moveDir = 'U';
+				gradValue = getGradValue(boxes.get(pBoxIndex), 'U', pGoalIndex);
+			}
+		}
+
+		if (tryMove(boxes.get(pBoxIndex), 'D')) {
+			if (gradValue > getGradValue(boxes.get(pBoxIndex), 'D', pGoalIndex)
+					&& getGradValue(boxes.get(pBoxIndex), 'D', pGoalIndex) != -1) {
+				moveDir = 'D';
+				gradValue = getGradValue(boxes.get(pBoxIndex), 'D', pGoalIndex);
+			}
+		}
+
+		if (tryMove(boxes.get(pBoxIndex), 'R')) {
+			if (gradValue > getGradValue(boxes.get(pBoxIndex), 'R', pGoalIndex)
+					&& getGradValue(boxes.get(pBoxIndex), 'R', pGoalIndex) != -1) {
+				moveDir = 'R';
+				gradValue = getGradValue(boxes.get(pBoxIndex), 'R', pGoalIndex);
+			}
+		}
+
+		if (tryMove(boxes.get(pBoxIndex), 'L')) {
+			if (gradValue > getGradValue(boxes.get(pBoxIndex), 'L', pGoalIndex)
+					&& getGradValue(boxes.get(pBoxIndex), 'L', pGoalIndex) != -1){
+				moveDir = 'L';
+				gradValue = getGradValue(boxes.get(pBoxIndex), 'L', pGoalIndex);
+			}
+		}
+		
+		if (moveDir != '\0') {
+			if(Sokoban.debugMode) System.out.println("gradDecSuc: Move found: " + moveDir + ", To grad value: "+gradValue);
+			if (!reusableStates.isEmpty()) {
+				pStates.add(reusableStates.pop());
+				pStates.lastElement().changeBoxConfig(this, pBoxIndex, moveDir);
+			} else {
+				pStates.add(new State(this, pBoxIndex, moveDir));
+			}
+		} else {
+			if(Sokoban.debugMode) System.out.println("gradDecSuc: No possible move was found");
+		}
+		return gradValue;
+
+	} // End allSuccessors
+
+	
     /**
      * This method returns the index of the box that is blocking the way for another box.
      * The two for-loops loops through a 3 by 3 square to check the surrounding tiles for a lower state.
@@ -681,7 +769,7 @@ public class State implements Cloneable {
      */
     public int getBlockingBoxIndex(int pCurrentBoxIndex) {
         // Get the gradient value at current position
-        int lowestGradValue = getGradValue(getBoxes().get(pCurrentBoxIndex), 'C');
+        int lowestGradValue = getGradValueMerged(getBoxes().get(pCurrentBoxIndex), 'C');
         // The blocking box-index
         int newBoxIndex = -1;
         // The coordinates, starting in the upper left corner in the 3 by 3 surrounding

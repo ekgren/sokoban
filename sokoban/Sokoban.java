@@ -64,8 +64,10 @@ public class Sokoban {
 
         // Search after solution
         // State solution = solver.greedyBFS();
-	    State solution = solver.greedyBFS();
+	    //State solution = solver.greedyBFSWithGoalCluster();
+	    State solution = solver.directToGoalsWithGoalGoalCluster();
 
+	    
 	    if(solution.isFinalState()) this.solution = solver.getStrToGoal(solution);
         else this.solution = "no path";
 
@@ -100,6 +102,7 @@ public class Sokoban {
 	public static void main(String[] args) throws IOException {
 	    Sokoban soko = new Sokoban(new InputStreamReader(System.in), false, false, false);
         // Prints the solution to Kattis
-        System.out.println(soko.solution.toUpperCase());
+       System.out.println(soko.solution.toUpperCase());
+
     } // main
 } // End Main

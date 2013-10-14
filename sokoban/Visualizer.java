@@ -211,8 +211,8 @@ public class Visualizer {
 
 	public static void printStateDelux(State pState, String pLabel){
 		printState(pState, pLabel);
-		printGoalGradMerged(pState.getGoalGradMerged());
-		System.out.println("Heuristic value: " + pState.getH());
+		//printGoalGradMerged(pState.getGoalGradMerged());
+		//System.out.println("Heuristic value: " + pState.getH());
 		System.out.println("#Boxes on goal: " + pState.nbOfBoxesOnGoal);
 		System.out.print("Goal index occ.: ");
 		printVector(pState.goalsOccupied," ");
