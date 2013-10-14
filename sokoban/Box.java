@@ -1,4 +1,6 @@
 package sokoban;
+
+import java.awt.Point;
 /*
  * Box
  * 
@@ -8,12 +10,12 @@ package sokoban;
  * 
  */
 
-public class Box{
+public class Box extends Point{
 
 	
 	public String hashString() {
 		//Not most efficient way and has not been confirmed to work!
-		return String.valueOf(row) + String.valueOf(col);
+		return String.valueOf(this.x) + String.valueOf(this.y);
 	}
 
 	@Override
@@ -28,32 +30,28 @@ public class Box{
 		if (getClass() != obj.getClass())
 			return false;
 		Box other = (Box) obj;
-		if (col != other.col)
+		if (this.y != other.y)
 			return false;
 		if (isOnGoal != other.isOnGoal)
 			return false;
 		if (isReachable != other.isReachable)
 			return false;
-		if (row != other.row)
+		if (this.x != other.x)
 			return false;
 		return true;
 	}
 
-	private int row;
-	private int col;
 	private boolean isOnGoal;
 	private boolean isReachable;
 
 	
 	public Box(int pRow, int pCol){
-		row = pRow;
-		col = pCol;
 		isOnGoal = false;
 	}
 	
 	public Box(int pRow, int pCol, boolean pIsOnGoal){
-		row = pRow;
-		col = pCol;
+		this.x = pRow;
+		this.y = pCol;
 		isOnGoal = pIsOnGoal;
 	}
 	
@@ -62,8 +60,8 @@ public class Box{
 	 * @param pBox
 	 */
 	public Box(Box pBox){
-		this.row = pBox.getRow();
-		this.col = pBox.getCol();
+		this.x = pBox.getRow();
+		this.y = pBox.getCol();
 		this.isOnGoal = pBox.isOnGoal();
 		this.isReachable = pBox.isReachable();
 	}
@@ -81,16 +79,16 @@ public class Box{
 	public void move(char pDir){
 		switch (pDir) {
             case 'U':
-                this.setRow(row - 1);
+                this.setRow(this.x - 1);
                 break;
             case 'D':
-                this.setRow(row + 1);
+                this.setRow(this.x + 1);
                 break;
             case 'R':
-                this.setCol(col + 1);
+                this.setCol(this.y + 1);
                 break;
             case 'L':
-                this.setCol(col - 1);
+                this.setCol(this.y - 1);
                 break;
         }
 	}
@@ -104,19 +102,19 @@ public class Box{
 	}
 	
 	public int getRow(){
-		return row;
+		return this.x;
 	}
 	
 	public int getCol(){
-		return col;
+		return this.y;
 	}
 	
 	private void setRow(int pRow){
-		row = pRow;
+		this.x = pRow;
 	}
 	
 	private void setCol(int pCol){
-		col = pCol;
+		this.y = pCol;
 	}
 	
 	public boolean isReachable(){

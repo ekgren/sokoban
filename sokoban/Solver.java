@@ -31,7 +31,7 @@ public class Solver {
 
 	//Static fields for saving creations of Map,Queues, when calling isPathToBox.
     private static Cell.NormComparator comparatorCell = new Cell.NormComparator();
-	private static HashSet<String> mapPrPathsCell = new HashSet<String>();
+	private static HashSet<Cell> mapPrPathsCell = new HashSet<Cell>();
     private static PriorityQueue<Cell> queueCellChildren = new PriorityQueue<Cell>(10000,
     		comparatorCell);
     private static Cell STATIC_CELL = new Cell(0,0);
@@ -330,7 +330,7 @@ public class Solver {
 		//First child is starting node.
         queueCellChildren.add(pStartCell);
         //Map for visited positions.
-        mapPrPathsCell.add(getHashString(pStartCell.getRow(),pStartCell.getCol()));
+        mapPrPathsCell.add(pStartCell);
 
         while(!queueCellChildren.isEmpty()){
         	Cell lCellChild = queueCellChildren.remove();
@@ -338,11 +338,12 @@ public class Solver {
 			int incInt = -1;
 
 			while(incInt <= 1){
-				String hashIndex1 = getHashString(lCellChild.getRow() + incInt,lCellChild.getCol());
 				
 				//If not position visited before.
-				if(!mapPrPathsCell.contains(hashIndex1)){
-					mapPrPathsCell.add(hashIndex1);
+				if(!mapPrPathsCell.contains(
+						Board.matrixCells[lCellChild.getRow()+incInt][lCellChild.getCol()])){
+					mapPrPathsCell.add(
+							Board.matrixCells[lCellChild.getRow()+incInt][lCellChild.getCol()]);
 					//Make row child first. (lCellChild.getRow() + incInt)
 					//No walls
 					if(Board.isFree(pState,lCellChild.getRow() + incInt, lCellChild.getCol())){
@@ -358,15 +359,17 @@ public class Solver {
 						}
 						else{
 							//If we have not found path we add children to queue and continue
-							queueCellChildren.add(Board.matrixCells[lCellChild.getRow()+incInt][lCellChild.getCol()]);
+							queueCellChildren.add(
+									Board.matrixCells[lCellChild.getRow()+incInt][lCellChild.getCol()]);
 						}	
 					}
 				}
 				// Repeat for column children.
-				String hashIndex2 = getHashString(lCellChild.getRow(),lCellChild.getCol() + incInt);
 				
-				if(!mapPrPathsCell.contains(hashIndex2)){
-					mapPrPathsCell.add(hashIndex2);
+				if(!mapPrPathsCell.contains(
+						Board.matrixCells[lCellChild.getRow()][lCellChild.getCol()+incInt])){
+					mapPrPathsCell.add(
+							Board.matrixCells[lCellChild.getRow()][lCellChild.getCol()+incInt]);
 			
 					if(Board.isFree(pState,lCellChild.getRow(), lCellChild.getCol() + incInt)){
 						
@@ -381,7 +384,8 @@ public class Solver {
 							return STATIC_CELL;
 						}
 						else{
-							queueCellChildren.add(Board.matrixCells[lCellChild.getRow()][lCellChild.getCol()+incInt]);
+							queueCellChildren.add(
+									Board.matrixCells[lCellChild.getRow()][lCellChild.getCol()+incInt]);
 						}	
 					}
 				}

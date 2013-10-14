@@ -10,6 +10,7 @@ package sokoban;
  */
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Stack;
 import java.util.Vector;
 
@@ -22,6 +23,7 @@ public class State implements Cloneable {
 	private Vector<Box> boxes = new Vector<Box>();
 	private Vector<Cell> reachableCells; //should be HashMap?
 	private Vector<Cell> unReachableCells; //should be HashMap?
+	private HashSet<Box> setBoxes = new HashSet<Box>(Board.getNbOfBoxes());
 
 	private int playerRow; // Player position in this state (after move that led to this state)
 	private int playerCol;
@@ -230,6 +232,7 @@ public class State implements Cloneable {
 	 * (irrespective of which box is where)
 	 * @return
 	 */
+    
 	public String hashString(){
 		String[] lStringArray = new String[boxes.size()];
 
@@ -246,7 +249,7 @@ public class State implements Cloneable {
 		return builder.toString();
 	}
 	
-
+    
 	@Override
 	public int hashCode() {
 		//Should be improved!?
@@ -356,10 +359,22 @@ public class State implements Cloneable {
 		/*
 		 * All of the below must be valid, add check deadlock later!
 		 */
+		
+		if(Board.isFree(this, lMoveToRow, lMoveToCol)&&
+				!Board.isDeadLockT0(lMoveToRow, lMoveToCol) &&
+				Solver.isPathToPath(this, playerRow, playerCol, lPlayerRow, lPlayerCol)){
+			if(DeadLocks.checkDeadLocks(this,pBox, lMoveToRow, lMoveToCol, pDir)){
+				//Visualizer.printState(this, "testing deadLocks");
+			}
+		}
+		/*if (isFree(lMoveToRow, lMoveToCol) &&
+				!Board.isDeadLockT0(lMoveToRow, lMoveToCol) &&
+				!DeadLocks.checkDeadLocks(this, lMoveToRow, lMoveToCol, pDir) &&
+				Solver.isPathToPath(this, playerRow, playerCol, lPlayerRow, lPlayerCol)) {
+		*/
 		if (isFree(lMoveToRow, lMoveToCol) &&
 				!Board.isDeadLockT0(lMoveToRow, lMoveToCol) &&
 				Solver.isPathToPath(this, playerRow, playerCol, lPlayerRow, lPlayerCol)) {
-
             // Append time
             if (Sokoban.profilingMode)
                 tryMoveTime = tryMoveTime + (System.currentTimeMillis() - tryMoveStartTime);
