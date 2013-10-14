@@ -488,9 +488,17 @@ public class Board {
 	public static boolean isWall(int pRow, int pCol){
 		return walls[pRow][pCol]; 
 	}
+	
+	public static boolean isWall(Cell pCell){
+		return walls[pCell.getRow()][pCell.getCol()]; 
+	}
 
 	public static boolean isGoal(int pRow, int pCol){
 		return goals[pRow][pCol];
+	}
+	
+	public static boolean isGoal(Cell pCell){
+		return goals[pCell.getRow()][pCell.getCol()];
 	}
 
 	public static int getGoalIndexAt(int pRow, int pCol){

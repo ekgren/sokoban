@@ -73,6 +73,7 @@ public class State implements Cloneable {
 		}
 	} // End constructor State
 
+	
 	/**
 	 * Constructs a state which is the result of applying one move.
 	 * "final" in arguments to avoid applying changes to parent state
@@ -267,6 +268,9 @@ public class State implements Cloneable {
 
     public int getGoalGradMerged(int pRow, int pCol){
     	return goalGradMerged[pRow][pCol];
+    }
+    public int getGoalGradMergedUnderLastBoxMoved(){
+    	return goalGradMerged[getLastMovedBox().getRow()][getLastMovedBox().getCol()];
     }
     public int[][] getGoalGradMerged(){
     	return goalGradMerged;
@@ -636,7 +640,8 @@ public class State implements Cloneable {
     } // End allSuccessors
 
     /**
-     * Not working....TESTING SOON
+     * Operates on the vector, adds the successor that is one step closer to the closest goal.
+     * Returns the gradValue that the box was moved to.
      */
 	public int gradientDecentMergedSuccessor(Vector<State> pStates, int pBoxIndex) {
 

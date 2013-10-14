@@ -45,6 +45,7 @@ public class Cell {
 		return col;
 	}
 	
+	
 	public int getExpansionLevel(){
 		return expansionLevel;
 	}
@@ -59,6 +60,11 @@ public class Cell {
 	
 	public void setCol(int colIndex){
 		this.col = colIndex;
+	}
+	
+	public void setPos(int pRow, int pCol){
+		this.row = pRow;
+		this.col = pCol;
 	}
 	
 	public void setParent(Cell pCell){
