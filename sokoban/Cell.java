@@ -62,8 +62,8 @@ public class Cell extends Point{
 	}
 	
 	public void setPos(int pRow, int pCol){
-		this.row = pRow;
-		this.col = pCol;
+		this.x = pRow;
+		this.y = pCol;
 	}
 	
 	public void setParent(Cell pCell){

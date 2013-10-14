@@ -1289,106 +1289,7 @@ public boolean moveOneBoxToClosestGoalGradDecentOnly(Vector<State> inOutStatesVe
         
 	}
 
-	/**
-	 * Returns cell next to some position (the position we are searching to can not
-	 * be a box).
-	 * SEARCH WITHOUT REGARDNIG BOXES.
-	 * Same method as cellNeighborToPath but searches an empty board. (no boxes)
-	 * @param pState
-	 * @param pRow
-	 * @param pCol
-	 * @param pRowPath
-	 * @param pColPath
-	 * @return
-	 */
-	public static Cell cellNeighborToPathEmpty(int pRow, int pCol, int pRowPath, int pColPath) {
 
-		// If searching to wall.
-		if(Board.isWall(pRowPath, pColPath)){
-			return null;
-		}
-		
-		// If we are at searched position.
-		if(pRow == pRowPath && pCol == pColPath){
-			return Board.matrixCells[pRow][pCol];
-		}
-		
-		//Get start and end positions cell position from matrix.		
-		Cell pStartCell = Board.matrixCells[pRow][pCol];
-		Cell pEndCell = Board.matrixCells[pRowPath][pColPath];
-		
-		//Set comparator to look for path we are searching for.
-		comparatorCell.setGoal(pRowPath, pColPath);
-		//Child queue for search
-		//First child is starting node.
-        queueCellChildren.add(pStartCell);
-        //Map for visited positions.
-        mapPrPathsCell.add(getHashString(pStartCell.getRow(),pStartCell.getCol()));
-
-        while(!queueCellChildren.isEmpty()){
-        	Cell lCellChild = queueCellChildren.remove();
-        	//increment for making children (L,R,U and D)
-			int incInt = -1;
-
-			while(incInt <= 1){
-				String hashIndex1 = getHashString(lCellChild.getRow() + incInt,lCellChild.getCol());
-				
-				//If not position visited before.
-				if(!mapPrPathsCell.contains(hashIndex1)){
-					mapPrPathsCell.add(hashIndex1);
-					//Make row child first. (lCellChild.getRow() + incInt)
-					//No walls
-					if(Board.isWall(lCellChild.getRow() + incInt, lCellChild.getCol())){
-
-						if(lCellChild.getRow() + incInt == pEndCell.getRow() &&
-								lCellChild.getCol() == pEndCell.getCol()){
-							//We have found path.
-							STATIC_CELL.setRow(pEndCell.getRow());
-							STATIC_CELL.setCol(pEndCell.getCol());
-							mapPrPathsCell.clear();
-					       	queueCellChildren.clear();
-							return STATIC_CELL;
-						}
-						else{
-							//If we have not found path we add children to queue and continue
-							queueCellChildren.add(Board.matrixCells[lCellChild.getRow()+incInt][lCellChild.getCol()]);
-						}	
-					}
-				}
-				// Repeat for column children.
-				String hashIndex2 = getHashString(lCellChild.getRow(),lCellChild.getCol() + incInt);
-				
-				if(!mapPrPathsCell.contains(hashIndex2)){
-					mapPrPathsCell.add(hashIndex2);
-			
-					if(Board.isWall(lCellChild.getRow(), lCellChild.getCol() + incInt)){
-						
-						//If our position child is searched position we are done.
-						if(lCellChild.getRow() == pEndCell.getRow() &&
-								lCellChild.getCol() + incInt == pEndCell.getCol()){
-							//Clear map,and queue return cell for searched position.
-							STATIC_CELL.setRow(pEndCell.getRow());
-							STATIC_CELL.setCol(pEndCell.getCol());
-							mapPrPathsCell.clear();
-					       	queueCellChildren.clear();
-							return STATIC_CELL;
-						}
-						else{
-							queueCellChildren.add(Board.matrixCells[lCellChild.getRow()][lCellChild.getCol()+incInt]);
-						}	
-					}
-				}
-			//Set increment for children to 1.
-			incInt = incInt + 2;	
-			}
-		}
-        //No path clear map,queue and return null for no path.
-        mapPrPathsCell.clear();
-       	queueCellChildren.clear();
-        return null;
-        
-	}
-	
 	
 	/**
 	 * Returns true if there is path to some position.
@@ -1407,22 +1308,6 @@ public boolean moveOneBoxToClosestGoalGradDecentOnly(Vector<State> inOutStatesVe
 		return (lCell != null);
 	}
 	
-	/**
-	 * Returns true if there is path to some position.
-	 * Same method as isPathToPath but searches an empty board. (no boxes)
-	 * @param pState
-	 * @param pRow
-	 * @param pCol
-	 * @param pRowPath
-	 * @param pColPath
-	 * @return
-	 */
-	public static boolean isPathToPathEmpty(int pRow,int pCol,int pRowPath, int pColPath){
-		
-		// if lCell is null we there is no path.
-		Cell lCell = cellNeighborToPathEmpty(pRow, pCol, pRowPath, pColPath);
-		return (lCell != null);
-	}
 	
 	/**
 	 * Returns cell with needed player position to perform this state.
