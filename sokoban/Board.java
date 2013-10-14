@@ -52,10 +52,13 @@ public class Board {
 
 	private static Vector<Goal> goalsList = new Vector<Goal>(); //might sometimes or always be more efficient can have both...
 
-	private static boolean [][] deadLocksT0; //marks Type0 deadlocks = corners (independet of goals) [row][col].
+	public static boolean [][] deadLocksT0; //marks Type0 deadlocks = corners (independet of goals) [row][col].
 	private static int[][][] goalGrad; //Gradient to each goal considering only walls [goal][row][col].
-    //Includes the information about deadlocksT1 marked by -1 in goalGrad!
-    private static int[][] goalGradMerged; // Summed GoalGrad
+	public static Vector<Vector<Cell>> gradCells; //contains the cells with grad<=2 used in GoalCluster
+	//Includes the information about deadlocksT1 marked by -1 in goalGrad!
+	private static int[][] goalGradMerged; // Summed GoalGrad
+	public static int[] goalWheight;
+
 
 	/**
 	 * Constructs the internal representation of the Map
@@ -85,7 +88,7 @@ public class Board {
 		walls = new boolean[nbRows][nbCols];
 		goals = new boolean[nbRows][nbCols];	
 		goalsIndexAtPos = new int[nbRows][nbCols]; //all zero initially
-		
+
 		int lPlayerStartRow = 0; //can never be zero since there must be wall here...
 		int lPlayerStartCol = 0; //can never be zero since there must be wall here...
 		Vector<Box> lBoxesList = new Vector<Box>();
@@ -93,7 +96,7 @@ public class Board {
 		int lBoxesOnGoalCounter = 0;
 		int lGoalIndexCounter = 1;
 
-		
+
 		for(int row=0; row<nbRows; row++){
 			if (stringRepr.get(row).length() > lMaxNbOfCol) {
 				lMaxNbOfCol = stringRepr.get(row).length();
@@ -153,13 +156,14 @@ public class Board {
 
 
 		//Check and set number of boxes/goals
-		
+
 		nbBoxes = lBoxesList.size();
 		nbGoals = nbBoxes;
-		
+
 		if(Sokoban.debugMode){
+			if(lPlayerStartRow == 0 || lPlayerStartCol == 0 ) System.out.println("/Board: NO PLAYER?");
 			if (goalsList.size() != lBoxesList.size()){
-				System.out.println("MapError: There is not an equal amout of boxes and goals!!");
+				System.out.println("/Board: MapError: There is not an equal amout of boxes and goals!!");
 				System.out.println("#goals: " + goalsList.size());
 				System.out.println("#boxes: " + lBoxesList.size());
 			}
@@ -172,37 +176,74 @@ public class Board {
 				lGoalsOccupied[goalIndex] = true;
 			}
 		}
-		
-		initialState = new State(lBoxesList, lPlayerStartRow, lPlayerStartCol, lGoalsOccupied, lBoxesOnGoalCounter);
 
 
 		//Set dimension
 		deadLocksT0 = new boolean[nbRows][nbCols];
 		goalGrad = new int[nbBoxes][nbRows][nbCols];
-        goalGradMerged = new int[nbRows][nbCols];
+		goalGradMerged = new int[nbRows][nbCols];
+		goalWheight = new int[nbBoxes];
 
-		
+		initialState = new State(lBoxesList, lPlayerStartRow, lPlayerStartCol, lGoalsOccupied, lBoxesOnGoalCounter);
+
+
 		//Fix the cleanMapString:		
 		for(String lRow : stringRepr){
 			String lStringCopy = lRow;
-			
+
 			lStringCopy = lStringCopy.replace('$', ' '); //Box to nothing
 			lStringCopy = lStringCopy.replace('*', '.'); //Box on goal to Goal
 			lStringCopy = lStringCopy.replace('@', ' '); //Player to nothing
 			lStringCopy = lStringCopy.replace('+', '.'); //Player on goal to Goal
-			
+
 			cleanMapStringRepr.add(lStringCopy);
 		}
-		
+
 		//mark DealLocks and Gradient to respective Goal:
 		markDeadlocksAndGrad();
-        // sum the gradients
-        setGoalGradMerged();
-
+		// sum the gradients
+		initialState.setGoalGradMerged(); //This needs the markDeadLocksAndGrad to be run..
+		setGoalGradMerged(initialState);
+		setGoalWeight();
+		if(Sokoban.debugMode) Visualizer.printVector(goalWheight, "/Board: Goal weights:");	
+		GoalCluster gc = new GoalCluster(gradCells);
 	} // End constructor Map
 
-	
-	
+
+	private void setGoalWeight(){
+		int goalIndex = 0;
+		for (Goal goal : goalsList){
+			int nbOfGoalsCloseby = 0;
+			// The coordinates, starting in the upper left corner in the 3 by 3 surrounding
+			int upperLeftRow = goal.getRow() - 2;
+			int upperLeftCol = goal.getCol() - 2;
+			// Iterate through every row end every column
+			for (int i = 0; i < 5; i++) {
+				for (int j = 0; j < 5; j++) {
+					int curRow = upperLeftRow + i;
+					int curCol = upperLeftCol + j;
+					if (curRow > 0 && curCol >0 && curRow < nbRows && curCol < nbCols 
+							&& isGoal(curRow, curCol)) {
+						nbOfGoalsCloseby++;
+					}
+				}
+			}// End check surrounding1
+			
+			upperLeftRow = goal.getRow() - 1;
+			upperLeftCol = goal.getCol() - 1;
+			// Iterate through every row end every column
+			for (int i = 0; i < 3; i++) {
+				for (int j = 0; j < 3; j++) {
+					if (isGoal(upperLeftRow + i, upperLeftCol + j)) {
+						nbOfGoalsCloseby++;
+					}
+				}
+			}// End check surrounding2
+			goalWheight[goalIndex] = nbOfGoalsCloseby;
+			goalIndex++;
+		}
+	}
+		
 	private void markDeadlocksAndGrad(){
 
 		/* Gradient to goal and deadLock (-) is marked according to "BFS" see below.
@@ -215,42 +256,45 @@ public class Board {
 			   ####
 		 */
 
+		gradCells = new Vector<Vector<Cell>>();
 		int lGoalIndex = -1;
 		for (Goal goal : goalsList){
 			lGoalIndex++;
-			
+
 			for(int row=0; row<nbRows; row++){
 				for(int col=0; col<nbCols; col++){
 					goalGrad[lGoalIndex][row][col] = -1; //marks Deadlock type 1 for this Goal.
 				}
 			}				
-			
+
 			goalGrad[lGoalIndex][goal.getRow()][goal.getCol()] = 0; //marks goals position
-			
+
 			boolean[][] lVisitedCell = new boolean[nbRows][nbCols]; //Keeps track of where we have been.
 
 			lVisitedCell[goal.getRow()][goal.getCol()] = true;
-			
+
 			//Create queue and add a first node.	
 			Queue<Cell> qe=new LinkedList<Cell>();
 			qe.add(new Cell(goal.getRow(), goal.getCol(),0)); //last index means "expansion level=0"
-
+			
+			// Vector where the cells with gradient number up to two is saved.
+			Vector<Cell> gradUpToTwoCells = new Vector<Cell>();
+			gradUpToTwoCells.add(new Cell(goal.getRow(), goal.getCol(),0));
+			
 			//Main search
 			while(!qe.isEmpty()){
-				
+
 				int curRow = qe.peek().getRow();
 				int curCol = qe.peek().getCol(); //also removes Cell!
 				int lMovesFromGoal = qe.poll().getExpansionLevel() + 1; //also removes Cell!
 
-				
 				// Next cell to check if the box can come from...
 				int lBoxFromRow;
 				int lBoxFromCol;
-				
+
 				// The cell to check that the player can be to be able to push box...
 				int lPlayerPushRow;
 				int lPlayerPushCol;
-
 				
 				//check "Pushed down from above"	
 				if(curRow>1){ //if on 1st row it can never be pushed down (must be walls on 0th row).
@@ -258,7 +302,7 @@ public class Board {
 					lBoxFromCol = curCol;
 					lPlayerPushRow = curRow - 2;
 					lPlayerPushCol = curCol;
-					
+
 					if(lVisitedCell[lBoxFromRow][lBoxFromCol]){
 						//if been here do nothing
 					}	
@@ -267,17 +311,20 @@ public class Board {
 							goalGrad[lGoalIndex][lBoxFromRow][lBoxFromCol] = lMovesFromGoal;
 							qe.add(new Cell(lBoxFromRow, lBoxFromCol, lMovesFromGoal));
 							lVisitedCell[lBoxFromRow][lBoxFromCol] = true; //save to repeated states...
+							//Also saves the closest cells:
+							if(lMovesFromGoal<=2) 
+								gradUpToTwoCells.add(new Cell(lBoxFromRow, lBoxFromCol, lMovesFromGoal));
 						}
 					}
 				}//End if, check "Pushed down from above"
-				
+
 				//check "Pushed up from below"	
 				if(curRow<nbRows-1){ //if on next to last row it can never be pushed up (must be walls on last row).
 					lBoxFromRow = curRow + 1;
 					lBoxFromCol = curCol;
 					lPlayerPushRow = curRow + 2;
 					lPlayerPushCol = curCol;
-					
+
 					if(lVisitedCell[lBoxFromRow][lBoxFromCol]){
 						//if been here do nothing
 					}	
@@ -286,17 +333,19 @@ public class Board {
 							goalGrad[lGoalIndex][lBoxFromRow][lBoxFromCol] = lMovesFromGoal;
 							qe.add(new Cell(lBoxFromRow, lBoxFromCol, lMovesFromGoal));
 							lVisitedCell[lBoxFromRow][lBoxFromCol] = true; //save to repeated states...
+							if(lMovesFromGoal<=2) 
+								gradUpToTwoCells.add(new Cell(lBoxFromRow, lBoxFromCol, lMovesFromGoal));
 						}
 					}
 				}//End if, check "Pushed up from below"
-				
+
 				//check "Pushed right from left"	
 				if(curCol>1){ //if in column 1 it can never be pushed right (must be walls on column 0).
 					lBoxFromRow = curRow;
 					lBoxFromCol = curCol-1;
 					lPlayerPushRow = curRow;
 					lPlayerPushCol = curCol-2;
-					
+
 					if(lVisitedCell[lBoxFromRow][lBoxFromCol]){
 						//if been here do nothing
 					}	
@@ -305,17 +354,19 @@ public class Board {
 							goalGrad[lGoalIndex][lBoxFromRow][lBoxFromCol] = lMovesFromGoal;
 							qe.add(new Cell(lBoxFromRow, lBoxFromCol, lMovesFromGoal));
 							lVisitedCell[lBoxFromRow][lBoxFromCol] = true; //save to repeated states...
+							if(lMovesFromGoal<=2) 
+								gradUpToTwoCells.add(new Cell(lBoxFromRow, lBoxFromCol, lMovesFromGoal));
 						}
 					}
 				}//End if, check "Pushed right from left"
-				
+
 				//check "Pushed left from right"	
 				if(curCol>1){ //if in next to last column it can never be pushed left (must be walls on last column).
 					lBoxFromRow = curRow;
 					lBoxFromCol = curCol+1;
 					lPlayerPushRow = curRow;
 					lPlayerPushCol = curCol+2;
-					
+
 					if(lVisitedCell[lBoxFromRow][lBoxFromCol]){
 						//if been here do nothing
 					}	
@@ -324,47 +375,60 @@ public class Board {
 							goalGrad[lGoalIndex][lBoxFromRow][lBoxFromCol] = lMovesFromGoal;
 							qe.add(new Cell(lBoxFromRow, lBoxFromCol, lMovesFromGoal));
 							lVisitedCell[lBoxFromRow][lBoxFromCol] = true; //save to repeated states...
+							if(lMovesFromGoal<=2) 
+								gradUpToTwoCells.add(new Cell(lBoxFromRow, lBoxFromCol, lMovesFromGoal));
 						}
 					}
 				}//End if, check "Pushed left from right"
 			}
+			//Saves these cells to the vector gradCells that collects them.
+			gradCells.add(gradUpToTwoCells);
+			
 		}//End for goal in goalsList
 
-
-        for(int row = 0; row < nbRows; row++){
-            for(int col = 0; col < nbCols; col++){
-                boolean allDeadT1 = true;
-                for(int goalIndex = 0; goalIndex < nbGoals; goalIndex++){
-                    if (goalGrad[goalIndex][row][col] != -1){
-                        allDeadT1 = false;
-                        break;
-                    }
-                }
-                if (allDeadT1){
-                    deadLocksT0[row][col]=true;
-                }
-            }
-        }
+		// marks all deadlocks type 1, i.e. where the number is -1 for all goals gradients...
+		for(int row = 0; row < nbRows; row++){
+			for(int col = 0; col < nbCols; col++){
+				boolean allDeadT1 = true;
+				for(int goalIndex = 0; goalIndex < nbGoals; goalIndex++){
+					if (goalGrad[goalIndex][row][col] != -1){
+						allDeadT1 = false;
+						break;
+					}
+				}
+				if (allDeadT1){
+					deadLocksT0[row][col]=true;
+				}
+			}
+		}
 	}
 
-    /**
-     * Summed goalGrad
-     */
-    private void setGoalGradMerged() {
-        // for every goal
-        for (int i = 0; i < nbBoxes; i++) {
-            // for each row
-            for (int row = 0; row < nbRows; row++) {
-                // for each col
-                for (int col = 0; col < nbCols; col++) {
-                    // Choose the min value
-                    if (goalGradMerged[row][col] > goalGrad[i][row][col] && goalGrad[i][row][col] != -1)
-                        goalGradMerged[row][col] = goalGrad[i][row][col];
-                }
-            }
-        }
+	/**
+	 * Merge goalGrad
+	 */
+	private static void setAllGoalGradMerged() {
+		// set high values
+		for (int row = 0; row < nbRows; row++) {
+			// for each col
+			for (int col = 0; col < nbCols; col++) {
+				goalGradMerged[row][col] = -1;
+			}
+		}
 
-        /* Print the board
+		// for every goal
+		for (int i = 0; i < nbBoxes; i++) {
+			// for each row
+			for (int row = 0; row < nbRows; row++) {
+				// for each col
+				for (int col = 0; col < nbCols; col++) {
+					// Choose the min value
+					if (goalGradMerged[row][col] > goalGrad[i][row][col] && goalGrad[i][row][col] != -1)
+						goalGradMerged[row][col] = goalGrad[i][row][col];
+				}
+			}
+		}
+
+		/* Print the board
         for (int row = 0; row < nbRows; row++) {
             // for each col
             System.out.println();
@@ -373,29 +437,38 @@ public class Board {
 
             }
         }
-        */
-    }
+		 */
+	}
 
-    public static void setGoalGradMerged(State pState) {
-        int value;
-        // for each row
-        for (int row = 0; row < nbRows; row++) {
-            // for each col
-            for (int col = 0; col < nbCols; col++) {
-                // for every goal
-                value = Integer.MAX_VALUE;
-                for (int i = 0; i < nbBoxes; i++) {
-                    if (pState.isGoalOccupied(i)) continue;
-                    // Choose the min value
-                    if (value > goalGrad[i][row][col] && goalGrad[i][row][col] != -1) {
-                        goalGradMerged[row][col] = goalGrad[i][row][col];
-                        value = goalGrad[i][row][col];
-                    }
-                }
-            }
-        }
+	public static void setGoalGradMerged(State pState) {
 
-        /* Print the board
+		// set high values
+		for (int row = 0; row < nbRows; row++) {
+			// for each col
+			for (int col = 0; col < nbCols; col++) {
+				goalGradMerged[row][col] = -1;
+			}
+		}
+
+		int value;
+		// for each row
+		for (int row = 0; row < nbRows; row++) {
+			// for each col
+			for (int col = 0; col < nbCols; col++) {
+				// for every goal
+				value = Integer.MAX_VALUE;
+				for (int i = 0; i < nbBoxes; i++) {
+					if (pState.isGoalOccupied(i)) continue;
+					// Choose the min value
+					if (value > goalGrad[i][row][col] && goalGrad[i][row][col] != -1) {
+						goalGradMerged[row][col] = goalGrad[i][row][col];
+						value = goalGrad[i][row][col];
+					}
+				}
+			}
+		}
+
+		/* Print the board
         for (int row = 0; row < nbRows; row++) {
             // for each col
             System.out.println();
@@ -404,10 +477,10 @@ public class Board {
 
             }
         }
-        */
-    }
+		 */
+	}
 
-	
+
 	public static State getInitialState(){
 		return initialState;
 	}
@@ -448,26 +521,29 @@ public class Board {
 	public static Vector<Goal> getListOFGoals(){
 		return goalsList;
 	}
-	
+
 	public static Vector<String> getStringRepr(){
 		return stringRepr;
 	}
-	
+
 	public static int getNbRows(){
 		return nbRows;
 	}
-	
+
 	public static int getNbCols(){
 		return nbCols;
 	}
-	
+
 	public static int getGoalGrad(int pGoalIndex, int pRow, int pCol){
 		return goalGrad[pGoalIndex][pRow][pCol];
 	}
 
-    public static int getGoalGradMerged(int pRow, int pCol) {
-        return goalGradMerged[pRow][pCol];
-    }
+	public static int getGoalGradMerged(int pRow, int pCol) {
+		return goalGradMerged[pRow][pCol];
+	}
+	public static int[][] getGoalGradMerged() {
+		return goalGradMerged;
+	}
 
 	public static int getNbOfBoxes(){
 		return nbBoxes;

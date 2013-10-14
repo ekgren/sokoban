@@ -26,9 +26,11 @@ public class SolutionEvaluator {
         map = new MapReader(levelNo + 1);
         
         // Try to solve
-		path = new Sokoban(new StringReader(map.getMap()), true, true);
+		path = new Sokoban(new StringReader(map.getMap()), true, true, false);
+		//boolean debugMode, boolean profilingMode, boolean visualizeMode
         // Animate solution
-		//animateSolution();
+		animateSolution();
+		
 	}
 	
 	public void animateSolution() throws FileNotFoundException, IOException{

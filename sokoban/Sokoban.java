@@ -28,16 +28,19 @@ public class Sokoban {
 	
 	public static boolean debugMode;
     public static boolean profilingMode;
+    public static boolean visualizeMode;
+
     // Start constructorTime for the profiling
     private long startTime;
 
 	public String solution;
 	
-	public Sokoban(Reader r, boolean debugMode, boolean profilingMode) throws IOException{
+	public Sokoban(Reader r, boolean debugMode, boolean profilingMode, boolean visualizeMode) throws IOException{
 		
 		//final Client client = new Client();
 		this.debugMode = debugMode;
         this.profilingMode = profilingMode;
+        this.visualizeMode = visualizeMode;
 
         // Start constructorTime for board init
         if (profilingMode) startTime = System.currentTimeMillis();
@@ -53,15 +56,18 @@ public class Sokoban {
 
 		if (debugMode){
 			Visualizer v = new Visualizer();
-			Visualizer.printState(board.getInitialState(), "INITIAL STATE");
+			Visualizer.printState(board.getInitialState(), "/Sokoban: INITIAL STATE");
 		}
 
         //Reaches info incl. initial state from Map statically.
 		Solver solver = new Solver();
 
         // Search after solution
-        State solution = solver.greedyBFS();
+        // State solution = solver.greedyBFS();
+	    //State solution = solver.greedyBFSWithGoalCluster();
+	    State solution = solver.directToGoalsWithGoalGoalCluster();
 
+	    
 	    if(solution.isFinalState()) this.solution = solver.getStrToGoal(solution);
         else this.solution = "no path";
 
@@ -94,8 +100,9 @@ public class Sokoban {
 	}
 	
 	public static void main(String[] args) throws IOException {
-	    Sokoban soko = new Sokoban(new InputStreamReader(System.in), false, false);
+	    Sokoban soko = new Sokoban(new InputStreamReader(System.in), false, false, false);
         // Prints the solution to Kattis
-        System.out.println(soko.solution.toUpperCase());
+       System.out.println(soko.solution.toUpperCase());
+
     } // main
 } // End Main

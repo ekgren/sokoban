@@ -11,7 +11,7 @@ public class StatePriorityComparator implements Comparator<State>{
 		double h2 = pState2.getH();
 		
 		if (h1 < h2){
-			return -1; //move forward?!
+			return -1; //move forward
 		}
 		else if (h2 < h1){
 			return 1;

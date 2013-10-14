@@ -69,7 +69,99 @@ public class Visualizer {
 						System.out.print(lCharAt);
 					}
 					else if (Board.getGoalGrad(pReferensGoalIndex, row, col) != -1){
-						System.out.print(Board.getGoalGrad(pReferensGoalIndex, row, col));
+						if(Board.getGoalGrad(pReferensGoalIndex, row, col)<10){
+							System.out.print(Board.getGoalGrad(pReferensGoalIndex, row, col));
+						}
+						else if(Board.getGoalGrad(pReferensGoalIndex, row, col) == 10){
+							System.out.print("/");
+						}
+						else if(Board.getGoalGrad(pReferensGoalIndex, row, col)<20){
+							System.out.print(Board.getGoalGrad(pReferensGoalIndex, row, col) - 10);
+						}
+						else if(Board.getGoalGrad(pReferensGoalIndex, row, col) == 20){
+							System.out.print("/");
+						}
+						else if(Board.getGoalGrad(pReferensGoalIndex, row, col)<30){
+							System.out.print(Board.getGoalGrad(pReferensGoalIndex, row, col) - 20);
+						}	
+						else if(Board.getGoalGrad(pReferensGoalIndex, row, col) == 30){
+							System.out.print("/");
+						}
+						else{
+							System.out.print(Board.getGoalGrad(pReferensGoalIndex, row, col) - 30);
+						}
+					}
+					else if(col<cleanMapStringRepr.get(row).length()){ //might be shorter than nbCols!
+						System.out.print("-");//cleanMapStringRepr.get(row).charAt(col));
+					}
+				}
+			}//End for columns	
+			System.out.println(" ");
+		}//End for rows
+	}
+	
+	public static void printGoalGradMerged( int[][] goalGradMerged){
+		
+		int lNbRows = Board.getNbRows();
+		int lNbCols = Board.getNbCols();
+		
+		System.out.println("");
+		System.out.println("Goal gradient merged:");
+		for (int row = 0; row<lNbRows; row++){
+			for (int col = 0; col<lNbCols; col++){				
+				if(col<cleanMapStringRepr.get(row).length()){
+
+					char lCharAt = cleanMapStringRepr.get(row).charAt(col);
+					if (lCharAt == '#'){
+						System.out.print(lCharAt);
+					}
+					else if (goalGradMerged[row][col] != -1){
+						if(goalGradMerged[row][col]<10){
+							System.out.print(goalGradMerged[row][col]);
+						}
+						else if(goalGradMerged[row][col]<20){
+							System.out.print("/");
+							//System.out.print(goalGradMerged[row][col]-10);
+						}
+						else{
+							System.out.print("/");
+							//System.out.print(goalGradMerged[row][col]-20);
+						}	
+					}
+					else if(col<cleanMapStringRepr.get(row).length()){ //might be shorter than nbCols!
+						System.out.print("-");//cleanMapStringRepr.get(row).charAt(col));
+					}
+				}
+			}//End for columns	
+			System.out.println(" ");
+		}//End for rows
+	}
+	
+	public static void printGoalGradMerged(){
+		
+		int lNbRows = Board.getNbRows();
+		int lNbCols = Board.getNbCols();
+		
+		System.out.println("");
+		System.out.println("Goal gradient merged:");
+		for (int row = 0; row<lNbRows; row++){
+			for (int col = 0; col<lNbCols; col++){				
+				if(col<cleanMapStringRepr.get(row).length()){
+
+					char lCharAt = cleanMapStringRepr.get(row).charAt(col);
+					if (lCharAt == '#'){
+						System.out.print(lCharAt);
+					}
+					else if (Board.getGoalGradMerged(row, col) != -1){
+						if(Board.getGoalGradMerged(row, col)<10){
+							System.out.print(Board.getGoalGradMerged(row, col));
+						}
+						else if(Board.getGoalGradMerged(row, col)<20){
+							System.out.print(Board.getGoalGradMerged(row, col)-10);
+						}
+						else{
+							System.out.print(Board.getGoalGradMerged(row, col)-20);
+						}	
 					}
 					else if(col<cleanMapStringRepr.get(row).length()){ //might be shorter than nbCols!
 						System.out.print("-");//cleanMapStringRepr.get(row).charAt(col));
@@ -119,6 +211,8 @@ public class Visualizer {
 
 	public static void printStateDelux(State pState, String pLabel){
 		printState(pState, pLabel);
+		//printGoalGradMerged(pState.getGoalGradMerged());
+		//System.out.println("Heuristic value: " + pState.getH());
 		System.out.println("#Boxes on goal: " + pState.nbOfBoxesOnGoal);
 		System.out.print("Goal index occ.: ");
 		printVector(pState.goalsOccupied," ");
@@ -142,6 +236,25 @@ public class Visualizer {
 			System.out.println();
 		}
 	}
+	
+	public static void printMatrixWithLeg(int[][] pObject, String pLabel){
+		System.out.println();
+		System.out.println(pLabel);
+		System.out.println();
+		System.out.print("  ");
+		for( int col=0; col < pObject[0].length; col++){
+			System.out.print(" "+col);
+		}		
+		System.out.println();
+		for( int row=0; row < pObject.length; row++){
+			System.out.print(row + ": ");
+			for( int col=0; col < pObject[row].length; col++){
+				System.out.print(pObject[row][col] + " ");
+			}
+			System.out.println();
+		}
+	}
+	
 	public static void printMatrix(boolean[][] pObject, String pLabel){
 		System.out.println();
 		System.out.println(pLabel);
