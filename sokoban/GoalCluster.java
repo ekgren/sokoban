@@ -8,7 +8,6 @@ package sokoban;
 
 import java.util.Vector;
 
-import sun.awt.X11.Visual;
 
 public class GoalCluster {
 
