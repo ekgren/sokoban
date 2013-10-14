@@ -9,40 +9,39 @@ package sokoban;
  * 
  */
 
+import java.awt.Point;
 import java.util.Comparator;
 
 
-public class Cell {
+public class Cell extends Point{
 
-	private int row;
-	private int col;
 	private Cell parent;
 	private int expansionLevel;
-
+	
 	
 	public Cell(int pRow, int pCol){
-		this.row = pRow;
-		this.col = pCol;
+		this.x = pRow;
+		this.y = pCol;
 	}
 	
 	public Cell(Cell pParent,int pRow,int pCol){
-		this.row = pRow;
-		this.col = pCol;
+		this.x = pRow;
+		this.y = pCol;
 		this.parent = pParent;
 	}
 	
 	public Cell(int pRow,int pCol, int pExpansionLevel){
-		this.row = pRow;
-		this.col = pCol;
+		this.x = pRow;
+		this.y= pCol;
 		this.expansionLevel = pExpansionLevel;
 	}
 	
 	public int getRow(){
-		return row;
+		return this.x;
 	}
 	
 	public int getCol(){
-		return col;
+		return this.y;
 	}
 	
 	
@@ -55,11 +54,11 @@ public class Cell {
 	}
 	
 	public void setRow(int rowIndex){
-		this.row = rowIndex;
+		this.x = rowIndex;
 	}
 	
 	public void setCol(int colIndex){
-		this.col = colIndex;
+		this.y = colIndex;
 	}
 	
 	public void setPos(int pRow, int pCol){
@@ -71,6 +70,7 @@ public class Cell {
 		this.parent = pCell;
 	}
 	
+	/*
 	public boolean equals(Cell obj) {
 	    //null instance of Object will always return false
 	    if (obj == this)
@@ -78,7 +78,7 @@ public class Cell {
 	    //Else check if fields are the same.
 	    return  this.getRow() == ((Cell) obj).getRow() &&
 	            this.getCol() == ((Cell) obj).getCol();  
-	}
+	}*/
 	
 
 	public static class NormComparator implements Comparator<Cell>{
