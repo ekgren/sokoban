@@ -20,28 +20,28 @@ public class Cell extends Point{
 	
 	
 	public Cell(int pRow, int pCol){
-		this.x = pRow;
-		this.y = pCol;
+		this.x = pCol;
+		this.y = pRow;
 	}
 	
 	public Cell(Cell pParent,int pRow,int pCol){
-		this.x = pRow;
-		this.y = pCol;
+		this.x = pCol;
+		this.y = pRow;
 		this.parent = pParent;
 	}
 	
 	public Cell(int pRow,int pCol, int pExpansionLevel){
-		this.x = pRow;
-		this.y= pCol;
+		this.x = pCol;
+		this.y= pRow;
 		this.expansionLevel = pExpansionLevel;
 	}
 	
 	public int getRow(){
-		return this.x;
+		return this.y;
 	}
 	
 	public int getCol(){
-		return this.y;
+		return this.x;
 	}
 	
 	
@@ -54,11 +54,11 @@ public class Cell extends Point{
 	}
 	
 	public void setRow(int rowIndex){
-		this.x = rowIndex;
+		this.y = rowIndex;
 	}
 	
 	public void setCol(int colIndex){
-		this.y = colIndex;
+		this.x = colIndex;
 	}
 	
 	public void setPos(int pRow, int pCol){

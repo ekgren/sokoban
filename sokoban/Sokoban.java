@@ -56,18 +56,20 @@ public class Sokoban {
 
 		if (debugMode){
 			Visualizer v = new Visualizer();
-			Visualizer.printState(board.getInitialState(), "/Sokoban: INITIAL STATE");
+			//Visualizer.printState(board.getInitialState(), "/Sokoban: INITIAL STATE");
 		}
 
         //Reaches info incl. initial state from Map statically.
 		Solver solver = new Solver();
 
         // Search after solution
-        // State solution = solver.greedyBFS();
+       
+		// State solution = solver.greedyBFS();
 	    // State solution = solver.greedyBFSWithGoalCluster();
 	    // State solution = solver.directToGoalsWithGoalGoalCluster();
 	    // State solution = solver.testMoveBoxesToClosestGoals();
 	    State solution = solver.macroTester();
+
 
 	    
 	    if(solution.isFinalState()) this.solution = solver.getStrToGoal(solution);
