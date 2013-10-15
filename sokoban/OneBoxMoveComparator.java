@@ -30,10 +30,10 @@ public class OneBoxMoveComparator implements Comparator<State>{
 	public int compare(State pState1, State pState2) {
 
 		if(toClosestGoal){
-			h1 = Board.getGoalGradMerged( pState1.getBox(boxToMoveIndex).getRow(), 
+			h1 = pState1.getGoalGradMerged( pState1.getBox(boxToMoveIndex).getRow(), 
 					pState1.getBox(boxToMoveIndex).getCol() );	
 
-			h2 = Board.getGoalGradMerged( pState2.getBox(boxToMoveIndex).getRow(), 
+			h2 = pState2.getGoalGradMerged( pState2.getBox(boxToMoveIndex).getRow(), 
 					pState2.getBox(boxToMoveIndex).getCol() );
 		}
 		else{
