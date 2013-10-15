@@ -50,8 +50,8 @@ public class Box extends Point{
 	}
 	
 	public Box(int pRow, int pCol, boolean pIsOnGoal){
-		this.x = pRow;
-		this.y = pCol;
+		this.x = pCol;
+		this.y = pRow;
 		isOnGoal = pIsOnGoal;
 	}
 	
@@ -60,8 +60,8 @@ public class Box extends Point{
 	 * @param pBox
 	 */
 	public Box(Box pBox){
-		this.x = pBox.getRow();
-		this.y = pBox.getCol();
+		this.x = pBox.getCol();
+		this.y = pBox.getRow();
 		this.isOnGoal = pBox.isOnGoal();
 		this.isReachable = pBox.isReachable();
 	}
@@ -79,16 +79,16 @@ public class Box extends Point{
 	public void move(char pDir){
 		switch (pDir) {
             case 'U':
-                this.setRow(this.x - 1);
+                this.setRow(this.y - 1);
                 break;
             case 'D':
-                this.setRow(this.x + 1);
+                this.setRow(this.y + 1);
                 break;
             case 'R':
-                this.setCol(this.y + 1);
+                this.setCol(this.x + 1);
                 break;
             case 'L':
-                this.setCol(this.y - 1);
+                this.setCol(this.x - 1);
                 break;
         }
 	}
@@ -102,19 +102,19 @@ public class Box extends Point{
 	}
 	
 	public int getRow(){
-		return this.x;
-	}
-	
-	public int getCol(){
 		return this.y;
 	}
 	
+	public int getCol(){
+		return this.x;
+	}
+	
 	private void setRow(int pRow){
-		this.x = pRow;
+		this.y = pRow;
 	}
 	
 	private void setCol(int pCol){
-		this.y = pCol;
+		this.x = pCol;
 	}
 	
 	public boolean isReachable(){

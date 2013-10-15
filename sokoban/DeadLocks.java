@@ -17,66 +17,122 @@ public class DeadLocks {
 	private static HashSet<Box> setBoxes = new HashSet<Box>(100);
 	
 	/*
-	 * Checks for these types of deadlocks.
+	 * Checks for these types of deadlocks (and symmetries).
 	 * 
-	 * #    #              #      ##
-	 * #$  $#  ####   $$   #$    $$
-	 * #$  $#   $$   ####   $#  ##  
-	 * #    #			     #  
+	 * 1)                    2)       #
+	 *    #$  $#    ##    $$    #$   $$
+	 *    #$  $#    $$    ##     $#  #  
+	 *          			       
 	 * 						 	 
 	 * 						
-	 *  	$$		
+	 * 3)	$$		
 	 *  	$$
 	 *  
-	 *   #		 #  	 $$		$$
-	 *  ##$		$##		##$		$##
-	 *   $$		$$		 #		 #
+	 * 4)  #		 #  	 $$		$$
+	 *    ##$		$##		##$		$##
+	 *     $$		$$		 #		 #
 	 *   
 	 *   Method is planned to be used at tryMove method, as one of last conditions
 	 */
 	public static boolean checkDeadLocks(State pState,Box pBox ,int pMoveToRow, int pMoveToCol,
 			char pDir){
-		
-		/*System.out.println("Tester");
-		System.out.println(Board.isWall(pMoveToRow, pMoveToCol));
-		*/
+
+		//Checking 1) and 2)
 		for(Box box : pState.getBoxes()){
+			
+			//Don't check deadlock with last moved box
 			if(pBox.getRow() != box.getRow() && pBox.getCol() != box.getCol()){
-				/*
-				System.out.println("well");
-				System.out.println(pBox.getRow());
-				System.out.println(pBox.getCol());
-				System.out.println(pMoveToRow);
-				System.out.println(pMoveToRow);
-				System.out.println("hell");
-				*/
-				//Check if wall to left or right
-				if(Board.isWall(pMoveToRow, pMoveToCol-1) || 
-						Board.isWall(pMoveToRow, pMoveToCol+1)){
+				
+				//Check if there is wall to the left
+				if(Board.isWall(pMoveToRow, pMoveToCol-1)){
+					
 					//Column must be same for this type of deadLock
 					if(box.getCol() == pMoveToCol){
+						
 						//If both boxes are on goal it is not a deadlock
 						if(box.isOnGoal() && Board.isGoal(pMoveToRow, pMoveToCol));
-						//Else check above and below
-						else if(Board.isWall(box.getRow(), box.getCol() + 1) ||
-								Board.isWall(box.getRow(), box.getCol()-1)){
-							if(box.getRow() == pMoveToRow + 1 || box.getRow() == pMoveToRow -1){
+
+						//Check if box is above
+						else if(box.getRow()-1 == pMoveToRow){
+
+							//Check if wall to left or right of box
+							if(Board.isWall(box.getRow(), box.getCol()-1) ||
+									Board.isWall(box.getRow(), box.getCol()+1)){
 								setBoxes.clear();
-								//System.out.println(box.getRow());
-								//System.out.println(box.getCol());
-								//System.out.println("Boxmoving");
-								//System.out.println(Board.isGoal(box.getRow(), box.getCol()));
-								//System.out.println(Board.isGoal(pMoveToRow, pMoveToCol));
-								//System.out.println(box.isOnGoal());
-								System.out.println(pDir);
 								System.out.println("Box pos");
 								System.out.println(pBox.getRow());
 								System.out.println(pBox.getCol());
 								System.out.println("Moving to");
 								System.out.println(pMoveToRow);
 								System.out.println(pMoveToCol);
-								System.out.println("Check one");
-								Visualizer.printState(pState, "testing deadLocks");
+								System.out.println("Check Two");
+								Visualizer.printState(pState, "Type 1 or 2) wall to left");
+								return true;
+							}
+						}
+						//Check if box is below
+						else if(box.getRow()+1 == pMoveToRow){
+						
+							//Check if wall is to left or right of box
+							if(Board.isWall(box.getRow(), box.getCol()+1) ||
+									Board.isWall(box.getRow(), box.getCol()-1)){
+								setBoxes.clear();
+								System.out.println("Box pos");
+								System.out.println(pBox.getRow());
+								System.out.println(pBox.getCol());
+								System.out.println("Moving to");
+								System.out.println(pMoveToRow);
+								System.out.println(pMoveToCol);
+								System.out.println("Check Two");
+								Visualizer.printState(pState, "Type 1) wall to left");
+								return true;
+							}
+						}
+					}
+				}
+				
+				//Check if there is wall to the right
+				if(Board.isWall(pMoveToRow, pMoveToCol+1)){
+					
+					//Column must be same for this type of deadLock
+					if(box.getCol() == pMoveToCol){
+						
+						//If both boxes are on goal it is not a deadlock
+						if(box.isOnGoal() && Board.isGoal(pMoveToRow, pMoveToCol));
+
+						//Check if box is above
+						else if(box.getRow()-1 == pMoveToRow){
+
+							//Check if wall to left or right of box
+							if(Board.isWall(box.getRow(), box.getCol()-1) ||
+									Board.isWall(box.getRow(), box.getCol()+1)){
+								setBoxes.clear();
+								System.out.println("Box pos");
+								System.out.println(pBox.getRow());
+								System.out.println(pBox.getCol());
+								System.out.println("Moving to");
+								System.out.println(pMoveToRow);
+								System.out.println(pMoveToCol);
+								System.out.println("Check Two");
+								Visualizer.printState(pState, "Type 1or2) wall to right");
+								return true;
+							}
+						}
+						//Check if box is below
+						else if(box.getRow()+1 == pMoveToRow){
+						
+							//Check if wall is to left or right of box
+							if(Board.isWall(box.getRow(), box.getCol()+1) ||
+									Board.isWall(box.getRow(), box.getCol()-1)){
+								setBoxes.clear();
+								System.out.println("Box pos");
+								System.out.println(pBox.getRow());
+								System.out.println(pBox.getCol());
+								System.out.println("Moving to");
+								System.out.println(pMoveToRow);
+								System.out.println(pMoveToCol);
+								System.out.println("Check Two");
+								Visualizer.printState(pState, "Type 1or2) wall to right");
 								return true;
 							}
 						}
@@ -86,14 +142,19 @@ public class DeadLocks {
 				//Check if wall above or below
 				else if(Board.isWall(pMoveToRow+1, pMoveToCol) ||
 						Board.isWall(pMoveToRow-1,pMoveToCol)){
+					
 					//Row must be same for this type deadLock
 					if(box.getRow() == pMoveToRow){
+					
 						//If both boxes are on goal it is not a deadlock
 						if(box.isOnGoal() && Board.isGoal(pMoveToRow, pMoveToCol));
-						//Else check left and right
-						else if(Board.isWall(box.getRow(), box.getCol() + 1) ||
-								Board.isWall(box.getRow(), box.getCol()-1)){
-							if(box.getCol() == pMoveToCol + 1 || box.getCol() == pMoveToCol -1){
+						
+						//Else check wall above or left
+						else if(Board.isWall(box.getRow()+1, box.getCol()) ||
+								Board.isWall(box.getRow()-1, box.getCol())){
+						
+							//Check of box is to left or right
+							if(box.getCol() +1 == pMoveToCol || box.getCol() -1 == pMoveToCol){
 								setBoxes.clear();
 								//System.out.println(box.getRow());
 								//System.out.println(box.getCol());
@@ -104,14 +165,13 @@ public class DeadLocks {
 								System.out.println(pMoveToRow);
 								System.out.println(pMoveToCol);
 								System.out.println("Check Two");
-								Visualizer.printState(pState, "testing deadLocks");
+								Visualizer.printState(pState, "Type 1or2) wall above or below");
 								return true;
 							}
 						}
 					}
 				}
 				//Add all boxes and check the two other types of deadlocks
-				//(must change to better hash-function)
 				setBoxes.add(box);
 			}
 		}
@@ -129,17 +189,28 @@ public class DeadLocks {
 			 
 		If move was UP, we check U, L, R and UR or UL*/
 		if(pDir == 'U'){
+			
 			//Check if box is above
 			if(setBoxes.contains(hashString(pMoveToRow+1, pMoveToCol))){
 				
 				//Check if box is to the left
 				if(setBoxes.contains(hashString(pMoveToRow, pMoveToCol-1))){
+			
 					//Check if wall is Up left
 					if(Board.isWall(pMoveToRow+1, pMoveToCol-1)){
+					
 						//If all boxes are on goals it is not a deadlock
 						if(!Board.isGoal(pMoveToRow+1, pMoveToCol) &! 	//U
 								Board.isGoal(pMoveToRow, pMoveToCol) &! 
 								Board.isGoal(pMoveToRow, pMoveToCol-1)){ //R
+							System.out.println("Box pos");
+							System.out.println(pBox.getRow());
+							System.out.println(pBox.getCol());
+							System.out.println("Moving to");
+							System.out.println(pMoveToRow);
+							System.out.println(pMoveToCol);
+							System.out.println("Check Two");
+							Visualizer.printState(pState, "Type 4)");
 							setBoxes.clear();
 							return true;
 						}
@@ -151,6 +222,14 @@ public class DeadLocks {
 								Board.isGoal(pMoveToRow, pMoveToCol) &! 
 								Board.isGoal(pMoveToRow, pMoveToCol-1) &! //R
 								Board.isGoal(pMoveToRow+1, pMoveToCol-1)){ //UR
+							System.out.println("Box pos");
+							System.out.println(pBox.getRow());
+							System.out.println(pBox.getCol());
+							System.out.println("Moving to");
+							System.out.println(pMoveToRow);
+							System.out.println(pMoveToCol);
+							System.out.println("Check Two");
+							Visualizer.printState(pState, "Type 3) wall to left");
 							setBoxes.clear();
 							return true;
 						}
@@ -166,6 +245,14 @@ public class DeadLocks {
 						if(!Board.isGoal(pMoveToRow, pMoveToCol) &!  
 								Board.isGoal(pMoveToRow, pMoveToCol+1) &! //L
 								Board.isGoal(pMoveToRow+1, pMoveToCol)){ //U
+							System.out.println("Box pos");
+							System.out.println(pBox.getRow());
+							System.out.println(pBox.getCol());
+							System.out.println("Moving to");
+							System.out.println(pMoveToRow);
+							System.out.println(pMoveToCol);
+							System.out.println("Check Two");
+							Visualizer.printState(pState, "Type 4) wall to left");
 							setBoxes.clear();
 							return true;
 						}
@@ -176,6 +263,14 @@ public class DeadLocks {
 								Board.isGoal(pMoveToRow, pMoveToCol+1) &! // L
 								Board.isGoal(pMoveToRow+1, pMoveToCol) &! // U
 								Board.isGoal(pMoveToRow+1, pMoveToCol+1)){ // UL
+							System.out.println("Box pos");
+							System.out.println(pBox.getRow());
+							System.out.println(pBox.getCol());
+							System.out.println("Moving to");
+							System.out.println(pMoveToRow);
+							System.out.println(pMoveToCol);
+							System.out.println("Check Two");
+							Visualizer.printState(pState, "Type 3) wall to left");
 							setBoxes.clear();
 							return true;
 						}
@@ -196,6 +291,14 @@ public class DeadLocks {
 								Board.isGoal(pMoveToRow-1, pMoveToCol) &! //D
 								Board.isGoal(pMoveToRow, pMoveToCol-1) &! // L
 								Board.isGoal(pMoveToRow-1, pMoveToCol-1)){ // DL
+							System.out.println("Box pos");
+							System.out.println(pBox.getRow());
+							System.out.println(pBox.getCol());
+							System.out.println("Moving to");
+							System.out.println(pMoveToRow);
+							System.out.println(pMoveToCol);
+							System.out.println("Check Two");
+							Visualizer.printState(pState, "Type 3) wall to left");
 							setBoxes.clear();
 							return true;
 
@@ -207,6 +310,14 @@ public class DeadLocks {
 						if(!Board.isGoal(pMoveToRow, pMoveToCol) &! 
 								Board.isGoal(pMoveToRow-1, pMoveToCol) &! // D
 								Board.isGoal(pMoveToRow, pMoveToCol-1)){ // L
+							System.out.println("Box pos");
+							System.out.println(pBox.getRow());
+							System.out.println(pBox.getCol());
+							System.out.println("Moving to");
+							System.out.println(pMoveToRow);
+							System.out.println(pMoveToCol);
+							System.out.println("Check Two");
+							Visualizer.printState(pState, "Type 4) wall to left");
 							setBoxes.clear();
 							return true;
 						}
@@ -222,6 +333,14 @@ public class DeadLocks {
 							Board.isGoal(pMoveToRow, pMoveToCol+1) &! // R
 							Board.isGoal(pMoveToRow-1, pMoveToCol+1) &! // DR
 							Board.isGoal(pMoveToRow-1, pMoveToCol+1)){ // D
+						System.out.println("Box pos");
+						System.out.println(pBox.getRow());
+						System.out.println(pBox.getCol());
+						System.out.println("Moving to");
+						System.out.println(pMoveToRow);
+						System.out.println(pMoveToCol);
+						System.out.println("Check Two");
+						Visualizer.printState(pState, "Type 3) wall to left");
 						setBoxes.clear();
 						return true;
 					}
@@ -232,6 +351,14 @@ public class DeadLocks {
 					if(!Board.isGoal(pMoveToRow, pMoveToCol) &! 
 							Board.isGoal(pMoveToRow-1, pMoveToCol) &! // D
 							Board.isGoal(pMoveToRow, pMoveToCol+1)){ // R
+						System.out.println("Box pos");
+						System.out.println(pBox.getRow());
+						System.out.println(pBox.getCol());
+						System.out.println("Moving to");
+						System.out.println(pMoveToRow);
+						System.out.println(pMoveToCol);
+						System.out.println("Check Two");
+						Visualizer.printState(pState, "Type 1) wall to left");
 						setBoxes.clear();
 						return true;
 					}
@@ -252,6 +379,14 @@ public class DeadLocks {
 								Board.isGoal(pMoveToRow, pMoveToCol-1) &! // L
 								Board.isGoal(pMoveToRow+1, pMoveToCol) &! // U
 								Board.isGoal(pMoveToRow+1, pMoveToCol-1)){ // UL
+							System.out.println("Box pos");
+							System.out.println(pBox.getRow());
+							System.out.println(pBox.getCol());
+							System.out.println("Moving to");
+							System.out.println(pMoveToRow);
+							System.out.println(pMoveToCol);
+							System.out.println("Check Two");
+							Visualizer.printState(pState, "Type 3) wall to left");
 							setBoxes.clear();
 							return true;
 						}
@@ -262,6 +397,14 @@ public class DeadLocks {
 						if(!Board.isGoal(pMoveToRow, pMoveToCol) &! 
 								Board.isGoal(pMoveToRow, pMoveToCol-1) &! // L
 								Board.isGoal(pMoveToRow+1, pMoveToCol)){ // U
+							System.out.println("Box pos");
+							System.out.println(pBox.getRow());
+							System.out.println(pBox.getCol());
+							System.out.println("Moving to");
+							System.out.println(pMoveToRow);
+							System.out.println(pMoveToCol);
+							System.out.println("Check Two");
+							Visualizer.printState(pState, "Type 4) wall to left");
 							setBoxes.clear();
 							return true;
 						}
@@ -276,6 +419,14 @@ public class DeadLocks {
 								Board.isGoal(pMoveToRow, pMoveToCol-1) &! // L
 								Board.isGoal(pMoveToRow-1, pMoveToCol) &! // D
 								Board.isGoal(pMoveToRow-1, pMoveToCol-1)){ // DL
+							System.out.println("Box pos");
+							System.out.println(pBox.getRow());
+							System.out.println(pBox.getCol());
+							System.out.println("Moving to");
+							System.out.println(pMoveToRow);
+							System.out.println(pMoveToCol);
+							System.out.println("Check Two");
+							Visualizer.printState(pState, "Type 3)");
 							setBoxes.clear();
 							return true;
 						}
@@ -286,6 +437,14 @@ public class DeadLocks {
 						if(!Board.isGoal(pMoveToRow, pMoveToCol) &! 
 								Board.isGoal(pMoveToRow, pMoveToCol-1) &! // L
 								Board.isGoal(pMoveToRow-1, pMoveToCol)){ // D
+							System.out.println("Box pos");
+							System.out.println(pBox.getRow());
+							System.out.println(pBox.getCol());
+							System.out.println("Moving to");
+							System.out.println(pMoveToRow);
+							System.out.println(pMoveToCol);
+							System.out.println("Check Two");
+							Visualizer.printState(pState, "Type 4)");
 							setBoxes.clear();
 							return true;
 						}
@@ -308,6 +467,14 @@ public class DeadLocks {
 								Board.isGoal(pMoveToRow, pMoveToCol+1) &! // R
 								Board.isGoal(pMoveToRow+1, pMoveToCol) &! // U
 								Board.isGoal(pMoveToRow+1, pMoveToCol+1)){ // UR
+							System.out.println("Box pos");
+							System.out.println(pBox.getRow());
+							System.out.println(pBox.getCol());
+							System.out.println("Moving to");
+							System.out.println(pMoveToRow);
+							System.out.println(pMoveToCol);
+							System.out.println("Check Two");
+							Visualizer.printState(pState, "Type 3)");
 							setBoxes.clear();
 							return true;
 						}
@@ -318,6 +485,14 @@ public class DeadLocks {
 						if(!Board.isGoal(pMoveToRow, pMoveToCol) &! 
 								Board.isGoal(pMoveToRow, pMoveToCol+1) &! // R
 								Board.isGoal(pMoveToRow+1, pMoveToCol)){ // U
+							System.out.println("Box pos");
+							System.out.println(pBox.getRow());
+							System.out.println(pBox.getCol());
+							System.out.println("Moving to");
+							System.out.println(pMoveToRow);
+							System.out.println(pMoveToCol);
+							System.out.println("Check Two");
+							Visualizer.printState(pState, "Type 4)");
 							setBoxes.clear();
 							return true;
 						}
@@ -333,6 +508,14 @@ public class DeadLocks {
 								Board.isGoal(pMoveToRow, pMoveToCol+1) &! // R
 								Board.isGoal(pMoveToRow-1, pMoveToCol) &! // D
 								Board.isGoal(pMoveToRow-1, pMoveToCol+1)){ // DR
+							System.out.println("Box pos");
+							System.out.println(pBox.getRow());
+							System.out.println(pBox.getCol());
+							System.out.println("Moving to");
+							System.out.println(pMoveToRow);
+							System.out.println(pMoveToCol);
+							System.out.println("Check Two");
+							Visualizer.printState(pState, "Type 3)");
 							setBoxes.clear();
 							return true;
 						}
@@ -344,6 +527,14 @@ public class DeadLocks {
 						if(!Board.isGoal(pMoveToRow, pMoveToCol) &! 
 								Board.isGoal(pMoveToRow, pMoveToCol+1) &! // R
 								Board.isGoal(pMoveToRow-1, pMoveToCol)){ // D
+							System.out.println("Box pos");
+							System.out.println(pBox.getRow());
+							System.out.println(pBox.getCol());
+							System.out.println("Moving to");
+							System.out.println(pMoveToRow);
+							System.out.println(pMoveToCol);
+							System.out.println("Check Two");
+							Visualizer.printState(pState, "Type 4)");
 							setBoxes.clear();
 							return true;
 						}
@@ -373,6 +564,14 @@ public class DeadLocks {
 					if(!Board.isGoal(pMoveToRow, pMoveToCol) &! 
 							Board.isGoal(pMoveToRow, pMoveToCol-1) &! // L
 							Board.isGoal(pMoveToRow+1, pMoveToCol-1)){ // UL
+						System.out.println("Box pos");
+						System.out.println(pBox.getRow());
+						System.out.println(pBox.getCol());
+						System.out.println("Moving to");
+						System.out.println(pMoveToRow);
+						System.out.println(pMoveToCol);
+						System.out.println("Check Two");
+						Visualizer.printState(pState, "Type 4)");
 						setBoxes.clear();
 						return true;
 					}
@@ -387,6 +586,14 @@ public class DeadLocks {
 					if(!Board.isGoal(pMoveToRow, pMoveToCol) &! 
 							Board.isGoal(pMoveToRow, pMoveToCol+1) &! // R
 							Board.isGoal(pMoveToRow+1, pMoveToCol+1)){ // UR
+						System.out.println("Box pos");
+						System.out.println(pBox.getRow());
+						System.out.println(pBox.getCol());
+						System.out.println("Moving to");
+						System.out.println(pMoveToRow);
+						System.out.println(pMoveToCol);
+						System.out.println("Check Two");
+						Visualizer.printState(pState, "Type 4)");
 						setBoxes.clear();
 						return true;
 					}
@@ -403,6 +610,14 @@ public class DeadLocks {
 					if(!Board.isGoal(pMoveToRow, pMoveToCol) &! 
 							Board.isGoal(pMoveToRow, pMoveToCol-1) &! // L
 							Board.isGoal(pMoveToRow-1, pMoveToCol-1)){ // DL
+						System.out.println("Box pos");
+						System.out.println(pBox.getRow());
+						System.out.println(pBox.getCol());
+						System.out.println("Moving to");
+						System.out.println(pMoveToRow);
+						System.out.println(pMoveToCol);
+						System.out.println("Check Two");
+						Visualizer.printState(pState, "Type 4)");
 						setBoxes.clear();
 						return true;
 					}
@@ -416,6 +631,14 @@ public class DeadLocks {
 					if(!Board.isGoal(pMoveToRow, pMoveToCol) &! 
 							Board.isGoal(pMoveToRow, pMoveToCol+1) &! // R
 							Board.isGoal(pMoveToRow-1, pMoveToCol+1)){ // DR
+						System.out.println("Box pos");
+						System.out.println(pBox.getRow());
+						System.out.println(pBox.getCol());
+						System.out.println("Moving to");
+						System.out.println(pMoveToRow);
+						System.out.println(pMoveToCol);
+						System.out.println("Check Two");
+						Visualizer.printState(pState, "Type 4)");
 						setBoxes.clear();
 						return true;
 					}
@@ -432,6 +655,14 @@ public class DeadLocks {
 					if(!Board.isGoal(pMoveToRow, pMoveToCol) &! 
 							Board.isGoal(pMoveToRow+1, pMoveToCol) &! // U
 							Board.isGoal(pMoveToRow+1, pMoveToCol+1)){ // UR
+						System.out.println("Box pos");
+						System.out.println(pBox.getRow());
+						System.out.println(pBox.getCol());
+						System.out.println("Moving to");
+						System.out.println(pMoveToRow);
+						System.out.println(pMoveToCol);
+						System.out.println("Check Two");
+						Visualizer.printState(pState, "Type 4)");
 						setBoxes.clear();
 						return true;
 					}
@@ -445,6 +676,14 @@ public class DeadLocks {
 					if(!Board.isGoal(pMoveToRow, pMoveToCol) &! 
 							Board.isGoal(pMoveToRow-1, pMoveToCol) &! // D
 							Board.isGoal(pMoveToRow-1, pMoveToCol+1)){ // DR
+						System.out.println("Box pos");
+						System.out.println(pBox.getRow());
+						System.out.println(pBox.getCol());
+						System.out.println("Moving to");
+						System.out.println(pMoveToRow);
+						System.out.println(pMoveToCol);
+						System.out.println("Check Two");
+						Visualizer.printState(pState, "Type 4)");
 						setBoxes.clear();
 						return true;
 					}
@@ -462,6 +701,14 @@ public class DeadLocks {
 					if(!Board.isGoal(pMoveToRow, pMoveToCol) &! 
 							Board.isGoal(pMoveToRow+1, pMoveToCol) &! // U
 							Board.isGoal(pMoveToRow+1, pMoveToCol-1)){ // UL
+						System.out.println("Box pos");
+						System.out.println(pBox.getRow());
+						System.out.println(pBox.getCol());
+						System.out.println("Moving to");
+						System.out.println(pMoveToRow);
+						System.out.println(pMoveToCol);
+						System.out.println("Check Two");
+						Visualizer.printState(pState, "Type 4)");
 						setBoxes.clear();
 						return true;
 					}
@@ -475,6 +722,14 @@ public class DeadLocks {
 					if(!Board.isGoal(pMoveToRow, pMoveToCol) &! 
 							Board.isGoal(pMoveToRow-1, pMoveToCol) &! // D
 							Board.isGoal(pMoveToRow-1, pMoveToCol-1)){ // DL
+						System.out.println("Box pos");
+						System.out.println(pBox.getRow());
+						System.out.println(pBox.getCol());
+						System.out.println("Moving to");
+						System.out.println(pMoveToRow);
+						System.out.println(pMoveToCol);
+						System.out.println("Check Two");
+						Visualizer.printState(pState, "Type 4)");
 						setBoxes.clear();
 						return true;
 					}

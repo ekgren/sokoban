@@ -202,7 +202,9 @@ public class Solver {
             
             // Clear and get new children of current state
             childrenOfCurState.clear();
-            lCurState.allSuccessors(childrenOfCurState); //fills with all children
+            int BOX_INDEX = 0;
+            lCurState.selectiveSuccessors(childrenOfCurState, BOX_INDEX);
+            //lCurState.allSuccessors(childrenOfCurState); //fills with all children
 
 
             // Add the number of new states
