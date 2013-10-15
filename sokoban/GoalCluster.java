@@ -13,6 +13,7 @@ public class GoalCluster {
 
 	public static int[][] clusterMatrix;
 	Vector<Vector<Cell>> gradCells;
+	Cell refCell;
 	
 	/**
 	 * Constructor sets the goalCluster matrix. 
@@ -119,7 +120,73 @@ public class GoalCluster {
 			}//Else: if not ones.size == 1;
 		}//End if(not frontGoal)
 	}//End Method: markClusterMatrixForGoal.
+	
+	
+    /**
+     * Returns cell representing the adjacent position represented by the letters...
+     */
+    public Cell getAdjPos(Goal pGoal, char pDir){
 
+        switch (pDir) {
+            // C = center = current box position
+            case 'C':
+                refCell.setPos(pGoal.getRow(), pGoal.getCol());
+            case 'U':
+                refCell.setPos(pGoal.getRow() - 1, pGoal.getCol());
+            case 'D':
+                refCell.setPos(pGoal.getRow() + 1, pGoal.getCol());
+            case 'R':
+                refCell.setPos(pGoal.getRow(), pGoal.getCol() + 1);
+            case 'L':
+                refCell.setPos(pGoal.getRow(), pGoal.getCol() - 1);
+                
+        }
+        return refCell;
+    }
+    
+    /**
+     * Returns cell representing the adjacent position represented by the letters...
+     * same as above but for two
+     * @param pGoal
+     * @param pDir1
+     * @param pDir2
+     * @return
+     */
+    public Cell getAdjPos(Goal pGoal, char pDir1, char pDir2){
+
+    	//set position relative goal
+    	switch (pDir1) {
+    	// C = center = current box position
+	    	case 'C':
+	    		refCell.setPos(pGoal.getRow(), pGoal.getCol());
+	    	case 'U':
+	    		refCell.setPos(pGoal.getRow() - 1, pGoal.getCol());
+	    	case 'D':
+	    		refCell.setPos(pGoal.getRow() + 1, pGoal.getCol());
+	    	case 'R':
+	    		refCell.setPos(pGoal.getRow(), pGoal.getCol() + 1);
+	    	case 'L':
+	    		refCell.setPos(pGoal.getRow(), pGoal.getCol() - 1);
+
+    	}
+        
+    	// move relative its own position one more time.
+        switch (pDir2) {
+        // C = center = current box position
+	        case 'C':
+	        	//Dont move
+	        case 'U':
+	        	refCell.setPos(refCell.getRow() - 1, refCell.getCol());
+	        case 'D':
+	        	refCell.setPos(refCell.getRow() + 1, refCell.getCol());
+	        case 'R':
+	        	refCell.setPos(refCell.getRow(), refCell.getCol() + 1);
+	        case 'L':
+	        	refCell.setPos(refCell.getRow(), refCell.getCol() - 1);
+        }
+        return refCell;
+    }
+	
 	public static int getClusterMatrixValue(int pGoalIndexRow, int pGoalIndexCol){
 		return clusterMatrix[pGoalIndexRow][pGoalIndexCol];
 	}

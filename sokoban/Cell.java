@@ -44,6 +44,7 @@ public class Cell extends Point{
 		return this.x;
 	}
 	
+	
 	public int getExpansionLevel(){
 		return expansionLevel;
 	}
@@ -58,6 +59,11 @@ public class Cell extends Point{
 	
 	public void setCol(int colIndex){
 		this.x = colIndex;
+	}
+	
+	public void setPos(int pRow, int pCol){
+		this.x = pRow;
+		this.y = pCol;
 	}
 	
 	public void setParent(Cell pCell){

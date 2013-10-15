@@ -37,9 +37,10 @@ public class Solver {
     private static Cell STATIC_CELL = new Cell(0,0);
     
 	HashSet<State> visitedStates = new HashSet<State>();
-	Comparator comparator = new StatePriorityComparator();
-	PriorityQueue<State> simpleQueue = new PriorityQueue<State>(10000, comparator);
-    PriorityQueue<State> newQueue = new PriorityQueue<State>(10000, comparator);
+	Comparator stateComp = new StatePriorityComparator();
+	OneBoxMoveComparator oneBoxMoveComp = new OneBoxMoveComparator();
+	PriorityQueue<State> simpleQueue = new PriorityQueue<State>(10000, stateComp);
+    PriorityQueue<State> newQueue = new PriorityQueue<State>(10000, stateComp);
 
 	public Solver(){		
 		/*
@@ -296,7 +297,7 @@ public class Solver {
              * THE goalCluster part:
              * The function exchange states so that boxes are moved to the best goals in a cluster.
              */
-            //postProcessAccordingGoalCluster(childrenOfCurState);
+            postProcessAccordingGoalCluster(childrenOfCurState);
         	if(Sokoban.visualizeMode) Visualizer.printStateDelux(childrenOfCurState.lastElement(), "/Solver: childstate last elemement:");
 
             /*
@@ -595,7 +596,7 @@ public class Solver {
 		
 		for(int i = 0; i < Board.getNbOfBoxes(); i++){
 			//Operates on the state so that last state in vector will have the box on goal.
-			moveOneBoxToClosestGoal(tempStatesMoveToGoals, i, 0);
+			moveOneBoxToClosestGoal(tempStatesMoveToGoals, i);
 			//Add the element where the box is on goal
 			tempStateGoalClustAlg.add(tempStatesMoveToGoals.lastElement());
 			
@@ -610,7 +611,7 @@ public class Solver {
 			}
 			
 			//Move box to unblocking goal:
-			postProcessAccordingGoalCluster(tempStateGoalClustAlg);
+			//postProcessAccordingGoalCluster(tempStateGoalClustAlg);
 			//Add as intermediate state to main out vector
 			states.add(tempStateGoalClustAlg.lastElement());
 			//Clear an add last state:
@@ -622,60 +623,73 @@ public class Solver {
 		for(State state : states){
 			Visualizer.printStateDelux(state, "State sent to greedyBFS");
 		}
-		return greedyBFS(states);
+		
+		return(Board.getInitialState());
+		//return greedyBFS(states);
 	}
 	
-		
+	
 	/**
-	 * The vector should only contain one state from which we want to move one box...
-	 * recurNb should be set to zero initially.
+	 * Most efficient way to (try) to move one box to A SPECIFIC goal. If it succeeds the
+	 * inOutStatesVector will only contain the state where the box is on goal. 
+	 * Otherwise 1-3 states where it is on the lowest gradDecentValue.
 	 * 
-	 * It fills the Vector with all intermediate states.
-	 *
-	 * @param pState
+	 * returns true it the box reached the goal.
+	 * 
+	 * @param inOutStatesVector
 	 * @param pBoxIndex
-	 * @param recurNb
+	 * @param pGoalIndex
 	 * @return
 	 */
-	public void moveOneBoxToClosestGoal(Vector<State> pTempStorage, int pBoxIndex, int recurNb){
-		recurNb++;
-		Board.setGoalGradMerged(pTempStorage.lastElement());
-		if(Sokoban.visualizeMode) Visualizer.printGoalGradMerged();
-		if(Sokoban.visualizeMode) Visualizer.printVector(pTempStorage.lastElement().goalsOccupied, "OccupiedGoals:");
-		int prevGradValueUnderBox = Integer.MAX_VALUE;
-		int curGradValueUnderBox = Board.getGoalGradMerged(
-				pTempStorage.lastElement().getBox(pBoxIndex).getRow(),
-				pTempStorage.lastElement().getBox(pBoxIndex).getCol() );
+	public boolean moveOneBoxToGoal(Vector<State> inOutStatesVector, int pBoxIndex, int pGoalIndex){
 		
-		while(curGradValueUnderBox < prevGradValueUnderBox && curGradValueUnderBox > 0){
-			prevGradValueUnderBox = curGradValueUnderBox; //update last value
-			//adds the new state after move and sets cur grad value to the pos it moved to.
-			curGradValueUnderBox = 
-					pTempStorage.lastElement().gradientDecentMergedSuccessor(pTempStorage, pBoxIndex);
-			
-			if(Sokoban.visualizeMode) Visualizer.printState(pTempStorage.lastElement(), "Recurs. for box: " + pBoxIndex);
+		//Operates on the vector with the simple grad-decent pushing.
+		boolean reachedGoalWithGradOnly = moveOneBoxToGoalGradDecentOnly(inOutStatesVector, pBoxIndex, pGoalIndex);
+		
+		//If it did not reach goal it uses a limited search.
+		if(!reachedGoalWithGradOnly){
+			return moveOneBoxToGoalGreedyBFS(inOutStatesVector, pBoxIndex, pGoalIndex);
 		}
-		/*
-		if(curGradValueUnderBox > 0 && recurNb < Board.getNbOfBoxes()){
-			if(Sokoban.debugMode) System.out.println("Entered recursion: "+recurNb);
-			int blockBoxIndex = pTempStorage.lastElement().getBlockingBoxIndex(pBoxIndex);
-			if (blockBoxIndex != -1){ // -1 means Could not find blocking box...
-				moveOneBoxToClosestGoal(pTempStorage, 
-					pTempStorage.lastElement().getBlockingBoxIndex(pBoxIndex),
-					recurNb);
-			}
-		}	
-		*/	
+		else{
+			return reachedGoalWithGradOnly;
+		}
 	}
 	
+	/**
+	 * Most efficient way to (try) to move one box to CLOSEST goal. If it succeeds the
+	 * inOutStatesVector will only contain the state where the box is on goal. 
+	 * Otherwise 1-3 states where it is on the lowest gradDecentValue.
+	 * 
+	 * returns true it the box reached the goal.
+	 * 
+	 * @param inOutStatesVector
+	 * @param pBoxIndex
+	 * @param pGoalIndex
+	 * @return
+	 */
+	public boolean moveOneBoxToClosestGoal(Vector<State> inOutStatesVector, int pBoxIndex){
+		
+		//Operates on the vector with the simple grad-decent pushing.
+		boolean reachedGoalWithMergedGradOnly = moveOneBoxToClosestGoalGradDecentOnly(inOutStatesVector, pBoxIndex, 0);
+		
+		//If it did not reach goal it uses a limited search.
+		if(!reachedGoalWithMergedGradOnly){
+			return moveOneBoxToClosestGoalGreedyBFS(inOutStatesVector, pBoxIndex);
+		}
+		else{
+			return reachedGoalWithMergedGradOnly;
+		}
+	}
 	
 	/**
-	 * TODO
-	 * This function should implement a greedyBFS using the GoalGrad for the
-	 * specidifed goal (not merged!) to move one box to this goal. 
-	 * If possible remove the state sent in in pTempStorage and add the new state
-	 * with the box moved and RETURN TRUE.
-	 * If not possible (no solution found) keep the state in the vector and RETURN FALSE.
+	 * This function moves one box "down" the gradient using the GoalGrad for the
+	 * specified goal (not merged!) to move one box to this goal. 
+	 * 
+	 * If possible remove the state (should be ONLY ONE) sent in in inOutStatesVector and adds the new state
+	 * with the box moved to the goal and RETURN TRUE.
+	 * 
+	 * If not possible (no solution found) it keeps the initial state in the vector and adds 
+	 * the three states where the box is on lowest grad-value, and RETURN FALSE.
 	 * 
 	 * this function should move one box to the goal specified by the index.
 	 * 
@@ -683,32 +697,243 @@ public class Solver {
 	 * @param pBoxIndex
 	 * @param pGoalIndex
 	 */
-	public boolean moveOneBoxToGoal(Vector<State> inputvector, int pBoxIndex, int pGoalIndex){
+	public boolean moveOneBoxToGoalGradDecentOnly(Vector<State> inOutStatesVector, int pBoxIndex, int pGoalIndex){
 		
-		Vector<State> pTempStorage = new Vector<State>();
-		pTempStorage.add(inputvector.remove(0));
+		Vector<State> tempStorage = new Vector<State>();
+		tempStorage.add(inOutStatesVector.firstElement());
 		int prevGradValueUnderBox = Integer.MAX_VALUE;
 		int curGradValueUnderBox = Board.getGoalGrad(pGoalIndex,
-				pTempStorage.lastElement().getBox(pBoxIndex).getRow(),
-				pTempStorage.lastElement().getBox(pBoxIndex).getCol());
+				tempStorage.lastElement().getBox(pBoxIndex).getRow(),
+				tempStorage.lastElement().getBox(pBoxIndex).getCol());
 		
 		while(curGradValueUnderBox < prevGradValueUnderBox && curGradValueUnderBox > 0){
 			prevGradValueUnderBox = curGradValueUnderBox; //update last value
 			//adds the new state after move and sets cur grad value to the pos it moved to.
 			curGradValueUnderBox = 
-					pTempStorage.lastElement().gradientDecentSuccessor(pTempStorage, pBoxIndex, pGoalIndex);
+					tempStorage.lastElement().gradientDecentSuccessor(tempStorage, pBoxIndex, pGoalIndex);
 			
-			if(Sokoban.visualizeMode) Visualizer.printState(pTempStorage.lastElement(), "Recurs. for box: " + pBoxIndex);
+			if(Sokoban.visualizeMode) Visualizer.printState(tempStorage.lastElement(), "/Solver/MoveOneBoxToGoal: " + pBoxIndex);
 		}
 		if(curGradValueUnderBox == 0){
-			inputvector.add(pTempStorage.lastElement());
+			inOutStatesVector.add(tempStorage.lastElement());
 			return true;
 		}
 		else{
-			inputvector.add(pTempStorage.firstElement());
+			if(tempStorage.size() >=3){
+				//might be a good idea to save intermediate state two moves before goal.
+				inOutStatesVector.add(tempStorage.get(tempStorage.size() - 3));
+				inOutStatesVector.add(tempStorage.get(tempStorage.size() - 2));
+				inOutStatesVector.add(tempStorage.get(tempStorage.size() - 1));
+			}
+			else if(tempStorage.size() >2){
+				//might be a good idea to save intermediate state two 1 move before goal.
+				inOutStatesVector.add(tempStorage.get(tempStorage.size() - 2)); 
+				inOutStatesVector.add(tempStorage.get(tempStorage.size() - 1)); 
+			}
+			else{
+				inOutStatesVector.add(tempStorage.get(tempStorage.size() - 1)); 
+			}
 			return false;
 		}
+		
 	}
+	
+	
+/**
+ * The vector should only contain one state from which we want to move one box...
+ * recurNb should be set to zero initially.
+ * 
+ * It fills the Vector with all intermediate states.
+ *
+ * @param pState
+ * @param pBoxIndex
+ * @param recurNb
+ * @return
+ */
+public boolean moveOneBoxToClosestGoalGradDecentOnly(Vector<State> inOutStatesVector, int pBoxIndex, int recurNb){
+	
+	Vector<State> tempStorage = new Vector<State>();
+	tempStorage.add(inOutStatesVector.firstElement());
+	int prevGradValueUnderBox = Integer.MAX_VALUE;
+	int curGradValueUnderBox = inOutStatesVector.firstElement().getGoalGradMerged( 
+			inOutStatesVector.firstElement().getBox(pBoxIndex).getRow(),
+			inOutStatesVector.firstElement().getBox(pBoxIndex).getCol());
+	
+	while(curGradValueUnderBox < prevGradValueUnderBox && curGradValueUnderBox > 0){
+		prevGradValueUnderBox = curGradValueUnderBox; //update last value
+		//adds the new state after move and sets cur grad value to the pos it moved to.
+		curGradValueUnderBox = 
+				inOutStatesVector.lastElement().gradientDecentMergedSuccessor(tempStorage, pBoxIndex);	
+		if(Sokoban.visualizeMode) Visualizer.printState(inOutStatesVector.lastElement(), "/Solver/moveOne...ClosestGoalGradDecentOnly: for box: " + pBoxIndex);
+	}
+	if(curGradValueUnderBox == 0){
+		inOutStatesVector.add(tempStorage.lastElement());
+		return true;
+	}
+	else{
+		if(tempStorage.size() >=3){
+			//might be a good idea to save intermediate state two moves before goal.
+			inOutStatesVector.add(tempStorage.get(tempStorage.size() - 3));
+			inOutStatesVector.add(tempStorage.get(tempStorage.size() - 2));
+			inOutStatesVector.add(tempStorage.get(tempStorage.size() - 1));
+		}
+		else if(tempStorage.size() >2){
+			//might be a good idea to save intermediate state two 1 move before goal.
+			inOutStatesVector.add(tempStorage.get(tempStorage.size() - 2)); 
+			inOutStatesVector.add(tempStorage.get(tempStorage.size() - 1)); 
+		}
+		else{
+			inOutStatesVector.add(tempStorage.get(tempStorage.size() - 1)); 
+		}
+		return false;
+	}
+	
+	
+	/*
+	if(curGradValueUnderBox > 0 && recurNb < Board.getNbOfBoxes()){
+		if(Sokoban.debugMode) System.out.println("Entered recursion: "+recurNb);
+		int blockBoxIndex = pTempStorage.lastElement().getBlockingBoxIndex(pBoxIndex);
+		if (blockBoxIndex != -1){ // -1 means Could not find blocking box...
+			moveOneBoxToClosestGoal(pTempStorage, 
+				pTempStorage.lastElement().getBlockingBoxIndex(pBoxIndex),
+				recurNb);
+		}
+	}	
+	*/	
+}
+	
+	/**
+	 * Used greedyBFS with goalGrad as heuristic to move one specified box
+	 * to a specified goal.
+	 * can take several "start options" (states) in the input vector 
+	 * but only returns one state if he box was moved to goal otherwise:
+	 * TODO add some extra intermediate steps?
+	 * 
+	 * @param inputvector
+	 * @param pBoxIndex
+	 * @param pGoalIndex
+	 */
+	public boolean moveOneBoxToGoalGreedyBFS(Vector<State> inOutStatesVector, int pBoxIndex, int pGoalIndex){
+		
+		//Set the comparator for this serach:
+		oneBoxMoveComp.setTargetGoalAndBox(pBoxIndex, pGoalIndex);
+		
+		//Create a search queue;
+		PriorityQueue<State> open = new PriorityQueue<State>(100, oneBoxMoveComp);
+		//"Local" HashSet: Only the one box's position is relevant!
+		HashSet<State> visitedPositions = new HashSet<State>(); //MUST BE CHANGED TO FASTER ALGORITHM
+		//Add inputStates to search Queue:
+		
+		for(State state : inOutStatesVector){
+			open.add(state);
+			//check that none of the initial state
+			if( 0 == Board.getGoalGrad(pGoalIndex, 
+					state.getBox(pBoxIndex).getRow(),
+					state.getBox(pBoxIndex).getCol()) ){
+				//return only the correct state.
+				inOutStatesVector.clear();
+				inOutStatesVector.add(state);
+				return true;
+			}
+		}
+
+		//Start search:
+		Vector<State> tempChildStates = new Vector<State>();
+		int iterations = 0;
+		while(open.size() > 0 && iterations < 100){
+	    	State curState = open.poll();
+	    	tempChildStates.clear();
+	    	curState.selectiveSuccessors(tempChildStates, pBoxIndex);
+	    	for (State child : tempChildStates){
+	    		if(0 == Board.getGoalGrad(pGoalIndex, 
+						child.getBox(pBoxIndex).getRow(),
+						child.getBox(pBoxIndex).getCol()) ){
+	    			//On TargetGoal!
+	    			inOutStatesVector.clear();
+					inOutStatesVector.add(child);
+					return true;
+	    		}
+	    		else{
+	    			open.add(child);
+	    			visitedPositions.add(child);
+	    		}
+	    	}
+	    	iterations++;
+	    }
+		if(Sokoban.debugMode){
+			System.out.println("/Solver/MoveOne...GreedyBFS: NO path was find for moving box: "
+									+ pBoxIndex + " to goal: " + pGoalIndex);
+			System.out.println("...queue size: " + open.size() + ", iterations: " + iterations);
+		}
+		//Same States are left in inOutVector... could also add intermediate states from the search!
+		return false;
+	}
+	
+	/**
+	 * Used greedyBFS with goalGradMerged as heuristic to move one specified box.
+	 * can take several "start options" (states) in the input vector 
+	 * but only returns one state if he box was moved to goal otherwise:
+	 * TODO add some extra intermediate steps?
+	 * 
+	 * @param inputvector
+	 * @param pBoxIndex
+	 * @param pGoalIndex
+	 */
+	public boolean moveOneBoxToClosestGoalGreedyBFS(Vector<State> inOutStatesVector, int pBoxIndex){
+		
+		//Set the comparator for this serach:
+		oneBoxMoveComp.setBoxToClosestGoal(pBoxIndex);
+		
+		//Create a search queue;
+		PriorityQueue<State> open = new PriorityQueue<State>(100, oneBoxMoveComp);
+		//"Local" HashSet: Only the one box's position is relevant!
+		HashSet<State> visitedPositions = new HashSet<State>(); //MUST BE CHANGED TO FASTER ALGORITHM
+		//Add inputStates to search Queue:
+		
+		for(State state : inOutStatesVector){
+			open.add(state);
+			//check that none of the initial state
+			if( 0 == Board.getGoalGradMerged( state.getBox(pBoxIndex).getRow(),
+					state.getBox(pBoxIndex).getCol()) ){
+				//return only the correct state.
+				inOutStatesVector.clear();
+				inOutStatesVector.add(state);
+				return true;
+			}
+		}
+
+		//Start search:
+		Vector<State> tempChildStates = new Vector<State>();
+		int iterations = 0;
+		while(open.size() > 0 && iterations < 100){
+	    	State curState = open.poll();
+	    	tempChildStates.clear();
+	    	curState.selectiveSuccessors(tempChildStates, pBoxIndex);
+	    	for (State child : tempChildStates){
+	    		if(0 == Board.getGoalGradMerged( child.getBox(pBoxIndex).getRow(),
+						child.getBox(pBoxIndex).getCol()) ){
+	    			//On TargetGoal!
+	    			inOutStatesVector.clear();
+					inOutStatesVector.add(child);
+					return true;
+	    		}
+	    		else{
+	    			open.add(child);
+	    			visitedPositions.add(child);
+	    		}
+	    	}
+	    	iterations++;
+	    }
+		if(Sokoban.debugMode){
+			System.out.println("/Solver/MoveOne...ClosestGreedyBFS: NO path was find for moving box: "
+									+ pBoxIndex + "to closest goal");
+			System.out.println("...queue size: " + open.size() + ", iterations: " + iterations);
+		}
+		//Same States are left in inOutVector... could also add intermediate states from the search!
+		return false;
+	}
+	
+	
 	
 	/**
 	 * TODO
@@ -788,7 +1013,7 @@ public class Solver {
 			 */
 			else if(lowestValueBlockType == 1){
 				tempVect.add(state);
-				boolean moveSuccesful = moveOneBoxToGoal(tempVect, state.getLastBoxMovedIndex(), lowestValueRowIndex);
+				boolean moveSuccesful = moveOneBoxToGoalGradDecentOnly(tempVect, state.getLastBoxMovedIndex(), lowestValueRowIndex);
 				//if succesful put back in Queue - maybe it should be moved further on!
 				if(Sokoban.debugMode) System.out.println("/Solver: moveSuccessfull: "+moveSuccesful);
 
@@ -818,7 +1043,7 @@ public class Solver {
 						}
 						else{
 							tempVect.add(state);
-							boolean moveSuccesful = moveOneBoxToGoal(tempVect, state.getLastBoxMovedIndex(), lowestValueRowIndex);
+							boolean moveSuccesful = moveOneBoxToGoalGradDecentOnly(tempVect, state.getLastBoxMovedIndex(), lowestValueRowIndex);
 							//if successful put back in Queue - maybe it should be moved further on!
 							if(moveSuccesful){
 								processingQueue.add(tempVect.remove(0));
@@ -1066,6 +1291,7 @@ public class Solver {
         
 	}
 
+
 	
 	/**
 	 * Returns true if there is path to some position.
@@ -1083,6 +1309,7 @@ public class Solver {
 		Cell lCell = cellNeighborToPath(pState, pRow, pCol, pRowPath, pColPath);
 		return (lCell != null);
 	}
+	
 	
 	/**
 	 * Returns cell with needed player position to perform this state.

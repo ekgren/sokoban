@@ -4,11 +4,15 @@ import java.util.Comparator;
 
 public class StatePriorityComparator implements Comparator<State>{
 
+	private double h1;
+	private double h2;
+
+	
 	@Override
 	public int compare(State pState1, State pState2) {
 
-		double h1 = pState1.getH();
-		double h2 = pState2.getH();
+		h1 = pState1.getH();
+		h2 = pState2.getH();
 		
 		if (h1 < h2){
 			return -1; //move forward
