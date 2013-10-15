@@ -666,7 +666,7 @@ public class State implements Cloneable {
 		int gradValue = getGradValueMerged(boxes.get(pBoxIndex), 'C');
 
 		if(Sokoban.debugMode) System.out.println(
-				"gradientDecentMergedSuccessor was called for box: "+pBoxIndex+" on gradValue: " + gradValue);
+				"/State: gradientDecentMergedSuccessor was called for box: "+pBoxIndex+" on gradValue: " + gradValue);
 		
 		/* If a move is possible, then add the new state in the pStates vector */
 		if (tryMove(boxes.get(pBoxIndex), 'U')) {
@@ -691,16 +691,14 @@ public class State implements Cloneable {
 		}
 
 		if (tryMove(boxes.get(pBoxIndex), 'L')) {
-			if(Sokoban.debugMode) System.out.println("GRAD: "+ gradValue);
 			if (gradValue > getGradValueMerged(boxes.get(pBoxIndex), 'L')){
-				if(Sokoban.debugMode) System.out.println("get GradValue returned for move L: " + getGradValueMerged(boxes.get(pBoxIndex), 'L') );
 				moveDir = 'L';
 				gradValue = getGradValueMerged(boxes.get(pBoxIndex), 'L');
 			}
 		}
 		
 		if (moveDir != '\0') {
-			if(Sokoban.debugMode) System.out.println("gradDecSuc: Move found: " + moveDir + ", To grad value: "+gradValue);
+			if(Sokoban.debugMode) System.out.println("/State gradDecSuc: Move found: " + moveDir + ", To grad value: "+gradValue);
 			if (!reusableStates.isEmpty()) {
 				pStates.add(reusableStates.pop());
 				pStates.lastElement().changeBoxConfig(this, pBoxIndex, moveDir);

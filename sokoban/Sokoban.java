@@ -64,8 +64,10 @@ public class Sokoban {
 
         // Search after solution
         // State solution = solver.greedyBFS();
-	    //State solution = solver.greedyBFSWithGoalCluster();
-	    State solution = solver.directToGoalsWithGoalGoalCluster();
+	    // State solution = solver.greedyBFSWithGoalCluster();
+	    // State solution = solver.directToGoalsWithGoalGoalCluster();
+	    // State solution = solver.testMoveBoxesToClosestGoals();
+	    State solution = solver.macroTester();
 
 	    
 	    if(solution.isFinalState()) this.solution = solver.getStrToGoal(solution);

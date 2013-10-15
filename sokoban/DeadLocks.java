@@ -68,6 +68,7 @@ public class DeadLocks {
 								//System.out.println(Board.isGoal(box.getRow(), box.getCol()));
 								//System.out.println(Board.isGoal(pMoveToRow, pMoveToCol));
 								//System.out.println(box.isOnGoal());
+								/*
 								System.out.println(pDir);
 								System.out.println("Box pos");
 								System.out.println(pBox.getRow());
@@ -77,6 +78,7 @@ public class DeadLocks {
 								System.out.println(pMoveToCol);
 								System.out.println("Check one");
 								Visualizer.printState(pState, "testing deadLocks");
+								*/
 								return true;
 							}
 						}
@@ -97,6 +99,7 @@ public class DeadLocks {
 								setBoxes.clear();
 								//System.out.println(box.getRow());
 								//System.out.println(box.getCol());
+								/*
 								System.out.println("Box pos");
 								System.out.println(pBox.getRow());
 								System.out.println(pBox.getCol());
@@ -105,6 +108,7 @@ public class DeadLocks {
 								System.out.println(pMoveToCol);
 								System.out.println("Check Two");
 								Visualizer.printState(pState, "testing deadLocks");
+								*/
 								return true;
 							}
 						}
