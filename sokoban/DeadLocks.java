@@ -202,7 +202,7 @@ public class DeadLocks {
 						//If all boxes are on goals it is not a deadlock
 						if(!Board.isGoal(pMoveToRow+1, pMoveToCol) &! 	//U
 								Board.isGoal(pMoveToRow, pMoveToCol) &! 
-								Board.isGoal(pMoveToRow, pMoveToCol-1)){ //R
+								Board.isGoal(pMoveToRow, pMoveToCol-1)){ //L
 							System.out.println("Box pos");
 							System.out.println(pBox.getRow());
 							System.out.println(pBox.getCol());
@@ -220,8 +220,8 @@ public class DeadLocks {
 						//If all boxes are on goals it is not a deadlock
 						if(!Board.isGoal(pMoveToRow+1, pMoveToCol) &! 	//U
 								Board.isGoal(pMoveToRow, pMoveToCol) &! 
-								Board.isGoal(pMoveToRow, pMoveToCol-1) &! //R
-								Board.isGoal(pMoveToRow+1, pMoveToCol-1)){ //UR
+								Board.isGoal(pMoveToRow, pMoveToCol-1) &! //L
+								Board.isGoal(pMoveToRow+1, pMoveToCol-1)){ //UL
 							System.out.println("Box pos");
 							System.out.println(pBox.getRow());
 							System.out.println(pBox.getCol());
@@ -243,7 +243,7 @@ public class DeadLocks {
 					if(Board.isWall(pMoveToRow+1, pMoveToCol+1)){
 						//If all boxes are on goals it'nt a deadlock
 						if(!Board.isGoal(pMoveToRow, pMoveToCol) &!  
-								Board.isGoal(pMoveToRow, pMoveToCol+1) &! //L
+								Board.isGoal(pMoveToRow, pMoveToCol+1) &! //R
 								Board.isGoal(pMoveToRow+1, pMoveToCol)){ //U
 							System.out.println("Box pos");
 							System.out.println(pBox.getRow());
@@ -260,9 +260,9 @@ public class DeadLocks {
 					else if(setBoxes.contains(hashString(pMoveToRow+1, pMoveToCol+1))){
 						//If all boxes are on goals it'nt a deadlock
 						if(!Board.isGoal(pMoveToRow, pMoveToCol) &! 
-								Board.isGoal(pMoveToRow, pMoveToCol+1) &! // L
+								Board.isGoal(pMoveToRow, pMoveToCol+1) &! // R
 								Board.isGoal(pMoveToRow+1, pMoveToCol) &! // U
-								Board.isGoal(pMoveToRow+1, pMoveToCol+1)){ // UL
+								Board.isGoal(pMoveToRow+1, pMoveToCol+1)){ // UR
 							System.out.println("Box pos");
 							System.out.println(pBox.getRow());
 							System.out.println(pBox.getCol());
@@ -280,12 +280,16 @@ public class DeadLocks {
 		}
 		//If move was Down, we check D,L,R and DL or DR
 		else if(pDir == 'D'){
+			
 			//Check if box is below
 			if(setBoxes.contains(hashString(pMoveToRow-1, pMoveToCol))){
+				
 				//Check if box is to left
 				if(setBoxes.contains(hashString(pMoveToRow, pMoveToCol-1))){
+					
 					//Check if box is DL
 					if(setBoxes.contains(hashString(pMoveToRow-1, pMoveToCol-1))){
+						
 						//If all boxes on goal it is not a deadlock
 						if(!Board.isGoal(pMoveToRow, pMoveToCol) &! 
 								Board.isGoal(pMoveToRow-1, pMoveToCol) &! //D
@@ -326,13 +330,15 @@ public class DeadLocks {
 			}
 			//Check if box is to the right
 			if(setBoxes.contains(hashString(pMoveToRow, pMoveToCol+1))){
+				
 				//Check if box is DR
 				if(setBoxes.contains(hashString(pMoveToRow-1, pMoveToCol+1))){
+					
 					//If all boxes on goal it is not a deadlock
 					if(!Board.isGoal(pMoveToRow, pMoveToCol) &! 
 							Board.isGoal(pMoveToRow, pMoveToCol+1) &! // R
 							Board.isGoal(pMoveToRow-1, pMoveToCol+1) &! // DR
-							Board.isGoal(pMoveToRow-1, pMoveToCol+1)){ // D
+							Board.isGoal(pMoveToRow-1, pMoveToCol)){ // D
 						System.out.println("Box pos");
 						System.out.println(pBox.getRow());
 						System.out.println(pBox.getCol());
@@ -345,8 +351,10 @@ public class DeadLocks {
 						return true;
 					}
 				}
+				
 				//Check if wall is DR
 				if(Board.isWall(pMoveToRow-1, pMoveToCol+1)){
+					
 					//If all boxes on goal it is not a deadlock
 					if(!Board.isGoal(pMoveToRow, pMoveToCol) &! 
 							Board.isGoal(pMoveToRow-1, pMoveToCol) &! // D
@@ -368,12 +376,16 @@ public class DeadLocks {
 		
 		//If move was Left, we check L,D,U and LD or LU
 		else if(pDir == 'L'){
+			
 			//Check if box is to the left
 			if(setBoxes.contains(hashString(pMoveToRow, pMoveToCol-1))){
+				
 				//Check if box is above
 				if(setBoxes.contains(hashString(pMoveToRow+1, pMoveToCol))){
+					
 					//Check if box is LU
 					if(setBoxes.contains(hashString(pMoveToRow+1, pMoveToCol-1))){
+						
 						//If all boxes on goal it is not a deadlock
 						if(!Board.isGoal(pMoveToRow, pMoveToCol) &! 
 								Board.isGoal(pMoveToRow, pMoveToCol-1) &! // L
@@ -391,8 +403,10 @@ public class DeadLocks {
 							return true;
 						}
 					}
+					
 					//Check if wall is LU
 					if(Board.isWall(pMoveToRow+1, pMoveToCol-1)){
+						
 						//If all boxes on goal it is not a deadlock
 						if(!Board.isGoal(pMoveToRow, pMoveToCol) &! 
 								Board.isGoal(pMoveToRow, pMoveToCol-1) &! // L
@@ -412,8 +426,10 @@ public class DeadLocks {
 				}
 				//Check if box is below
 				if(setBoxes.contains(hashString(pMoveToRow-1, pMoveToCol))){
+					
 					//Check if box LD
 					if(setBoxes.contains(hashString(pMoveToRow-1, pMoveToCol-1))){
+						
 						//If all boxes on goal it is not a deadlock
 						if(!Board.isGoal(pMoveToRow, pMoveToCol) &! 
 								Board.isGoal(pMoveToRow, pMoveToCol-1) &! // L
@@ -433,6 +449,7 @@ public class DeadLocks {
 					}
 					//Check if wall is LD
 					if(Board.isWall(pMoveToRow-1, pMoveToCol-1)){
+						
 						//If all boxes on goal it is not a deadlock
 						if(!Board.isGoal(pMoveToRow, pMoveToCol) &! 
 								Board.isGoal(pMoveToRow, pMoveToCol-1) &! // L
@@ -455,10 +472,13 @@ public class DeadLocks {
 
 		//Move was Right, we check R, U, D and RU or RD
 		else if(pDir == 'R'){
+			
 			//Check if box is to the right
 			if(setBoxes.contains(hashString(pMoveToRow, pMoveToCol+1))){
+				
 				//Check if box is above
 				if(setBoxes.contains(hashString(pMoveToRow+1, pMoveToCol))){
+					
 					//Check if box is RU
 					if(setBoxes.contains(hashString(pMoveToRow+1, pMoveToCol+1))){
 						
@@ -479,8 +499,10 @@ public class DeadLocks {
 							return true;
 						}
 					}
+					
 					//Check if wall is RU
 					if(Board.isWall(pMoveToRow+1, pMoveToCol+1)){
+						
 						//If all boxes on goal it is not a deadlock
 						if(!Board.isGoal(pMoveToRow, pMoveToCol) &! 
 								Board.isGoal(pMoveToRow, pMoveToCol+1) &! // R
@@ -501,8 +523,10 @@ public class DeadLocks {
 				
 				//Check if box is below
 				if(setBoxes.contains(hashString(pMoveToRow-1, pMoveToCol))){
+					
 					//Check if box or is RD
 					if(setBoxes.contains(hashString(pMoveToRow-1, pMoveToCol+1))){
+						
 						//If all boxes on goal it is not a deadlock
 						if(!Board.isGoal(pMoveToRow, pMoveToCol) &! 
 								Board.isGoal(pMoveToRow, pMoveToCol+1) &! // R
@@ -523,6 +547,7 @@ public class DeadLocks {
 					
 					//Check if wall is RD
 					if(Board.isWall(pMoveToRow-1, pMoveToCol+1)){
+						
 						//If all boxes on goal it is not a deadlock
 						if(!Board.isGoal(pMoveToRow, pMoveToCol) &! 
 								Board.isGoal(pMoveToRow, pMoveToCol+1) &! // R
@@ -556,10 +581,13 @@ public class DeadLocks {
 		
 		//Check wall above
 		if(Board.isWall(pMoveToRow+1, pMoveToCol)){
+			
 			//Check box to left
 			if(setBoxes.contains(hashString(pMoveToRow,pMoveToCol-1))){
+				
 				//Check box UP Left
 				if(setBoxes.contains(hashString(pMoveToRow+1,pMoveToCol-1))){
+					
 					//If all boxes on goal it is not a deadlock
 					if(!Board.isGoal(pMoveToRow, pMoveToCol) &! 
 							Board.isGoal(pMoveToRow, pMoveToCol-1) &! // L
@@ -579,6 +607,7 @@ public class DeadLocks {
 			}
 			//Check box to right
 			if(setBoxes.contains(hashString(pMoveToRow,pMoveToCol+1))){
+				
 				//Check box UP Right
 				if(setBoxes.contains(hashString(pMoveToRow+1,pMoveToCol+1))){
 					
@@ -602,10 +631,13 @@ public class DeadLocks {
 		}
 		//Check wall below
 		if(Board.isWall(pMoveToRow-1, pMoveToCol)){
+			
 			//Check box to left
 			if(setBoxes.contains(hashString(pMoveToRow,pMoveToCol-1))){
+				
 				//Check box Down Left
 				if(setBoxes.contains(hashString(pMoveToRow-1,pMoveToCol-1))){
+					
 					//If all boxes on goal it is not a deadlock
 					if(!Board.isGoal(pMoveToRow, pMoveToCol) &! 
 							Board.isGoal(pMoveToRow, pMoveToCol-1) &! // L
@@ -625,8 +657,10 @@ public class DeadLocks {
 			}
 			//Check box to right
 			if(setBoxes.contains(hashString(pMoveToRow,pMoveToCol+1))){
+				
 				//Check box Down Right
 				if(setBoxes.contains(hashString(pMoveToRow-1,pMoveToCol+1))){
+					
 					//If all boxes on goal it is not a deadlock
 					if(!Board.isGoal(pMoveToRow, pMoveToCol) &! 
 							Board.isGoal(pMoveToRow, pMoveToCol+1) &! // R
@@ -647,10 +681,13 @@ public class DeadLocks {
 		}
 		//Check wall to right
 		if(Board.isWall(pMoveToRow, pMoveToCol+1)){
+			
 			//Check if box above 
 			if(setBoxes.contains(hashString(pMoveToRow+1,pMoveToCol))){
+				
 				//Check box Up Right
 				if(setBoxes.contains(hashString(pMoveToRow+1,pMoveToCol+1))){
+					
 					//If all boxes on goal it is not a deadlock
 					if(!Board.isGoal(pMoveToRow, pMoveToCol) &! 
 							Board.isGoal(pMoveToRow+1, pMoveToCol) &! // U
@@ -670,8 +707,10 @@ public class DeadLocks {
 			}
 			//Check box below
 			if(setBoxes.contains(hashString(pMoveToRow-1,pMoveToCol))){
+				
 				//Check box Down Right
 				if(setBoxes.contains(hashString(pMoveToRow-1,pMoveToCol+1))){
+					
 					//If all boxes on goal it is not a deadlock
 					if(!Board.isGoal(pMoveToRow, pMoveToCol) &! 
 							Board.isGoal(pMoveToRow-1, pMoveToCol) &! // D
@@ -693,10 +732,13 @@ public class DeadLocks {
 
 		//Check wall to left
 		if(Board.isWall(pMoveToRow, pMoveToCol-1)){
+			
 			//Check if box above 
 			if(setBoxes.contains(hashString(pMoveToRow+1,pMoveToCol))){
+				
 				//Check box Up left
 				if(setBoxes.contains(hashString(pMoveToRow+1,pMoveToCol-1))){
+					
 					//If all boxes on goal it is not a deadlock
 					if(!Board.isGoal(pMoveToRow, pMoveToCol) &! 
 							Board.isGoal(pMoveToRow+1, pMoveToCol) &! // U
@@ -716,8 +758,10 @@ public class DeadLocks {
 			}
 			//Check box below
 			if(setBoxes.contains(hashString(pMoveToRow-1,pMoveToCol))){
+				
 				//Check box Down left
 				if(setBoxes.contains(hashString(pMoveToRow-1,pMoveToCol-1))){
+					
 					//If all boxes on goal it is not a deadlock
 					if(!Board.isGoal(pMoveToRow, pMoveToCol) &! 
 							Board.isGoal(pMoveToRow-1, pMoveToCol) &! // D
