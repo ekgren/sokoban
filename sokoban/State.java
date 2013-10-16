@@ -446,12 +446,12 @@ public class State implements Cloneable {
 				//Visualizer.printState(this, "testing deadLocks");
 			}
 		}*/
-		/*
+		
 		if(Board.isFree(this, lMoveToRow, lMoveToCol)){
 			if(DeadLocks.checkDeadLocks(this,pBox, lMoveToRow, lMoveToCol, pDir,true)){
 				Visualizer.printState(this, "testing deadLocks");
 			}
-		}*/
+		}
 
 
 		if (isFree(lMoveToRow, lMoveToCol) &&

@@ -44,8 +44,10 @@ public class DeadLocks {
 			if(pBox.getRow() != box.getRow() && pBox.getCol() != box.getCol()){
 				//Do not check deadlocks with the box we are moving
 				
-				if(!box.isOnGoal() &! Board.isGoal(pMoveToRow, pMoveToCol)){
-					//If both boxes are on goal it is not a deadlock
+				if(box.isOnGoal() && Board.isGoal(pMoveToRow, pMoveToCol)){
+					//If both boxes are on goal it is not this type of deadlock
+				}
+				else{
 					
 					if(box.getCol() == pMoveToCol){
 						//Column must be same for this type of deadLock
@@ -147,7 +149,7 @@ public class DeadLocks {
 								Board.isWall(pMoveToRow-1,pMoveToCol)){
 							//Check if wall is above or below							
 
-							if(box.getCol() + 1 == pMoveToCol || box.getCol() -1 == pMoveToCol){
+							if((box.getCol()+1) == pMoveToCol || (box.getCol()-1) == pMoveToCol){
 								//Check if box is to the left or to the right	
 
 								if(Board.isWall(box.getRow()+1,box.getCol()) || 
@@ -823,6 +825,7 @@ public class DeadLocks {
 				}
 			}
 		}
+		setBoxes.clear();
 		return false;
 		//No deadlocks
 	}
