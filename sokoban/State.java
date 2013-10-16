@@ -438,7 +438,8 @@ public class State implements Cloneable {
 		 * All of the below must be valid, add check deadlock later!
 		 */
 
-		/*if(Board.isFree(this, lMoveToRow, lMoveToCol)&&
+		/*
+		if(Board.isFree(this, lMoveToRow, lMoveToCol)&&
 				!Board.isDeadLockT0(lMoveToRow, lMoveToCol) &&
 				Solver.isPathToPath(this, playerRow, playerCol, lPlayerRow, lPlayerCol)){
 			
@@ -446,15 +447,15 @@ public class State implements Cloneable {
 				//Visualizer.printState(this, "testing deadLocks");
 			}
 		}*/
-		
+		/*
 		if(Board.isFree(this, lMoveToRow, lMoveToCol)){
 			if(DeadLocks.checkDeadLocks(this,pBox, lMoveToRow, lMoveToCol, pDir,true)){
 				Visualizer.printState(this, "testing deadLocks");
 			}
-		}
+		}*/
 
 
-		if (isFree(lMoveToRow, lMoveToCol) &&
+		if(isFree(lMoveToRow, lMoveToCol) &&
 				!Board.isDeadLockT0(lMoveToRow, lMoveToCol) &&
 				Solver.isPathToPath(this, playerRow, playerCol, lPlayerRow, lPlayerCol)) {
             // Append time

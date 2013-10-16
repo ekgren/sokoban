@@ -7,7 +7,7 @@ import java.io.IOException;
 
 public class MapReader {
 	
-	private String filePath = "./sokoban/res/mapTestDeadLocksV2.slc";
+	private String filePath = "./sokoban/res/all.slc";
 	private int mapNo;
 	private int mapCount = 0;
 	private boolean thisMap = false;
